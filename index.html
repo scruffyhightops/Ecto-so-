@@ -145,6 +145,55 @@ main{
   padding:calc(12px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left));
 }
 .modal-box{max-height:92dvh;overflow:auto;-webkit-overflow-scrolling:touch;}
+
+/* iOS / iPadOS modal viewport fix // v0.2.6 */
+@supports (-webkit-touch-callout:none){
+  @media(max-width:700px){
+    .modal-overlay{
+      align-items:flex-start;
+      justify-content:flex-start;
+      overflow:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      padding-top:max(8px, env(safe-area-inset-top));
+      padding-bottom:max(8px, env(safe-area-inset-bottom));
+    }
+    .modal-box{
+      width:100%;
+      max-width:none;
+      max-height:calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 16px);
+      min-height:0;
+      display:flex;
+      flex-direction:column;
+      overflow:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      box-sizing:border-box;
+    }
+    .modal-header{
+      position:sticky;
+      top:0;
+      z-index:5;
+      flex:0 0 auto;
+      background:#030c03;
+      padding-top:4px;
+    }
+    .modal-close-btn{
+      position:relative;
+      z-index:6;
+      flex:0 0 auto;
+    }
+    .action-modal-box{
+      max-height:calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 16px);
+    }
+    .action-grid{
+      min-height:0;
+    }
+    .action-history{
+      max-height:130px;
+    }
+  }
+}
 .member-row{min-height:48px;padding:6px 2px;}
 .member-row button{min-height:40px;}
 .add-member-form{align-items:stretch;}
@@ -2825,9 +2874,10 @@ window.addEventListener("load",post);
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&app.classList.contains('ecto-focus-mode')){app.classList.remove('ecto-focus-mode');document.body.classList.remove('ecto-focus-active');sync();}}); sync();
 })();
 
-/* ===== ECTO OS AUDIO // v0.2.5 FRESH-NATIVE IOS AUDIO ENGINE ===== */
+/* ===== ECTO OS AUDIO // v0.2.6 PERSISTENT NATIVE IOS AUDIO ===== */
 (function(){
   const audioState=document.getElementById('audioState');
+  const nativeAudio=document.getElementById('nativeAudioTest');
   const sounds={
     'button':'./sounds/button.mp3',
     'pke-scan':'./sounds/pke-scan.mp3',
@@ -2838,55 +2888,23 @@ window.addEventListener("load",post);
     'trap-deploy':'./sounds/trap-deploy.mp3',
     'radio-chirp':'./sounds/radio-chirp.mp3'
   };
+  const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||
+    (navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
   let currentAudio=null;
 
-  function play(name){
+  function playIOS(name){
     const src=sounds[name];
-    if(!src){ if(audioState) audioState.textContent='NO SOUND'; return false; }
+    if(!src||!nativeAudio){ if(audioState) audioState.textContent='NO NATIVE PLAYER'; return false; }
     if(audioState) audioState.textContent='PLAYING '+name.toUpperCase();
-
     try{
-      if(currentAudio){
-        try{currentAudio.pause();}catch(e){}
-        try{currentAudio.remove();}catch(e){}
-      }
-
-      // IMPORTANT: create the native media element inside the user interaction.
-      // Do not preload/load audio during page startup.
-      const a=document.createElement('audio');
-      a.src=src;
-      a.preload='auto';
-      a.setAttribute('playsinline','');
-      a.playsInline=true;
-      a.volume=1;
-      a.setAttribute('aria-hidden','true');
-      a.style.position='fixed';
-      a.style.width='1px';
-      a.style.height='1px';
-      a.style.opacity='0';
-      a.style.pointerEvents='none';
-      a.style.left='-20px';
-      a.style.top='-20px';
-      document.body.appendChild(a);
-      currentAudio=a;
-
-      a.addEventListener('error',()=>{
-        if(audioState) audioState.textContent='MEDIA ERROR';
-      },{once:true});
-      a.addEventListener('ended',()=>{
-        if(currentAudio===a) currentAudio=null;
-        try{a.remove();}catch(e){}
-        if(audioState) audioState.textContent='ACTIVE';
-      },{once:true});
-
-      // Keep play() in the same synchronous user-gesture call stack.
-      const promise=a.play();
+      nativeAudio.pause();
+      nativeAudio.src=src;
+      nativeAudio.currentTime=0;
+      nativeAudio.load();
+      const promise=nativeAudio.play();
       if(promise&&typeof promise.then==='function'){
-        promise.then(()=>{
-          if(audioState) audioState.textContent='ACTIVE';
-        }).catch(()=>{
-          if(audioState) audioState.textContent='PLAYBACK ERROR';
-        });
+        promise.then(()=>{if(audioState) audioState.textContent='ACTIVE';})
+          .catch(()=>{if(audioState) audioState.textContent='PLAYBACK ERROR';});
       }
       return true;
     }catch(e){
@@ -2895,6 +2913,31 @@ window.addEventListener("load",post);
     }
   }
 
+  function playOther(name){
+    const src=sounds[name];
+    if(!src){ if(audioState) audioState.textContent='NO SOUND'; return false; }
+    if(audioState) audioState.textContent='PLAYING '+name.toUpperCase();
+    try{
+      if(currentAudio){ try{currentAudio.pause();}catch(e){} try{currentAudio.remove();}catch(e){} }
+      const a=document.createElement('audio');
+      a.src=src; a.preload='auto'; a.setAttribute('playsinline',''); a.playsInline=true; a.volume=1;
+      a.setAttribute('aria-hidden','true');
+      a.style.position='fixed'; a.style.width='1px'; a.style.height='1px'; a.style.opacity='0';
+      a.style.pointerEvents='none'; a.style.left='-20px'; a.style.top='-20px';
+      document.body.appendChild(a); currentAudio=a;
+      a.addEventListener('error',()=>{if(audioState) audioState.textContent='MEDIA ERROR';},{once:true});
+      a.addEventListener('ended',()=>{if(currentAudio===a) currentAudio=null;try{a.remove();}catch(e){}if(audioState) audioState.textContent='ACTIVE';},{once:true});
+      const promise=a.play();
+      if(promise&&typeof promise.then==='function') promise.then(()=>{if(audioState) audioState.textContent='ACTIVE';}).catch(()=>{if(audioState) audioState.textContent='PLAYBACK ERROR';});
+      return true;
+    }catch(e){ if(audioState) audioState.textContent='PLAYBACK ERROR'; return false; }
+  }
+
+  function play(name){ return isIOS ? playIOS(name) : playOther(name); }
+  if(nativeAudio){
+    nativeAudio.addEventListener('ended',()=>{if(audioState) audioState.textContent='ACTIVE';});
+    nativeAudio.addEventListener('error',()=>{if(audioState) audioState.textContent='MEDIA ERROR';});
+  }
   window.ectoPlaySound=play;
   if(audioState) audioState.textContent='ACTIVE';
 })();
