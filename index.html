@@ -372,7 +372,8 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
 .native-sound-row{display:grid;grid-template-columns:145px minmax(0,1fr);gap:8px;align-items:center;margin:6px 0;padding:4px 0;border-bottom:1px solid var(--ui-grid)}
 .native-sound-row>span{font-size:10px;letter-spacing:1px;color:var(--ui-accent)}
 .native-sound-row audio{width:100%;height:38px;display:block}
-@media(max-width:600px){.native-sound-row{grid-template-columns:1fr}.native-sound-row audio{max-width:100%}}.native-audio-test audio{width:100%;max-width:520px;height:38px;display:block;accent-color:currentColor}</style><link rel="manifest" href="./manifest.json">
+@media(max-width:600px){.native-sound-row{grid-template-columns:1fr}.native-sound-row audio{max-width:100%}}.native-audio-test audio{width:100%;max-width:520px;height:38px;display:block;accent-color:currentColor}
+.native-action-audio{margin-top:8px;padding:7px;border:1px dotted var(--ui-grid);background:var(--ui-deep)}.native-action-audio .native-audio-label{font-size:9px;letter-spacing:1px;color:var(--ui-dim);margin-bottom:4px}.native-action-audio audio{width:100%;height:34px;display:block;accent-color:currentColor}</style><link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#73ff80">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -464,7 +465,7 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
       <canvas class="field-canvas" id="pkeCanvas"></canvas>
       <div class="metric"><span>PSYCHOKINETIC LOAD</span><b id="pkeLoad">NOMINAL</b></div>
       <div class="metric"><span>HARMONIC</span><b id="pkeFreq">420 Hz</b></div>
-      <button id="pkeScan">EXECUTE SPECTRUM SCAN</button>
+      <button id="pkeScan">EXECUTE SPECTRUM SCAN</button><div class="native-action-audio"><div class="native-audio-label">PKE SCAN AUDIO</div><audio controls preload="metadata" playsinline src="./sounds/pke-scan.mp3"></audio></div>
     </div>
 
     <!-- ELECTROMAGNETIC ANALYSIS PANEL -->
@@ -473,7 +474,7 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
       <canvas class="field-canvas" id="ectoCanvas"></canvas>
       <div class="metric"><span>INDUCTION RATE</span><b>14.2 Tesla/s</b></div>
       <div class="metric"><span>PACK CORE TEMP</span><b id="ectoTemp">88.4 °C</b></div>
-      <button id="ectoScan">EXECUTE ELECTROMAGNETIC SCAN</button>
+      <button id="ectoScan">EXECUTE ELECTROMAGNETIC SCAN</button><div class="native-action-audio"><div class="native-audio-label">ELECTROMAGNETIC SCAN AUDIO</div><audio controls preload="metadata" playsinline src="./sounds/radio-chirp.mp3"></audio></div>
     </div>
 
   </div>
@@ -494,6 +495,7 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
       <div class="button-row" style="margin-top:10px;">
         <button id="packDisconnectBtn" type="button">CONNECT PACK</button>
         <button id="runPackScan" type="button" disabled>DEEP SCAN</button>
+      <div class="native-action-audio"><div class="native-audio-label">PROTON PACK AUDIO</div><audio controls preload="metadata" playsinline src="./sounds/pack-connect.mp3"></audio></div>
       </div>
       <div id="packSafetyNotice" style="margin-top:8px; font-size:11px; color:var(--ui-dim); text-align:center; padding:4px; border:1px dotted var(--ui-grid);">
         PACK DISCONNECTED // AWAITING CONNECTION
@@ -511,6 +513,7 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
         <button id="pkeToggleBtn" type="button">CONNECT PKE</button>
         <button id="pkeDiagBtn" type="button" disabled>RUN SWEEP</button>
       </div>
+      <div class="native-action-audio"><div class="native-audio-label">PKE SWEEP AUDIO</div><audio controls preload="metadata" playsinline src="./sounds/pke-scan.mp3"></audio></div>
     </div>
 
     <!-- GHOST TRAP DIAGNOSTICS -->
@@ -524,6 +527,7 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
         <button id="trapToggleBtn" type="button">CONNECT TRAP</button>
         <button id="trapPurgeBtn" type="button" disabled>PURGE MATRIX</button>
       </div>
+      <div class="native-action-audio"><div class="native-audio-label">TRAP / CONTAINMENT AUDIO</div><audio controls preload="metadata" playsinline src="./sounds/trap-deploy.mp3"></audio></div>
     </div>
 
     <!-- HARDWARE EVENT TRACE & SAFETY LOG -->
@@ -564,8 +568,8 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
     <div class="panel-title">PARANORMAL INCIDENT LOG <span class="dim">[SIMULATION FEED]</span></div>
     <div class="logbox" id="fieldLog"></div>
     <div class="button-row">
-      <button id="sectorSweep">SWEEP SECTOR</button>
-      <button id="broadcastAlert">BROADCAST ALERT</button>
+      <button id="sectorSweep">SWEEP SECTOR</button><div class="native-action-audio"><div class="native-audio-label">SECTOR SWEEP AUDIO</div><audio controls preload="metadata" playsinline src="./sounds/radio-chirp.mp3"></audio></div>
+      <button id="broadcastAlert">BROADCAST ALERT</button><div class="native-action-audio"><div class="native-audio-label">ALERT AUDIO</div><audio controls preload="metadata" playsinline src="./sounds/warning.mp3"></audio></div>
     </div>
   </div>
   <div class="panel">
@@ -747,7 +751,7 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
     <div class="panel">
       <div class="panel-title">AUDIO SYSTEM <span class="dim">[NATIVE OUTPUT]</span></div>
       <div class="metric"><span>AUDIO OUTPUT</span><b id="audioState">NATIVE ACTIVE</b></div>
-      <div class="config-note">v0.2.9: native HTML5 audio controls are used for reliable PC / iPad / Android playback. JavaScript-triggered audio has been removed from the test system.</div>
+      <div class="config-note">v0.3.0: native HTML5 audio controls are used for reliable PC / iPad / Android playback. JavaScript-triggered audio has been removed from the test system.</div>
       <div class="native-audio-test">
         <div class="panel-title" style="margin-top:8px;">SOUND BANK <span class="dim">[NATIVE HTML5]</span></div>
         <div class="native-sound-row"><span>BUTTON</span><audio controls preload="metadata" playsinline src="./sounds/button.mp3"></audio></div>
