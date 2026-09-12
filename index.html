@@ -365,7 +365,7 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
 #app.ecto-focus-mode #layout{height:100%;min-height:0;display:block;}
 #app.ecto-focus-mode main{width:100%;height:100%;min-height:0;overflow-y:auto;padding:14px;}
 #app.ecto-focus-mode::after{content:'ECTO OS // FOCUS';position:fixed;right:10px;top:8px;z-index:10002;padding:4px 7px;border:1px solid var(--ui-accent);font:10px var(--mono);color:var(--ui-accent);background:rgba(2,6,2,.92);pointer-events:none;}
-.sound-test-row{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;}
+.sound-test-row{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;}.native-button-audio-test{margin-top:0}.native-button-audio-test>button{width:100%;}.native-button-audio-test>audio{display:block;width:100%;height:38px;margin-top:6px;accent-color:currentColor;}
 @media(max-width:900px){#app.ecto-focus-mode main{padding:10px 10px calc(10px + env(safe-area-inset-bottom));}}
 </style><link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#73ff80">
@@ -487,7 +487,10 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
       <div class="metric"><span>POWER CELL VOLTAGE</span><b id="packVoltVal">118.4 V</b></div>
       <div class="metric"><span>IONIZATION BLEED</span><b id="packIonVal">NOMINAL</b></div>
       <div class="button-row" style="margin-top:10px;">
-        <button id="packDisconnectBtn" type="button">CONNECT PACK</button>
+        <div class="native-button-audio-test" id="packConnectAudioWrap">
+          <button id="packDisconnectBtn" type="button">CONNECT PACK</button>
+          <audio id="packConnectAudio" controls playsinline preload="auto" src="./sounds/pack-connect.mp3" aria-label="CONNECT PACK sound"></audio>
+        </div>
         <button id="runPackScan" type="button" disabled>DEEP SCAN</button>
       </div>
       <div id="packSafetyNotice" style="margin-top:8px; font-size:11px; color:var(--ui-dim); text-align:center; padding:4px; border:1px dotted var(--ui-grid);">
@@ -2929,112 +2932,36 @@ window.addEventListener("load",post);
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&app.classList.contains('ecto-focus-mode')){app.classList.remove('ecto-focus-mode');document.body.classList.remove('ecto-focus-active');sync();}}); sync();
 })();
 
-/* ===== ECTO OS AUDIO // v0.3.1 INTEGRATED BUTTON SOUND ===== */
+/* ===== ECTO OS AUDIO // v0.3.2 NATIVE BUTTON PROOF ===== */
 (function(){
   const audioState=document.getElementById('audioState');
   const audioModeState=document.getElementById('audioModeState');
-  if(audioState) audioState.textContent='INTEGRATED ACTIVE';
+  if(audioState) audioState.textContent='NATIVE BUTTON TEST';
+  if(audioModeState) audioModeState.textContent='CONNECT PACK // NATIVE MEDIA';
 
-  /*
-   * iOS-safe strategy: keep muted native media channels autoplaying in the page,
-   * then unmute/reset the selected channel inside the real user button gesture.
-   * The UI remains ordinary ECTO buttons; no audio controls are exposed.
-   */
-  const sounds={
-    button:'./sounds/button.mp3',
-    pke:'./sounds/pke-scan.mp3',
-    warning:'./sounds/warning.mp3',
-    radio:'./sounds/radio-chirp.mp3',
-    connect:'./sounds/pack-connect.mp3',
-    disconnect:'./sounds/pack-disconnect.mp3',
-    trap:'./sounds/trap-deploy.mp3',
-    contain:'./sounds/containment-alert.mp3'
-  };
-  const channels={};
-  Object.entries(sounds).forEach(([name,src])=>{
-    const a=document.createElement('audio');
-    a.src=src; a.preload='auto'; a.autoplay=true; a.loop=true; a.muted=true; a.playsInline=true;
-    a.setAttribute('playsinline',''); a.setAttribute('webkit-playsinline','');
-    a.style.position='fixed'; a.style.width='1px'; a.style.height='1px'; a.style.opacity='0'; a.style.pointerEvents='none'; a.style.left='-10px'; a.style.top='-10px';
-    document.body.appendChild(a);
-    channels[name]=a;
-    const begin=()=>{a.muted=true; a.play().catch(()=>{});};
-    if(a.readyState>=2) begin(); else a.addEventListener('canplay',begin,{once:true});
+  // Only CONNECT PACK is changed for this proof. The Diagnosis area is untouched.
+  const audio=document.getElementById('packConnectAudio');
+  const btn=document.getElementById('packDisconnectBtn');
+  if(!audio || !btn) return;
+
+  audio.addEventListener('play',()=>{
+    // Native media playback has been initiated by the user's direct interaction.
+    // Now run the same CONNECT PACK operation.
+    if(!packConnected){
+      packConnected=true;
+      packState='ONLINE';
+      packLinkState.textContent='ONLINE [CONNECTED]';
+      packLinkState.style.color='var(--ui-accent)';
+      packCycVal.textContent='3,840 RPM';
+      packVoltVal.textContent='118.4 V';
+      packIonVal.textContent='NOMINAL';
+      btn.textContent='DISCONNECT PACK';
+      packSafetyNotice.textContent='SYSTEM ENERGISED // READY';
+      if(runPackScan) runPackScan.removeAttribute('disabled');
+      packSafetyNotice.style.color='var(--ui-dim)';
+      diagLog('Proton pack re-linked to telemetry bus.','info');
+    }
   });
-
-  function playSound(name){
-    const a=channels[name]||channels.button;
-    if(!a) return;
-    try{
-      a.currentTime=0;
-      a.muted=false;
-      a.volume=1;
-      const result=a.play();
-      if(result && typeof result.catch==='function') result.catch(()=>{});
-      setTimeout(()=>{
-        try{a.pause();a.muted=true;a.currentTime=0;a.play().catch(()=>{});}catch(_){}
-      },Math.max(900,(Number.isFinite(a.duration)&&a.duration>0?a.duration*1000:1800)+250));
-    }catch(_){}
-  }
-
-  window.ectoPlaySound=playSound;
-
-  // Existing named controls. Text and labels are deliberately untouched.
-  const direct={
-    pkeScan:'pke', ectoScan:'pke', stress:'warning', cal:'button',
-    packDisconnectBtn:'connect', runPackScan:'pke',
-    pkeToggleBtn:'connect', pkeDiagBtn:'pke',
-    trapToggleBtn:'trap', trapPurgeBtn:'contain',
-    sectorSweep:'radio', broadcastAlert:'warning',
-    scanSpectresBtn:'pke', runDeploymentDiag:'radio',
-    openRosterModalBtn:'button', sectorActionBtn:'radio',
-    confirmSectorActionBtn:'button', cancelSectorActionBtn:'button',
-    printIncidentReportBtn:'button', closeSectorActionBtn:'button',
-    fullscreenBtn:'button', applyRgbBtn:'button',
-    addLocationBtn:'button', addSiteBtn:'button',
-    printLastReportBtn:'button', printStoredIncidentBtn:'button',
-    exportIncidentDbBtn:'button', importIncidentDbBtn:'button',
-    exportConfigBtn:'button', importConfigBtn:'button',
-    addMemberBtn:'button', roleCycleBtn:'button', deleteActiveTeamBtn:'warning',
-    scanSpectresBtn:'pke'
-  };
-  Object.entries(direct).forEach(([id,sound])=>{
-    const el=document.getElementById(id);
-    if(!el) return;
-    el.addEventListener('click',()=>playSound(sound),true);
-  });
-
-  // Dynamic threat-response protocol buttons. Diagnosis controls are not touched.
-  const actionBox=document.getElementById('sectorActionOptions');
-  if(actionBox){
-    actionBox.addEventListener('click',e=>{
-      const b=e.target.closest && e.target.closest('button');
-      if(!b) return;
-      const label=(b.textContent||'').toUpperCase();
-      if(label.includes('DEPLOY TRAP')) playSound('trap');
-      else if(label.includes('PKE SCAN')) playSound('pke');
-      else if(label.includes('CIVILIAN')||label.includes('QUARANTINE')) playSound('warning');
-      else if(label.includes('CONTAIN')) playSound('contain');
-      else if(label.includes('DISPATCH')||label.includes('RECON')) playSound('radio');
-      else playSound('button');
-    },true);
-  }
-
-  // Hardware state changes use the correct connect/disconnect sound without renaming controls.
-  const pack=document.getElementById('packDisconnectBtn');
-  if(pack) pack.addEventListener('click',()=>{
-    setTimeout(()=>playSound((pack.textContent||'').includes('DISCONNECT')?'connect':'disconnect'),0);
-  },false);
-  const pke=document.getElementById('pkeToggleBtn');
-  if(pke) pke.addEventListener('click',()=>{
-    setTimeout(()=>playSound((pke.textContent||'').includes('DISCONNECT')?'connect':'disconnect'),0);
-  },false);
-  const trap=document.getElementById('trapToggleBtn');
-  if(trap) trap.addEventListener('click',()=>{
-    setTimeout(()=>playSound((trap.textContent||'').includes('DISCONNECT')?'connect':'disconnect'),0);
-  },false);
-
-  if(audioModeState) audioModeState.textContent='INTEGRATED // BUTTON LINKED';
 })();
 </script>
 <script>

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ecto-os-v0-3-1';
+const CACHE_NAME = 'ecto-os-v0-3-2';
 const APP_SHELL = [
   './','./index.html','./manifest.json',
   './icons/icon-192.png','./icons/icon-512.png','./icons/maskable-512.png',
