@@ -2833,7 +2833,7 @@ window.addEventListener("load",post);
 (function(){
   const soundToggle=document.getElementById('soundToggle'),audioState=document.getElementById('audioState'); if(!soundToggle)return;
   let audioOn=ectoSettings.audioOn!==false;
-  const sounds={'button':'./sounds/button.wav','pke-scan':'./sounds/pke-scan.wav','warning':'./sounds/warning.wav','containment-alert':'./sounds/containment-alert.wav','pack-connect':'./sounds/pack-connect.wav','pack-disconnect':'./sounds/pack-disconnect.wav','trap-deploy':'./sounds/trap-deploy.wav','radio-chirp':'./sounds/radio-chirp.wav'};
+  const sounds={'button':'./sounds/button.mp3','pke-scan':'./sounds/pke-scan.mp3','warning':'./sounds/warning.mp3','containment-alert':'./sounds/containment-alert.mp3','pack-connect':'./sounds/pack-connect.mp3','pack-disconnect':'./sounds/pack-disconnect.mp3','trap-deploy':'./sounds/trap-deploy.mp3','radio-chirp':'./sounds/radio-chirp.mp3'};
   const DB='ecto-os-custom-sounds-v1',customCache={};
   function updateUi(){soundToggle.textContent='AUDIO: '+(audioOn?'ON':'OFF');soundToggle.classList.toggle('off',!audioOn);soundToggle.setAttribute('aria-pressed',String(audioOn));if(audioState)audioState.textContent=audioOn?'ENABLED':'MUTED';}
   function openDb(){return new Promise(resolve=>{if(!indexedDB)return resolve(null);const r=indexedDB.open(DB,1);r.onupgradeneeded=()=>{try{r.result.createObjectStore('sounds')}catch(e){}};r.onsuccess=()=>resolve(r.result);r.onerror=()=>resolve(null);});}
