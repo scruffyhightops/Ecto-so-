@@ -1,9 +1,9 @@
-const CACHE_NAME = 'ecto-os-v0-2-0';
+const CACHE_NAME = 'ecto-os-v0-2-1';
 const APP_SHELL = [
   './','./index.html','./manifest.json',
   './icons/icon-192.png','./icons/icon-512.png','./icons/maskable-512.png',
-  './sounds/button.wav','./sounds/pke-scan.wav','./sounds/warning.wav','./sounds/containment-alert.wav',
-  './sounds/pack-connect.wav','./sounds/pack-disconnect.wav','./sounds/trap-deploy.wav','./sounds/radio-chirp.wav'
+  './sounds/button.mp3','./sounds/pke-scan.mp3','./sounds/warning.mp3','./sounds/containment-alert.mp3',
+  './sounds/pack-connect.mp3','./sounds/pack-disconnect.mp3','./sounds/trap-deploy.mp3','./sounds/radio-chirp.mp3'
 ];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(APP_SHELL)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE_NAME).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
