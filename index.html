@@ -365,7 +365,7 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
 #app.ecto-focus-mode #layout{height:100%;min-height:0;display:block;}
 #app.ecto-focus-mode main{width:100%;height:100%;min-height:0;overflow-y:auto;padding:14px;}
 #app.ecto-focus-mode::after{content:'ECTO OS // FOCUS';position:fixed;right:10px;top:8px;z-index:10002;padding:4px 7px;border:1px solid var(--ui-accent);font:10px var(--mono);color:var(--ui-accent);background:rgba(2,6,2,.92);pointer-events:none;}
-.sound-test-row{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;}.native-button-audio-test{position:relative;flex:1 1 0;min-width:0;}.native-button-audio-test>button{width:100%;}.native-button-audio-test>audio{position:absolute;inset:0;width:100%;height:100%;opacity:0;z-index:5;cursor:pointer;display:block;}.native-button-audio-test>button{pointer-events:none;}
+.sound-test-row{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;}.native-button-audio-test{margin-top:0}.native-button-audio-test>button{width:100%;}.native-button-audio-test>audio{display:block;width:100%;height:38px;margin-top:6px;accent-color:currentColor;}
 @media(max-width:900px){#app.ecto-focus-mode main{padding:10px 10px calc(10px + env(safe-area-inset-bottom));}}
 </style><link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#73ff80">
@@ -459,7 +459,7 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
       <canvas class="field-canvas" id="pkeCanvas"></canvas>
       <div class="metric"><span>PSYCHOKINETIC LOAD</span><b id="pkeLoad">NOMINAL</b></div>
       <div class="metric"><span>HARMONIC</span><b id="pkeFreq">420 Hz</b></div>
-      <div class="native-button-audio-test ecto-audio-wrap"><button id="pkeScan">EXECUTE SPECTRUM SCAN</button><audio class="ecto-native-audio" controls playsinline preload="auto" src="./sounds/pke-scan.mp3" aria-hidden="true" tabindex="-1"></audio></div>
+      <button id="pkeScan">EXECUTE SPECTRUM SCAN</button>
     </div>
 
     <!-- ELECTROMAGNETIC ANALYSIS PANEL -->
@@ -468,7 +468,7 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
       <canvas class="field-canvas" id="ectoCanvas"></canvas>
       <div class="metric"><span>INDUCTION RATE</span><b>14.2 Tesla/s</b></div>
       <div class="metric"><span>PACK CORE TEMP</span><b id="ectoTemp">88.4 °C</b></div>
-      <div class="native-button-audio-test ecto-audio-wrap"><button id="ectoScan">EXECUTE ELECTROMAGNETIC SCAN</button><audio class="ecto-native-audio" controls playsinline preload="auto" src="./sounds/pke-scan.mp3" aria-hidden="true" tabindex="-1"></audio></div>
+      <button id="ectoScan">EXECUTE ELECTROMAGNETIC SCAN</button>
     </div>
 
   </div>
@@ -487,7 +487,10 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
       <div class="metric"><span>POWER CELL VOLTAGE</span><b id="packVoltVal">118.4 V</b></div>
       <div class="metric"><span>IONIZATION BLEED</span><b id="packIonVal">NOMINAL</b></div>
       <div class="button-row" style="margin-top:10px;">
-        <button id="packDisconnectBtn" type="button">CONNECT PACK</button>
+        <div class="native-button-audio-test" id="packConnectAudioWrap">
+          <button id="packDisconnectBtn" type="button">CONNECT PACK</button>
+          <audio id="packConnectAudio" controls playsinline preload="auto" src="./sounds/pack-connect.mp3" aria-label="CONNECT PACK sound"></audio>
+        </div>
         <button id="runPackScan" type="button" disabled>DEEP SCAN</button>
       </div>
       <div id="packSafetyNotice" style="margin-top:8px; font-size:11px; color:var(--ui-dim); text-align:center; padding:4px; border:1px dotted var(--ui-grid);">
@@ -546,7 +549,7 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
       </div>
 
       <div class="button-row" style="margin-top:10px;">
-        <div class="native-button-audio-test ecto-audio-wrap"><button id="scanSpectresBtn">SCAN SPECTRAL DATABASE</button><audio class="ecto-native-audio" controls playsinline preload="auto" src="./sounds/pke-scan.mp3" aria-hidden="true" tabindex="-1"></audio></div>
+        <button id="scanSpectresBtn">SCAN SPECTRAL DATABASE</button>
       </div>
     </div>
   </div>
@@ -559,8 +562,8 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
     <div class="panel-title">PARANORMAL INCIDENT LOG <span class="dim">[SIMULATION FEED]</span></div>
     <div class="logbox" id="fieldLog"></div>
     <div class="button-row">
-      <div class="native-button-audio-test ecto-audio-wrap"><button id="sectorSweep">SWEEP SECTOR</button><audio class="ecto-native-audio" controls playsinline preload="auto" src="./sounds/radio-chirp.mp3" aria-hidden="true" tabindex="-1"></audio></div>
-      <div class="native-button-audio-test ecto-audio-wrap"><button id="broadcastAlert">BROADCAST ALERT</button><audio class="ecto-native-audio" controls playsinline preload="auto" src="./sounds/warning.mp3" aria-hidden="true" tabindex="-1"></audio></div>
+      <button id="sectorSweep">SWEEP SECTOR</button>
+      <button id="broadcastAlert">BROADCAST ALERT</button>
     </div>
   </div>
   <div class="panel">
@@ -2929,27 +2932,35 @@ window.addEventListener("load",post);
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&app.classList.contains('ecto-focus-mode')){app.classList.remove('ecto-focus-mode');document.body.classList.remove('ecto-focus-active');sync();}}); sync();
 })();
 
-/* ===== ECTO OS AUDIO // v0.3.3 INTEGRATED NATIVE BUTTON AUDIO ===== */
+/* ===== ECTO OS AUDIO // v0.3.2 NATIVE BUTTON PROOF ===== */
 (function(){
   const audioState=document.getElementById('audioState');
   const audioModeState=document.getElementById('audioModeState');
-  if(audioState) audioState.textContent='NATIVE BUTTON AUDIO';
-  if(audioModeState) audioModeState.textContent='INTEGRATED // OPERATIONAL CONTROLS';
+  if(audioState) audioState.textContent='NATIVE BUTTON TEST';
+  if(audioModeState) audioModeState.textContent='CONNECT PACK // NATIVE MEDIA';
 
-  // The visible ECTO button remains the design surface. A transparent native HTML5
-  // audio control sits over selected buttons so the browser treats the tap/click as
-  // direct media interaction. When playback begins, the existing button handler runs.
-  document.querySelectorAll('.ecto-audio-wrap').forEach(wrap=>{
-    const audio=wrap.querySelector('.ecto-native-audio');
-    const btn=wrap.querySelector('button');
-    if(!audio || !btn) return;
-    audio.addEventListener('play',()=>{
-      if(btn.disabled) return;
-      btn.click();
-    });
-    audio.addEventListener('ended',()=>{
-      try{ audio.currentTime=0; }catch(e){}
-    });
+  // Only CONNECT PACK is changed for this proof. The Diagnosis area is untouched.
+  const audio=document.getElementById('packConnectAudio');
+  const btn=document.getElementById('packDisconnectBtn');
+  if(!audio || !btn) return;
+
+  audio.addEventListener('play',()=>{
+    // Native media playback has been initiated by the user's direct interaction.
+    // Now run the same CONNECT PACK operation.
+    if(!packConnected){
+      packConnected=true;
+      packState='ONLINE';
+      packLinkState.textContent='ONLINE [CONNECTED]';
+      packLinkState.style.color='var(--ui-accent)';
+      packCycVal.textContent='3,840 RPM';
+      packVoltVal.textContent='118.4 V';
+      packIonVal.textContent='NOMINAL';
+      btn.textContent='DISCONNECT PACK';
+      packSafetyNotice.textContent='SYSTEM ENERGISED // READY';
+      if(runPackScan) runPackScan.removeAttribute('disabled');
+      packSafetyNotice.style.color='var(--ui-dim)';
+      diagLog('Proton pack re-linked to telemetry bus.','info');
+    }
   });
 })();
 </script>
