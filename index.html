@@ -2820,7 +2820,7 @@ window.addEventListener("load",post);
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&app.classList.contains('ecto-focus-mode')){app.classList.remove('ecto-focus-mode');document.body.classList.remove('ecto-focus-active');sync();}}); sync();
 })();
 
-/* ===== ECTO OS AUDIO // ALWAYS-ON HTML5 MEDIA ENGINE ===== */
+/* ===== ECTO OS AUDIO // v0.2.3 IOS-SAFE HTML5 MEDIA ENGINE ===== */
 (function(){
   const audioState=document.getElementById('audioState');
   const sounds={
@@ -2835,23 +2835,37 @@ window.addEventListener("load",post);
   };
   const players={};
 
-  function getPlayer(name){
-    if(!sounds[name]) return null;
-    if(!players[name]){
-      const a=new Audio(sounds[name]);
-      a.preload='auto';
-      a.playsInline=true;
-      a.volume=.24;
-      players[name]=a;
-    }
-    return players[name];
-  }
+  // Create real <audio> elements in the document during startup rather than
+  // constructing Audio objects at tap-time. This is more reliable on iPadOS/Safari.
+  Object.keys(sounds).forEach(name=>{
+    const a=document.createElement('audio');
+    a.id='ecto-audio-'+name;
+    a.src=sounds[name];
+    a.preload='auto';
+    a.setAttribute('playsinline','');
+    a.playsInline=true;
+    a.volume=.24;
+    a.setAttribute('aria-hidden','true');
+    a.style.position='fixed';
+    a.style.width='1px';
+    a.style.height='1px';
+    a.style.opacity='0';
+    a.style.pointerEvents='none';
+    a.style.left='-10px';
+    a.style.top='-10px';
+    document.body.appendChild(a);
+    players[name]=a;
+    // Ask Safari to preload each bundled sound before the user taps anything.
+    try{a.load();}catch(e){}
+  });
 
   function play(name){
-    const a=getPlayer(name);
+    const a=players[name];
     if(!a) return false;
     try{
+      a.pause();
       a.currentTime=0;
+      // play() is called synchronously from the click handler below.
       const result=a.play();
       if(result&&typeof result.catch==='function'){
         result.then(()=>{if(audioState)audioState.textContent='ACTIVE';})
@@ -2864,8 +2878,8 @@ window.addEventListener("load",post);
     }
   }
 
-  // Play directly from the user's click event. No async IndexedDB lookup,
-  // toggle state, or custom-file path is placed between the tap and play().
+  // Capture phase keeps playback attached to the original user gesture,
+  // before any button handler can interrupt it.
   document.addEventListener('click',e=>{
     const t=e.target&&e.target.closest?e.target.closest('button'):null;
     if(!t||t.disabled||t.hasAttribute('data-no-sound')) return;
