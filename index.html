@@ -639,10 +639,10 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
       <div class="panel-title">AUDIO SYSTEM <span class="dim">[HTML5 SOUND]</span></div>
       <div class="metric"><span>AUDIO OUTPUT</span><b id="audioState">ACTIVE</b></div>
       <div class="button-row sound-test-row">
-        <button type="button" data-ecto-sound="button">BUTTON TEST</button>
-        <button type="button" data-ecto-sound="pke-scan">PKE TEST</button>
-        <button type="button" data-ecto-sound="warning">WARNING TEST</button>
-        <button type="button" data-ecto-sound="radio-chirp">RADIO TEST</button>
+        <button type="button" data-ecto-sound="button" onclick="window.ectoPlaySound && window.ectoPlaySound('button')">BUTTON TEST</button>
+        <button type="button" data-ecto-sound="pke-scan" onclick="window.ectoPlaySound && window.ectoPlaySound('pke-scan')">PKE TEST</button>
+        <button type="button" data-ecto-sound="warning" onclick="window.ectoPlaySound && window.ectoPlaySound('warning')">WARNING TEST</button>
+        <button type="button" data-ecto-sound="radio-chirp" onclick="window.ectoPlaySound && window.ectoPlaySound('radio-chirp')">RADIO TEST</button>
       </div>
       <div class="config-note">Built-in ECTO sounds are always enabled. Test buttons play the bundled audio directly from the current user interaction.</div>
     </div>
@@ -2820,7 +2820,7 @@ window.addEventListener("load",post);
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&app.classList.contains('ecto-focus-mode')){app.classList.remove('ecto-focus-mode');document.body.classList.remove('ecto-focus-active');sync();}}); sync();
 })();
 
-/* ===== ECTO OS AUDIO // v0.2.3 IOS-SAFE HTML5 MEDIA ENGINE ===== */
+/* ===== ECTO OS AUDIO // v0.2.4 IOS-SAFE EXPLICIT TEST ENGINE ===== */
 (function(){
   const audioState=document.getElementById('audioState');
   const sounds={
@@ -2844,7 +2844,7 @@ window.addEventListener("load",post);
     a.preload='auto';
     a.setAttribute('playsinline','');
     a.playsInline=true;
-    a.volume=.24;
+    a.volume=1;
     a.setAttribute('aria-hidden','true');
     a.style.position='fixed';
     a.style.width='1px';
@@ -2855,13 +2855,15 @@ window.addEventListener("load",post);
     a.style.top='-10px';
     document.body.appendChild(a);
     players[name]=a;
+    a.addEventListener('error',()=>{if(audioState)audioState.textContent='MEDIA ERROR';});
     // Ask Safari to preload each bundled sound before the user taps anything.
     try{a.load();}catch(e){}
   });
 
   function play(name){
     const a=players[name];
-    if(!a) return false;
+    if(!a) { if(audioState) audioState.textContent='NO PLAYER'; return false; }
+    if(audioState) audioState.textContent='PLAYING '+name.toUpperCase();
     try{
       a.pause();
       a.currentTime=0;
