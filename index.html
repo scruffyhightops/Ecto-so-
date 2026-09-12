@@ -744,16 +744,19 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
       <div class="panel-title">AUDIO SYSTEM <span class="dim">[HTML5 SOUND]</span></div>
       <div class="metric"><span>AUDIO OUTPUT</span><b id="audioState">ACTIVE</b></div>
       <div class="button-row sound-test-row">
-        <button type="button" data-ecto-sound="button" onclick="return window.ectoPlaySound ? window.ectoPlaySound('button') : false">BUTTON TEST</button>
+        <button type="button" data-ecto-sound="button" onclick="return window.ectoPlaySound ? window.ectoPlaySound('button') : false">DIRECT PLAY TEST</button>
         <button type="button" data-ecto-sound="pke-scan" onclick="return window.ectoPlaySound ? window.ectoPlaySound('pke-scan') : false">PKE TEST</button>
         <button type="button" data-ecto-sound="warning" onclick="return window.ectoPlaySound ? window.ectoPlaySound('warning') : false">WARNING TEST</button>
         <button type="button" data-ecto-sound="radio-chirp" onclick="return window.ectoPlaySound ? window.ectoPlaySound('radio-chirp') : false">RADIO TEST</button>
       </div>
       <div class="native-audio-test">
-        <div class="panel-title" style="margin-top:8px;">NATIVE AUDIO OUTPUT <span class="dim">[IPADOS]</span></div>
-        <audio id="nativeAudioTest" controls preload="metadata" playsinline src="./sounds/button.mp3"></audio>
+        <div class="panel-title" style="margin-top:8px;">NATIVE AUDIO OUTPUT <span class="dim">[DIAGNOSTIC BASELINE]</span></div>
+        <audio id="nativeAudioTest" controls preload="auto" playsinline src="./sounds/button.mp3"></audio>
+        <div class="button-row" style="margin-top:8px;">
+          <button type="button" onclick="return window.ectoDiagnosticNative ? window.ectoDiagnosticNative() : false">JS TEST NATIVE PLAYER</button>
+        </div>
       </div>
-      <div class="config-note">Built-in ECTO sounds use the persistent native HTML5 audio player. iOS playback avoids an extra load() call during the user gesture.</div>
+      <div class="config-note">v0.2.8 AUDIO DIAGNOSTIC: compare manual native playback with JavaScript-triggered playback. No interface or operational behaviour changed.</div>
     </div>
     <div class="panel">
       <div class="panel-title">DISPLAY ERA / COLOUR PROFILE</div>
@@ -2938,7 +2941,7 @@ window.addEventListener("load",post);
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&app.classList.contains('ecto-focus-mode')){app.classList.remove('ecto-focus-mode');document.body.classList.remove('ecto-focus-active');sync();}}); sync();
 })();
 
-/* ===== ECTO OS AUDIO // v0.2.7 PERSISTENT NATIVE IOS AUDIO ===== */
+/* ===== ECTO OS AUDIO // v0.2.8 AUDIO DIAGNOSTIC ===== */
 (function(){
   const audioState=document.getElementById('audioState');
   const nativeAudio=document.getElementById('nativeAudioTest');
@@ -2956,53 +2959,66 @@ window.addEventListener("load",post);
     (navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
   let currentAudio=null;
 
-  function playIOS(name){
+  function report(text){ if(audioState) audioState.textContent=text; }
+
+  function playNative(name){
     const src=sounds[name];
-    if(!src||!nativeAudio){ if(audioState) audioState.textContent='NO NATIVE PLAYER'; return false; }
-    if(audioState) audioState.textContent='PLAYING '+name.toUpperCase();
+    if(!src||!nativeAudio){ report('NO NATIVE PLAYER'); return false; }
+    report('JS PLAY '+name.toUpperCase());
     try{
       nativeAudio.pause();
-      if(nativeAudio.getAttribute('src')!==src) nativeAudio.setAttribute('src',src);
+      if(nativeAudio.src!==new URL(src,location.href).href){ nativeAudio.src=src; }
       nativeAudio.currentTime=0;
       const promise=nativeAudio.play();
       if(promise&&typeof promise.then==='function'){
-        promise.then(()=>{if(audioState) audioState.textContent='ACTIVE';})
-          .catch(()=>{if(audioState) audioState.textContent='PLAYBACK ERROR';});
+        promise.then(()=>report('JS PLAY SUCCESS')).catch(()=>report('JS PLAY REJECTED'));
       }
       return true;
-    }catch(e){
-      if(audioState) audioState.textContent='PLAYBACK ERROR';
-      return false;
-    }
+    }catch(e){ report('JS PLAY EXCEPTION'); return false; }
   }
 
-  function playOther(name){
+  function playFresh(name){
     const src=sounds[name];
-    if(!src){ if(audioState) audioState.textContent='NO SOUND'; return false; }
-    if(audioState) audioState.textContent='PLAYING '+name.toUpperCase();
+    if(!src){report('NO SOUND');return false;}
+    report('FRESH '+name.toUpperCase());
     try{
-      if(currentAudio){ try{currentAudio.pause();}catch(e){} try{currentAudio.remove();}catch(e){} }
+      if(currentAudio){try{currentAudio.pause();}catch(e){}try{currentAudio.remove();}catch(e){}}
       const a=document.createElement('audio');
       a.src=src; a.preload='auto'; a.setAttribute('playsinline',''); a.playsInline=true; a.volume=1;
-      a.setAttribute('aria-hidden','true');
-      a.style.position='fixed'; a.style.width='1px'; a.style.height='1px'; a.style.opacity='0';
-      a.style.pointerEvents='none'; a.style.left='-20px'; a.style.top='-20px';
+      a.style.position='fixed';a.style.width='1px';a.style.height='1px';a.style.opacity='0';a.style.pointerEvents='none';a.style.left='-20px';a.style.top='-20px';
       document.body.appendChild(a); currentAudio=a;
-      a.addEventListener('error',()=>{if(audioState) audioState.textContent='MEDIA ERROR';},{once:true});
-      a.addEventListener('ended',()=>{if(currentAudio===a) currentAudio=null;try{a.remove();}catch(e){}if(audioState) audioState.textContent='ACTIVE';},{once:true});
       const promise=a.play();
-      if(promise&&typeof promise.then==='function') promise.then(()=>{if(audioState) audioState.textContent='ACTIVE';}).catch(()=>{if(audioState) audioState.textContent='PLAYBACK ERROR';});
+      if(promise&&typeof promise.then==='function') promise.then(()=>report('FRESH SUCCESS')).catch(()=>report('FRESH REJECTED'));
       return true;
-    }catch(e){ if(audioState) audioState.textContent='PLAYBACK ERROR'; return false; }
+    }catch(e){report('FRESH EXCEPTION');return false;}
   }
 
-  function play(name){ return isIOS ? playIOS(name) : playOther(name); }
+  function play(name){
+    return isIOS ? playNative(name) : playNative(name);
+  }
+
+  function diagnosticNative(){
+    if(!nativeAudio){report('NO NATIVE PLAYER');return false;}
+    report('DIAGNOSTIC JS PLAY');
+    try{
+      nativeAudio.currentTime=0;
+      const promise=nativeAudio.play();
+      if(promise&&typeof promise.then==='function') promise.then(()=>report('NATIVE JS SUCCESS')).catch(()=>report('NATIVE JS REJECTED'));
+      return true;
+    }catch(e){report('NATIVE JS EXCEPTION');return false;}
+  }
+
   if(nativeAudio){
-    nativeAudio.addEventListener('ended',()=>{if(audioState) audioState.textContent='ACTIVE';});
-    nativeAudio.addEventListener('error',()=>{if(audioState) audioState.textContent='MEDIA ERROR';});
+    nativeAudio.addEventListener('play',()=>report('NATIVE PLAYER PLAYING'));
+    nativeAudio.addEventListener('playing',()=>report('NATIVE PLAYER ACTIVE'));
+    nativeAudio.addEventListener('ended',()=>report('NATIVE PLAYER ENDED'));
+    nativeAudio.addEventListener('error',()=>report('MEDIA ERROR'));
+    nativeAudio.addEventListener('loadeddata',()=>report('NATIVE PLAYER READY'));
   }
   window.ectoPlaySound=play;
-  if(audioState) audioState.textContent='ACTIVE';
+  window.ectoDiagnosticNative=diagnosticNative;
+  window.ectoPlayFresh=playFresh;
+  if(audioState) audioState.textContent='READY';
 })();
 </script>
 <script>
