@@ -459,7 +459,10 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
       <canvas class="field-canvas" id="pkeCanvas"></canvas>
       <div class="metric"><span>PSYCHOKINETIC LOAD</span><b id="pkeLoad">NOMINAL</b></div>
       <div class="metric"><span>HARMONIC</span><b id="pkeFreq">420 Hz</b></div>
-      <button id="pkeScan">EXECUTE SPECTRUM SCAN</button>
+      <div class="native-button-audio-test" id="pkeScanAudioWrap">
+        <button id="pkeScan">EXECUTE SPECTRUM SCAN</button>
+        <audio id="pkeScanAudio" controls playsinline preload="auto" src="./sounds/pke-scan.mp3" aria-label="PKE spectrum scan sound"></audio>
+      </div>
     </div>
 
     <!-- ELECTROMAGNETIC ANALYSIS PANEL -->
@@ -2202,7 +2205,31 @@ window.addEventListener("load",post);
 
   const pkeScanBtn = $f("pkeScan");
   if(pkeScanBtn){
-    pkeScanBtn.onclick=scanPKE;
+    const pkeScanAudio = $f("pkeScanAudio");
+    let pkeScanAudioPending = false;
+    pkeScanBtn.onclick=()=>{
+      if(pkeScanAudio){
+        pkeScanAudioPending = true;
+        try { pkeScanAudio.currentTime = 0; } catch(e) {}
+        const playPromise = pkeScanAudio.play();
+        if(playPromise && typeof playPromise.then === "function"){
+          playPromise.then(()=>{
+            if(pkeScanAudioPending){
+              pkeScanAudioPending = false;
+              scanPKE();
+            }
+          }).catch(()=>{
+            pkeScanAudioPending = false;
+            scanPKE();
+          });
+        } else {
+          pkeScanAudioPending = false;
+          scanPKE();
+        }
+      } else {
+        scanPKE();
+      }
+    };
     const ectoScanBtn = $f("ectoScan");
     if(ectoScanBtn) ectoScanBtn.onclick=scanEcto;
     
@@ -2968,10 +2995,10 @@ window.addEventListener("load",post);
 (function(){
   const audioState=document.getElementById('audioState');
   const audioModeState=document.getElementById('audioModeState');
-  if(audioState) audioState.textContent='NATIVE BUTTON TEST';
-  if(audioModeState) audioModeState.textContent='CONNECT PACK // NATIVE MEDIA';
+  if(audioState) audioState.textContent='NATIVE BUTTON AUDIO';
+  if(audioModeState) audioModeState.textContent='PACK + PKE SCAN // NATIVE MEDIA';
 
-  // Only CONNECT PACK is changed for this proof. The Diagnosis area is untouched.
+  // CONNECT PACK and PKE SPECTRUM SCAN use the proven hidden native-button audio path. Diagnosis is untouched.
   const audio=document.getElementById('packConnectAudio');
   const btn=document.getElementById('packDisconnectBtn');
   if(!audio || !btn) return;
