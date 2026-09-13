@@ -2236,18 +2236,29 @@ window.addEventListener("load",post);
     const ectoScanBtn = $f("ectoScan");
     if(ectoScanBtn){
       const ectoScanAudio = $f("ectoScanAudio");
+      let ectoScanAudioPending = false;
       ectoScanBtn.onclick=()=>{
-        // Same direct native-media path as the proven PKE button.
         if(ectoScanAudio){
-          try {
-            ectoScanAudio.currentTime = 0;
-            ectoScanAudio.load();
-            const playPromise = ectoScanAudio.play();
-            if(playPromise && typeof playPromise.catch === "function") playPromise.catch(()=>{});
-          } catch(e) {}
+          ectoScanAudioPending = true;
+          try { ectoScanAudio.currentTime = 0; } catch(e) {}
+          const playPromise = ectoScanAudio.play();
+          if(playPromise && typeof playPromise.then === "function"){
+            playPromise.then(()=>{
+              if(ectoScanAudioPending){
+                ectoScanAudioPending = false;
+                scanEcto();
+              }
+            }).catch(()=>{
+              ectoScanAudioPending = false;
+              scanEcto();
+            });
+          } else {
+            ectoScanAudioPending = false;
+            scanEcto();
+          }
+        } else {
+          scanEcto();
         }
-        // Keep the operational scan independent of the audio promise.
-        scanEcto();
       };
     }
     
