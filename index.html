@@ -7,6 +7,45 @@
 body:after{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(#0000 0 3px,var(--ui-accent)08 4px);z-index:9}
 button,input,select{font:inherit}button{background:#071207;color:var(--ui-accent);border:1px solid var(--ui-border);padding:10px 14px;cursor:pointer}button:focus{outline:1px solid var(--ui-accent)}button:disabled{opacity:0.4;cursor:not-allowed}
 .hidden{display:none!important}#boot{height:100%;display:flex;align-items:center;justify-content:center;padding:16px}.box{width:min(820px,100%);max-height:94vh;overflow:auto;border:1px solid var(--ui-border);padding:24px;background:#030c03}.logo{text-align:center;font-size:clamp(20px,4vw,34px);letter-spacing:3px;margin-bottom:20px}#post{white-space:pre-wrap;line-height:1.65;min-height:250px}.login{border-top:1px solid var(--ui-border);padding-top:20px}.login-title{text-align:center;letter-spacing:3px;margin-bottom:16px}.row{display:flex;gap:10px}#accessCode{flex:1;min-width:0;background:var(--ui-deep);color:var(--ui-accent);border:1px solid var(--ui-border);padding:15px;text-transform:uppercase;letter-spacing:2px}.hint{text-align:center;color:var(--ui-dim);font-size:12px;margin-top:12px}#error{text-align:center;color:#ff5555;height:22px;margin-top:10px}.verified{margin-top:12px;border:1px solid var(--ui-border);padding:12px;text-align:center}
+
+/* ECTO OS BOOT SEQUENCE // v0.4.0 */
+#boot{height:100%;overflow:auto;display:flex;align-items:center;justify-content:center;padding:18px;background:#010401}
+.ecto-boot-shell{width:min(1240px,94vw);border:1px solid var(--ui-border);background:rgba(2,10,3,.94);padding:26px;box-shadow:0 0 32px rgba(115,255,128,.06) inset}
+.ecto-boot-head{text-align:center;padding-bottom:20px}
+.ecto-gb-mark{width:82px;height:82px;margin:0 auto 9px;border:1px solid var(--ui-border);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;color:var(--ui-accent);letter-spacing:2px}
+.ecto-gb-mark span{font-size:25px;font-weight:bold}.ecto-gb-mark small{font-size:8px;letter-spacing:3px;margin-top:5px}
+.ecto-boot-brand{font-size:clamp(30px,5vw,52px);font-weight:bold;letter-spacing:.14em}
+.ecto-boot-sub{font-size:11px;letter-spacing:.18em;margin-top:7px;color:var(--ui-dim)}
+.ecto-boot-grid{display:grid;grid-template-columns:1.08fr 1fr;gap:16px}
+.ecto-boot-box{border:1px solid var(--ui-border);padding:14px;min-height:245px;background:#020802}
+.ecto-boot-box-title{border-bottom:1px solid var(--ui-border);padding-bottom:8px;margin-bottom:11px;font-size:11px;letter-spacing:.12em}
+.ecto-boot-line{font-size:11px;line-height:1.72;white-space:pre-wrap}
+.ecto-boot-line::before{content:"> ";color:var(--ui-accent)}
+.ecto-diag{display:grid;gap:10px}
+.ecto-diag-row{display:grid;grid-template-columns:minmax(0,1fr) 30px 40%;gap:7px;align-items:center;font-size:10px}
+.ecto-diag-bar{height:10px;border:1px solid var(--ui-border);padding:2px}
+.ecto-diag-bar i{display:block;height:100%;width:0;background:var(--ui-accent);transition:width .35s ease}
+.ecto-boot-bottom{margin-top:16px;border:1px solid var(--ui-border);padding:12px}
+.ecto-loading-label{font-size:11px;letter-spacing:.08em}
+.ecto-progress{height:16px;border:1px solid var(--ui-border);padding:2px;margin-top:8px}
+.ecto-progress i{display:block;height:100%;width:0;background:var(--ui-accent);transition:width .4s ease}
+.ecto-boot-status{text-align:center;margin-top:10px;font-size:11px;letter-spacing:.16em;min-height:15px}
+.ecto-boot-footer{text-align:center;color:var(--ui-dim);font-size:9px;letter-spacing:.12em;margin-top:12px}
+.ecto-login-panel{margin-top:18px;border-top:1px solid var(--ui-border);padding-top:20px}
+@media(max-width:760px){
+  #boot{align-items:flex-start;padding:10px}
+  .ecto-boot-shell{width:100%;padding:16px}
+  .ecto-boot-grid{grid-template-columns:1fr}
+  .ecto-boot-box{min-height:190px}
+  .ecto-boot-brand{font-size:28px}
+  .ecto-boot-sub{font-size:9px;letter-spacing:.1em}
+  .ecto-diag-row{grid-template-columns:minmax(0,1fr) 26px 36%}
+}
+@media(max-width:600px){
+  .ecto-boot-box{padding:11px}
+  .ecto-boot-line{font-size:10px}
+}
+
 header{height:58px;border-bottom:1px solid var(--ui-border);display:flex;justify-content:space-between;align-items:center;padding:0 14px;gap:12px}.title{font-weight:bold;letter-spacing:2px}.session{font-size:12px}.system-clock{font-size:11px;color:var(--ui-dim);text-align:right;line-height:1.35}.header-tools{display:flex;align-items:center;gap:10px;margin-left:auto}.fullscreen-btn{min-width:118px;padding:8px 10px;font-size:10px;letter-spacing:1px}.fullscreen-btn.active{background:var(--ui-accent);color:#000;border-color:var(--ui-accent)} .fullscreen-fallback .fullscreen-btn{background:var(--ui-accent);color:#000;border-color:var(--ui-accent)}
 #app.fullscreen-fallback{overflow:auto}#app.fullscreen-fallback #layout{min-height:0}#layout{height:calc(100% - 58px);min-height:0;display:grid;grid-template-columns:185px minmax(0,1fr);grid-template-rows:minmax(0,1fr);overflow:hidden}nav{border-right:1px solid var(--ui-border);padding:9px;overflow:auto}nav button{display:block;width:100%;margin-bottom:7px;text-align:left}main{padding:14px;overflow:auto;min-width:0;min-height:0;height:100%;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}.screen{display:none}.screen.active{display:block}h1{font-size:20px;letter-spacing:2px;border-bottom:1px solid var(--ui-border);padding-bottom:10px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.panel{border:1px solid var(--ui-border);padding:15px;background:var(--ui-panel)}.big{font-size:28px;margin:8px 0}.metric{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px dotted var(--ui-grid)}.bar{height:13px;border:1px solid var(--ui-border);margin:6px 0 12px}.bar i{display:block;height:100%;background:var(--ui-accent);transition:width 0.4s ease, background-color 0.4s ease}canvas{width:100%;height:190px;border:1px solid var(--ui-border)}
 @media(max-width:720px){#layout{grid-template-columns:1fr;grid-template-rows:60px minmax(0,1fr)}nav{height:60px;border-right:0;border-bottom:1px solid var(--ui-border);display:flex;gap:6px;overflow-x:auto}nav button{min-width:110px;margin:0}.row{flex-direction:column}.grid{grid-template-columns:1fr}}
@@ -375,10 +414,42 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
 <meta name="apple-mobile-web-app-title" content="ECTO OS">
 <link rel="apple-touch-icon" href="./icons/icon-192.png">
 </head><body>
-<section id="boot"><div class="box"><div class="logo">ECTO OS // FIELD SYSTEM</div><div id="post"></div>
-<div id="loginPanel" class="login hidden"><div class="login-title">SECURITY KERNEL // ACCESS REQUIRED</div>
-<div class="row"><input id="accessCode" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="ENTER CLEARANCE CODE"><button id="authorise" type="button">AUTHORISE</button></div>
-<div id="error"></div><div class="hint">ENTER = AUTHORISE // ESC = CLEAR // TRY: FIELD-1984 / GM-051 / AUTHOR</div><div id="verified" class="verified hidden"></div></div></div></section>
+<section id="boot">
+<div class="ecto-boot-shell">
+  <div class="ecto-boot-head">
+    <div class="ecto-gb-mark"><span>GB</span><small>ECTO</small></div>
+    <div class="ecto-boot-brand">ECTO OS</div>
+    <div class="ecto-boot-sub">PARANORMAL FIELD OPERATIONS COMPUTER</div>
+  </div>
+
+  <div class="ecto-boot-grid">
+    <div class="ecto-boot-box">
+      <div class="ecto-boot-box-title">SYSTEM INITIALISATION</div>
+      <div id="bootLog"></div>
+    </div>
+    <div class="ecto-boot-box">
+      <div class="ecto-boot-box-title">SYSTEM DIAGNOSTICS</div>
+      <div id="bootDiagnostics" class="ecto-diag"></div>
+    </div>
+  </div>
+
+  <div class="ecto-boot-bottom">
+    <div class="ecto-loading-label">LOADING ECTO OS...</div>
+    <div class="ecto-progress"><i id="bootProgress"></i></div>
+    <div id="bootStatus" class="ecto-boot-status">BOOT SEQUENCE INITIALISING...</div>
+  </div>
+
+  <div class="ecto-boot-footer">LOCAL FIELD COMPUTER // STANDALONE OPERATING ENVIRONMENT</div>
+
+  <div class="ecto-login-panel hidden" id="loginPanel">
+    <div class="login-title">SECURITY KERNEL // ACCESS REQUIRED</div>
+    <div class="row"><input id="accessCode" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="ENTER CLEARANCE CODE"><button id="authorise" type="button">AUTHORISE</button></div>
+    <div id="error"></div>
+    <div class="hint">ENTER = AUTHORISE // ESC = CLEAR // TRY: FIELD-1984 / GM-051 / AUTHOR</div>
+    <div id="verified" class="verified hidden"></div>
+  </div>
+</div>
+</section>
 <section id="app" class="hidden"><header><div class="title">ECTO OS // FIELD ENGINEERING COMPUTER</div><div class="session" id="session">NO SESSION</div><div class="system-clock" id="systemClock">00:00:00 // 00/00/0000</div></header>
 <div id="layout"><nav>
 <button data-screen="status">1 STATUS</button><button data-screen="containment">2 CONTAINMENT</button><button data-screen="diagnostics">3 DIAGNOSTICS</button><button data-screen="faults">4 SPECTRE DATABASE</button><button data-screen="fieldops">5 FIELD OPERATIONS</button><button data-screen="ukmap">6 UK THREAT MAP</button><button data-screen="incidents">7 INCIDENT DATABASE</button><button data-screen="config">8 CONFIGURATION</button><button id="lock" type="button">LOCK SYSTEM</button>
@@ -835,18 +906,64 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
 "use strict";
 const ACCESS={"FIELD":"FIELD ENGINEER","FIELD-1984":"FIELD ENGINEER","ENGINEER":"FIELD ENGINEER","ENG-1984":"FIELD ENGINEER","CONTROL":"MISSION CONTROL","MISSION":"MISSION CONTROL","GM-051":"MISSION CONTROL","AUTHOR":"SYSTEM AUTHOR","ADMIN":"SYSTEM AUTHOR","PROTON":"SYSTEM AUTHOR","1984":"SYSTEM AUTHOR","GHOST":"SYSTEM AUTHOR"};
 const $=id=>document.getElementById(id); let role="";
-const lines=["ECTO OS BIOS 7.1.2","----------------------------------------","CPU / CONTROL LOGIC .............. OK","MEMORY CHECK ..................... OK","POWER BUS ........................ OK","CYCLOTRON CONTROLLER ............. OK","FIELD GENERATOR .................. OK","CONTAINMENT ARRAY ................ OK","THERMAL MANAGEMENT ............... OK","SENSOR ARRAY ..................... OK","LOCAL STORAGE .................... OK","INPUT CONTROLLER ................. OK","SECURITY KERNEL .................. READY",""];
+const bootSystems=[
+  "FIELD COMPUTER INITIALISATION",
+  "PKE SENSOR ARRAY",
+  "CONTAINMENT GRID",
+  "SPECTRAL DATABASE",
+  "UK THREAT NETWORK",
+  "THERMAL MANAGEMENT",
+  "SECURITY KERNEL"
+];
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 let bootFinished=false, loginBusy=false;
 
+function buildBootDiagnostics(){
+  const box=$("bootDiagnostics");
+  if(!box || box.dataset.ready) return;
+  box.dataset.ready="1";
+  bootSystems.forEach((name,i)=>{
+    const row=document.createElement("div");
+    row.className="ecto-diag-row";
+    row.innerHTML=`<span>${name}</span><b id="diagState${i}">--</b><span class="ecto-diag-bar"><i id="diagFill${i}"></i></span>`;
+    box.appendChild(row);
+  });
+}
+
 async function post(){
-  const postBox=$("post");
-  const panel=$("loginPanel");
-  if(!postBox || !panel) return;
-  for(const x of lines){
-    postBox.textContent += x + "\n";
-    await sleep(35);
+  const logBox=$("bootLog"), panel=$("loginPanel");
+  if(!logBox || !panel) return;
+  buildBootDiagnostics();
+
+  for(let i=0;i<bootSystems.length;i++){
+    const line=document.createElement("div");
+    line.className="ecto-boot-line";
+    line.textContent=bootSystems[i]+" ........ OK";
+    logBox.appendChild(line);
+
+    const state=$("diagState"+i), fill=$("diagFill"+i);
+    if(state) state.textContent="RUN";
+    if(fill) fill.style.width="18%";
+
+    const pause=430 + Math.floor(Math.random()*720);
+    await sleep(pause);
+
+    if(state) state.textContent="OK";
+    if(fill) fill.style.width="100%";
+
+    const pct=Math.round(((i+1)/bootSystems.length)*100);
+    const progress=$("bootProgress");
+    if(progress) progress.style.width=pct+"%";
+
+    const status=$("bootStatus");
+    if(status){
+      status.textContent=i===bootSystems.length-1
+        ? "SYSTEMS OPERATIONAL // READY"
+        : "INITIALISING // "+pct+"%";
+    }
   }
+
+  await sleep(550);
   bootFinished=true;
   panel.classList.remove("hidden");
   focusLogin();
@@ -858,169 +975,6 @@ function focusLogin(){
     try { input.focus({preventScroll:true}); } catch(e) { input.focus(); }
   }
 }
-
-function fail(t){
-  const err=$("error"), input=$("accessCode");
-  if(err) err.textContent=t;
-  if(input){
-    input.select();
-    focusLogin();
-  }
-}
-
-function openApplication(){
-  $("boot").classList.add("hidden");
-  $("app").classList.remove("hidden");
-  $("session").textContent="SESSION: "+role;
-}
-
-function login(){
-  if(loginBusy) return;
-  const input=$("accessCode");
-  if(!input) return;
-  const c=input.value.replace(/\s+/g,"").toUpperCase();
-  $("error").textContent="";
-  if(!c) return fail("ACCESS CODE REQUIRED");
-  if(!Object.prototype.hasOwnProperty.call(ACCESS,c))
-    return fail("ACCESS DENIED // INVALID CLEARANCE");
-
-  loginBusy=true;
-  role=ACCESS[c];
-  input.blur();
-  $("verified").innerHTML="CLEARANCE VERIFIED<br><br>ACCESS LEVEL: <b>"+role+
-    "</b><br>INITIALISING PROTOCOLS...";
-  $("verified").classList.remove("hidden");
-
-  setTimeout(()=>{
-    loginBusy=false;
-    openApplication();
-  },500);
-}
-
-function clearLogin(){
-  const input=$("accessCode");
-  if(input) input.value="";
-  $("error").textContent="";
-  $("verified").classList.add("hidden");
-  focusLogin();
-}
-
-const authBtn = $("authorise");
-if(authBtn) authBtn.addEventListener("click",login);
-const accessCodeInput = $("accessCode");
-if(accessCodeInput){
-  accessCodeInput.addEventListener("keydown",e=>{
-    if(e.key==="Enter"){
-      e.preventDefault();
-      login();
-    } else if(e.key==="Escape"){
-      e.preventDefault();
-      clearLogin();
-    }
-  });
-  accessCodeInput.addEventListener("input",()=>{
-    const err = $("error");
-    if(err) err.textContent="";
-  });
-}
-
-document.addEventListener("keydown",e=>{
-  if(!bootFinished || !$("app").classList.contains("hidden")) return;
-  if(e.key==="Enter" && document.activeElement!==$("accessCode")){
-    e.preventDefault();
-    focusLogin();
-  }
-});
-
-document.querySelectorAll("[data-screen]").forEach(b=>b.onclick=()=>{
-  document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("active",s.id===b.dataset.screen));
-});
-
-const lockBtn = $("lock");
-if(lockBtn) lockBtn.onclick=()=>location.reload();
-
-// Cyclotron Controls and Status Bar Simulation Loop
-let basePower = 92, baseField = 88, baseContainment = 96;
-let cycOutput = 88, cycTemp = 63;
-
-const stressBtn = $("stress");
-if(stressBtn) stressBtn.onclick=()=>{
-  basePower = 74; baseField = 82; cycOutput = 97; cycTemp = 84;
-  $("cycRpm").textContent = "4,250";
-  $("cycFreq").textContent = "72.4 Hz";
-  $("overall").textContent = "STRESSED";
-  $("overall").style.color = "#ffb000";
-};
-
-const calBtn = $("cal");
-if(calBtn) calBtn.onclick=()=>{
-  basePower = 95; baseField = 94; cycOutput = 85; cycTemp = 60;
-  $("cycRpm").textContent = "3,840";
-  $("cycFreq").textContent = "64.0 Hz";
-  $("overall").textContent = "NOMINAL";
-  $("overall").style.color = "var(--ui-accent)";
-};
-
-function updateBargraphColor(barEl, val){
-  if(!barEl) return;
-  if(val >= 75) barEl.style.backgroundColor = "var(--ui-accent)"; // Green
-  else if(val >= 45) barEl.style.backgroundColor = "#ffb000"; // Amber
-  else barEl.style.backgroundColor = "#ff5555"; // Red
-}
-
-function runStatusSimulation(){
-  setInterval(()=>{
-    const pVal = Math.min(100, Math.max(20, Math.round(basePower + (Math.random() * 4 - 2))));
-    const fVal = Math.min(100, Math.max(20, Math.round(baseField + (Math.random() * 4 - 2))));
-    const cVal = Math.min(100, Math.max(20, Math.round(baseContainment + (Math.random() * 2 - 1))));
-    const oVal = Math.min(100, Math.max(20, Math.round(cycOutput + (Math.random() * 3 - 1.5))));
-    const tVal = Math.min(100, Math.max(20, Math.round(cycTemp + (Math.random() * 2 - 1))));
-
-    const pSpan = $("powerVal"), pBar = $("powerBar");
-    if(pSpan) pSpan.textContent = pVal + "%";
-    if(pBar) { pBar.style.width = pVal + "%"; updateBargraphColor(pBar, pVal); }
-
-    const fSpan = $("fieldVal"), fBar = $("fieldBar");
-    if(fSpan) fSpan.textContent = fVal + "%";
-    if(fBar) { fBar.style.width = fVal + "%"; updateBargraphColor(fBar, fVal); }
-
-    const cSpan = $("containmentVal"), cBar = $("containmentBar");
-    if(cSpan) cSpan.textContent = cVal + "%";
-    if(cBar) { cBar.style.width = cVal + "%"; updateBargraphColor(cBar, cVal); }
-
-    const oSpan = $("cycOutVal"), oBar = $("cycBar");
-    if(oSpan) oSpan.textContent = oVal + "%";
-    if(oBar) { oBar.style.width = oVal + "%"; updateBargraphColor(oBar, oVal); }
-
-    const tSpan = $("cycTempVal"), tBar = $("cycTempBar");
-    if(tSpan) tSpan.textContent = tVal + "°C";
-    if(tBar) { tBar.style.width = tVal + "%"; updateBargraphColor(tBar, 100 - tVal); }
-  }, 1500);
-}
-
-runStatusSimulation();
-
-const cv=$("wave");
-if(cv){
-  const cx=cv.getContext("2d");
-  function draw(t){
-    const d=devicePixelRatio||1;
-    if(cv.clientWidth && cv.clientHeight){
-      cv.width=cv.clientWidth*d;cv.height=cv.clientHeight*d;
-      cx.setTransform(d,0,0,d,0,0);cx.clearRect(0,0,cv.clientWidth,cv.clientHeight);
-      cx.strokeStyle="#39a943";cx.beginPath();
-      for(let x=0;x<cv.clientWidth;x++){
-        let y=cv.clientHeight/2+Math.sin(x*.055+t*.004)*28+Math.sin(x*.013+t*.002)*10;
-        x?cx.lineTo(x,y):cx.moveTo(x,y);
-      }
-      cx.stroke();
-    }
-    requestAnimationFrame(draw);
-  }
-  requestAnimationFrame(draw);
-}
-
-window.addEventListener("load",post);
 
 /* FIELD OPERATIONS, TACTICAL UK MAP, SPECTRE DATABASE & MULTI-TEAM DIRECTORY MANAGEMENT */
 (function(){
