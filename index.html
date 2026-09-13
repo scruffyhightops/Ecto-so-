@@ -404,7 +404,7 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
 #app.ecto-focus-mode #layout{height:100%;min-height:0;display:block;}
 #app.ecto-focus-mode main{width:100%;height:100%;min-height:0;overflow-y:auto;padding:14px;}
 #app.ecto-focus-mode::after{content:'ECTO OS // FOCUS';position:fixed;right:10px;top:8px;z-index:10002;padding:4px 7px;border:1px solid var(--ui-accent);font:10px var(--mono);color:var(--ui-accent);background:rgba(2,6,2,.92);pointer-events:none;}
-.sound-test-row{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;}.native-button-audio-test{margin-top:0}.native-button-audio-test>button{width:100%;}.native-button-audio-test>audio{width:1px;height:1px;opacity:0;position:absolute;pointer-events:none;}
+.sound-test-row{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;}.native-button-audio-test{margin-top:0}.native-button-audio-test>button{width:100%;}.native-button-audio-test>audio,#pkeConnectAudio,#trapConnectAudio{width:1px;height:1px;opacity:0;position:absolute;pointer-events:none;}
 @media(max-width:900px){#app.ecto-focus-mode main{padding:10px 10px calc(10px + env(safe-area-inset-bottom));}}
 </style><link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#73ff80">
@@ -586,6 +586,7 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
         <button id="pkeToggleBtn" type="button">CONNECT PKE</button>
         <button id="pkeDiagBtn" type="button" disabled>RUN SWEEP</button>
       </div>
+      <audio id="pkeConnectAudio" controls playsinline preload="auto" src="./sounds/button.mp3" aria-label="CONNECT PKE sound"></audio>
     </div>
 
     <!-- GHOST TRAP DIAGNOSTICS -->
@@ -599,6 +600,7 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
         <button id="trapToggleBtn" type="button">CONNECT TRAP</button>
         <button id="trapPurgeBtn" type="button" disabled>PURGE MATRIX</button>
       </div>
+      <audio id="trapConnectAudio" controls playsinline preload="auto" src="./sounds/trap-deploy.mp3" aria-label="CONNECT TRAP sound"></audio>
     </div>
 
     <!-- HARDWARE EVENT TRACE & SAFETY LOG -->
@@ -2782,26 +2784,43 @@ window.addEventListener("load",post);
 
     if(pkeToggleBtn) {
       pkeToggleBtn.onclick = () => {
-        pkeConnected = !pkeConnected;
-        if(pkeConnected) {
-          pkeLinkState.textContent = "ONLINE [CONNECTED]";
-          pkeLinkState.style.color = "var(--ui-accent)";
-          pkeFieldVal.textContent = "1.42 uT";
-          pkeWingVal.textContent = "DEPLOYED (100%)";
-          pkeResVal.textContent = "420.5 PKE";
-          pkeToggleBtn.textContent = "DISCONNECT PKE";
-          pkeDiagBtn.removeAttribute("disabled");
-          diagLog("PKE Meter hardware linked successfully.", "info");
-        } else {
-          pkeLinkState.textContent = "OFFLINE [DISCONNECTED]";
-          pkeLinkState.style.color = "#ff5555";
-          pkeFieldVal.textContent = "0.00 uT";
-          pkeWingVal.textContent = "STOWED (0%)";
-          pkeResVal.textContent = "0.0 PKE";
-          pkeToggleBtn.textContent = "CONNECT PKE";
-          pkeDiagBtn.setAttribute("disabled", "true");
-          diagLog("PKE Meter disconnected from bus.", "warn");
+        if(!pkeConnected) {
+          const pkeAudio = $f("pkeConnectAudio");
+          const connectPke = () => {
+            if(pkeConnected) return;
+            pkeConnected = true;
+            pkeLinkState.textContent = "ONLINE [CONNECTED]";
+            pkeLinkState.style.color = "var(--ui-accent)";
+            pkeFieldVal.textContent = "1.42 uT";
+            pkeWingVal.textContent = "DEPLOYED (100%)";
+            pkeResVal.textContent = "420.5 PKE";
+            pkeToggleBtn.textContent = "DISCONNECT PKE";
+            pkeDiagBtn.removeAttribute("disabled");
+            diagLog("PKE Meter hardware linked successfully.", "info");
+          };
+          if(pkeAudio) {
+            try { pkeAudio.currentTime = 0; } catch(e) {}
+            const playPromise = pkeAudio.play();
+            if(playPromise && typeof playPromise.then === "function") {
+              playPromise.then(connectPke).catch(connectPke);
+            } else {
+              connectPke();
+            }
+          } else {
+            connectPke();
+          }
+          return;
         }
+
+        pkeConnected = false;
+        pkeLinkState.textContent = "OFFLINE [DISCONNECTED]";
+        pkeLinkState.style.color = "#ff5555";
+        pkeFieldVal.textContent = "0.00 uT";
+        pkeWingVal.textContent = "STOWED (0%)";
+        pkeResVal.textContent = "0.0 PKE";
+        pkeToggleBtn.textContent = "CONNECT PKE";
+        pkeDiagBtn.setAttribute("disabled", "true");
+        diagLog("PKE Meter disconnected from bus.", "warn");
       };
 
       pkeDiagBtn.onclick = () => {
@@ -2826,26 +2845,43 @@ window.addEventListener("load",post);
 
     if(trapToggleBtn) {
       trapToggleBtn.onclick = () => {
-        trapConnected = !trapConnected;
-        if(trapConnected) {
-          trapLinkState.textContent = "ONLINE [CONNECTED]";
-          trapLinkState.style.color = "var(--ui-accent)";
-          trapPedalVal.textContent = "SECURE (RF LINK OK)";
-          trapTempVal.textContent = "21.4 °C";
-          trapDoorVal.textContent = "READY / ARMED";
-          trapToggleBtn.textContent = "DISCONNECT TRAP";
-          trapPurgeBtn.removeAttribute("disabled");
-          diagLog("Ghost Trap solid-state module linked.", "info");
-        } else {
-          trapLinkState.textContent = "OFFLINE [DISCONNECTED]";
-          trapLinkState.style.color = "#ff5555";
-          trapPedalVal.textContent = "DISCONNECTED";
-          trapTempVal.textContent = "18.2 °C";
-          trapDoorVal.textContent = "LOCKED / STABILISED";
-          trapToggleBtn.textContent = "CONNECT TRAP";
-          trapPurgeBtn.setAttribute("disabled", "true");
-          diagLog("Ghost Trap isolated and unlinked safely.", "warn");
+        if(!trapConnected) {
+          const trapAudio = $f("trapConnectAudio");
+          const connectTrap = () => {
+            if(trapConnected) return;
+            trapConnected = true;
+            trapLinkState.textContent = "ONLINE [CONNECTED]";
+            trapLinkState.style.color = "var(--ui-accent)";
+            trapPedalVal.textContent = "SECURE (RF LINK OK)";
+            trapTempVal.textContent = "21.4 °C";
+            trapDoorVal.textContent = "READY / ARMED";
+            trapToggleBtn.textContent = "DISCONNECT TRAP";
+            trapPurgeBtn.removeAttribute("disabled");
+            diagLog("Ghost Trap solid-state module linked.", "info");
+          };
+          if(trapAudio) {
+            try { trapAudio.currentTime = 0; } catch(e) {}
+            const playPromise = trapAudio.play();
+            if(playPromise && typeof playPromise.then === "function") {
+              playPromise.then(connectTrap).catch(connectTrap);
+            } else {
+              connectTrap();
+            }
+          } else {
+            connectTrap();
+          }
+          return;
         }
+
+        trapConnected = false;
+        trapLinkState.textContent = "OFFLINE [DISCONNECTED]";
+        trapLinkState.style.color = "#ff5555";
+        trapPedalVal.textContent = "DISCONNECTED";
+        trapTempVal.textContent = "18.2 °C";
+        trapDoorVal.textContent = "LOCKED / STABILISED";
+        trapToggleBtn.textContent = "CONNECT TRAP";
+        trapPurgeBtn.setAttribute("disabled", "true");
+        diagLog("Ghost Trap isolated and unlinked safely.", "warn");
       };
 
       trapPurgeBtn.onclick = () => {
