@@ -471,7 +471,10 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
       <canvas class="field-canvas" id="ectoCanvas"></canvas>
       <div class="metric"><span>INDUCTION RATE</span><b>14.2 Tesla/s</b></div>
       <div class="metric"><span>PACK CORE TEMP</span><b id="ectoTemp">88.4 °C</b></div>
-      <button id="ectoScan">EXECUTE ELECTROMAGNETIC SCAN</button>
+      <div class="native-button-audio-test" id="ectoScanAudioWrap">
+        <button id="ectoScan">EXECUTE ELECTROMAGNETIC SCAN</button>
+        <audio id="ectoScanAudio" controls playsinline preload="auto" src="./sounds/ecto-scan.mp3" aria-label="Electromagnetic scan sound"></audio>
+      </div>
     </div>
 
   </div>
@@ -2231,7 +2234,33 @@ window.addEventListener("load",post);
       }
     };
     const ectoScanBtn = $f("ectoScan");
-    if(ectoScanBtn) ectoScanBtn.onclick=scanEcto;
+    if(ectoScanBtn){
+      const ectoScanAudio = $f("ectoScanAudio");
+      let ectoScanAudioPending = false;
+      ectoScanBtn.onclick=()=>{
+        if(ectoScanAudio){
+          ectoScanAudioPending = true;
+          try { ectoScanAudio.currentTime = 0; } catch(e) {}
+          const playPromise = ectoScanAudio.play();
+          if(playPromise && typeof playPromise.then === "function"){
+            playPromise.then(()=>{
+              if(ectoScanAudioPending){
+                ectoScanAudioPending = false;
+                scanEcto();
+              }
+            }).catch(()=>{
+              ectoScanAudioPending = false;
+              scanEcto();
+            });
+          } else {
+            ectoScanAudioPending = false;
+            scanEcto();
+          }
+        } else {
+          scanEcto();
+        }
+      };
+    }
     
     const sectorSweepBtn = $f("sectorSweep");
     if(sectorSweepBtn) sectorSweepBtn.onclick=()=>log("Manual sector sweep initialized. Regional sensor array responding.");
