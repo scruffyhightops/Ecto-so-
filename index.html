@@ -2209,60 +2209,41 @@ window.addEventListener("load",post);
   const pkeScanBtn = $f("pkeScan");
   if(pkeScanBtn){
     const pkeScanAudio = $f("pkeScanAudio");
-    let pkeScanAudioPending = false;
     pkeScanBtn.onclick=()=>{
       if(pkeScanAudio){
-        pkeScanAudioPending = true;
         try { pkeScanAudio.currentTime = 0; } catch(e) {}
         const playPromise = pkeScanAudio.play();
         if(playPromise && typeof playPromise.then === "function"){
-          playPromise.then(()=>{
-            if(pkeScanAudioPending){
-              pkeScanAudioPending = false;
-              scanPKE();
-            }
-          }).catch(()=>{
-            pkeScanAudioPending = false;
-            scanPKE();
-          });
+          playPromise.then(()=>scanPKE()).catch(()=>scanPKE());
         } else {
-          pkeScanAudioPending = false;
           scanPKE();
         }
       } else {
         scanPKE();
       }
     };
-    const ectoScanBtn = $f("ectoScan");
-    if(ectoScanBtn){
-      const ectoScanAudio = $f("ectoScanAudio");
-      let ectoScanAudioPending = false;
-      ectoScanBtn.onclick=()=>{
-        if(ectoScanAudio){
-          ectoScanAudioPending = true;
-          try { ectoScanAudio.currentTime = 0; } catch(e) {}
-          const playPromise = ectoScanAudio.play();
-          if(playPromise && typeof playPromise.then === "function"){
-            playPromise.then(()=>{
-              if(ectoScanAudioPending){
-                ectoScanAudioPending = false;
-                scanEcto();
-              }
-            }).catch(()=>{
-              ectoScanAudioPending = false;
-              scanEcto();
-            });
-          } else {
-            ectoScanAudioPending = false;
-            scanEcto();
-          }
+  }
+
+  // ELECTROMAGNETIC SCAN — same standalone Test-B audio pattern as the proven buttons above.
+  const ectoScanBtn = $f("ectoScan");
+  if(ectoScanBtn){
+    const ectoScanAudio = $f("ectoScanAudio");
+    ectoScanBtn.onclick=()=>{
+      if(ectoScanAudio){
+        try { ectoScanAudio.currentTime = 0; } catch(e) {}
+        const playPromise = ectoScanAudio.play();
+        if(playPromise && typeof playPromise.then === "function"){
+          playPromise.then(()=>scanEcto()).catch(()=>scanEcto());
         } else {
           scanEcto();
         }
-      };
-    }
-    
-    const sectorSweepBtn = $f("sectorSweep");
+      } else {
+        scanEcto();
+      }
+    };
+  }
+
+  const sectorSweepBtn = $f("sectorSweep");
     if(sectorSweepBtn) sectorSweepBtn.onclick=()=>log("Manual sector sweep initialized. Regional sensor array responding.");
     
     const broadcastAlertBtn = $f("broadcastAlert");
