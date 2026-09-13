@@ -2523,8 +2523,24 @@ window.addEventListener("load",post);
             packConnectAudioPending = true;
             try { connectAudio.currentTime = 0; } catch(e) {}
             const playPromise = connectAudio.play();
-            if(playPromise && typeof playPromise.catch === 'function') {
-              playPromise.catch(() => { packConnectAudioPending = false; });
+            if(playPromise && typeof playPromise.then === 'function') {
+              playPromise.then(() => {
+                if(packConnectAudioPending && !packConnected){
+                  packConnectAudioPending = false;
+                  packConnected=true;
+                  packState='ONLINE';
+                  packLinkState.textContent='ONLINE [CONNECTED]';
+                  packLinkState.style.color='var(--ui-accent)';
+                  packCycVal.textContent='3,840 RPM';
+                  packVoltVal.textContent='118.4 V';
+                  packIonVal.textContent='NOMINAL';
+                  packDisconnectBtn.textContent='DISCONNECT PACK';
+                  packSafetyNotice.textContent='SYSTEM ENERGISED // READY';
+                  if(runPackScan) runPackScan.removeAttribute('disabled');
+                  packSafetyNotice.style.color='var(--ui-dim)';
+                  diagLog('Proton pack re-linked to telemetry bus.','info');
+                }
+              }).catch(() => { packConnectAudioPending = false; });
             }
             return;
           }
@@ -2960,24 +2976,7 @@ window.addEventListener("load",post);
   const btn=document.getElementById('packDisconnectBtn');
   if(!audio || !btn) return;
 
-  audio.addEventListener('play',()=>{
-    // Native playback was started directly by the CONNECT PACK button click.
-    if(packConnectAudioPending && !packConnected){
-      packConnectAudioPending = false;
-      packConnected=true;
-      packState='ONLINE';
-      packLinkState.textContent='ONLINE [CONNECTED]';
-      packLinkState.style.color='var(--ui-accent)';
-      packCycVal.textContent='3,840 RPM';
-      packVoltVal.textContent='118.4 V';
-      packIonVal.textContent='NOMINAL';
-      btn.textContent='DISCONNECT PACK';
-      packSafetyNotice.textContent='SYSTEM ENERGISED // READY';
-      if(runPackScan) runPackScan.removeAttribute('disabled');
-      packSafetyNotice.style.color='var(--ui-dim)';
-      diagLog('Proton pack re-linked to telemetry bus.','info');
-    }
-  });
+
 })();
 </script>
 <script>
