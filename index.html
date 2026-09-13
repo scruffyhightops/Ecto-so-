@@ -492,7 +492,7 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
       </div>
     </div>
 
-    <div class="panele="grid-column: span 2;">
+    <div class="panel" style="grid-column: span 2;">
       <div class="panel-title">PROTON FIELD STATUS & RESONANCE</div>
       FIELD INTENSITY: <b>88%</b><br>COHERENCE: <b>94%</b><br>OSCILLATION: <b>3.2 Hz</b><br>PHASE LOCK: <b>STABLE</b><br><br>
       <div class="dim">Note: Real-time PKE Spectrum and Electromagnetic Analysis monitors have been relocated to the Containment tab for integrated safety control.</div>
@@ -975,6 +975,170 @@ function focusLogin(){
     try { input.focus({preventScroll:true}); } catch(e) { input.focus(); }
   }
 }
+
+function fail(t){
+  const err=$("error"), input=$("accessCode");
+  if(err) err.textContent=t;
+  if(input){
+    input.select();
+    focusLogin();
+  }
+}
+
+function openApplication(){
+  $("boot").classList.add("hidden");
+  $("app").classList.remove("hidden");
+  $("session").textContent="SESSION: "+role;
+}
+
+function login(){
+  if(loginBusy) return;
+  const input=$("accessCode");
+  if(!input) return;
+  const c=input.value.replace(/\s+/g,"").toUpperCase();
+  $("error").textContent="";
+  if(!c) return fail("ACCESS CODE REQUIRED");
+  if(!Object.prototype.hasOwnProperty.call(ACCESS,c))
+    return fail("ACCESS DENIED // INVALID CLEARANCE");
+
+  loginBusy=true;
+  role=ACCESS[c];
+  input.blur();
+  $("verified").innerHTML="CLEARANCE VERIFIED<br><br>ACCESS LEVEL: <b>"+role+
+    "</b><br>INITIALISING PROTOCOLS...";
+  $("verified").classList.remove("hidden");
+
+  setTimeout(()=>{
+    loginBusy=false;
+    openApplication();
+  },500);
+}
+
+function clearLogin(){
+  const input=$("accessCode");
+  if(input) input.value="";
+  $("error").textContent="";
+  $("verified").classList.add("hidden");
+  focusLogin();
+}
+
+const authBtn = $("authorise");
+if(authBtn) authBtn.addEventListener("click",login);
+const accessCodeInput = $("accessCode");
+if(accessCodeInput){
+  accessCodeInput.addEventListener("keydown",e=>{
+    if(e.key==="Enter"){
+      e.preventDefault();
+      login();
+    } else if(e.key==="Escape"){
+      e.preventDefault();
+      clearLogin();
+    }
+  });
+  accessCodeInput.addEventListener("input",()=>{
+    const err = $("error");
+    if(err) err.textContent="";
+  });
+}
+
+document.addEventListener("keydown",e=>{
+  if(!bootFinished || !$("app").classList.contains("hidden")) return;
+  if(e.key==="Enter" && document.activeElement!==$("accessCode")){
+    e.preventDefault();
+    focusLogin();
+  }
+});
+
+document.querySelectorAll("[data-screen]").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("active",s.id===b.dataset.screen));
+});
+
+const lockBtn = $("lock");
+if(lockBtn) lockBtn.onclick=()=>location.reload();
+
+// Cyclotron Controls and Status Bar Simulation Loop
+let basePower = 92, baseField = 88, baseContainment = 96;
+let cycOutput = 88, cycTemp = 63;
+
+const stressBtn = $("stress");
+if(stressBtn) stressBtn.onclick=()=>{
+  basePower = 74; baseField = 82; cycOutput = 97; cycTemp = 84;
+  $("cycRpm").textContent = "4,250";
+  $("cycFreq").textContent = "72.4 Hz";
+  $("overall").textContent = "STRESSED";
+  $("overall").style.color = "#ffb000";
+};
+
+const calBtn = $("cal");
+if(calBtn) calBtn.onclick=()=>{
+  basePower = 95; baseField = 94; cycOutput = 85; cycTemp = 60;
+  $("cycRpm").textContent = "3,840";
+  $("cycFreq").textContent = "64.0 Hz";
+  $("overall").textContent = "NOMINAL";
+  $("overall").style.color = "var(--ui-accent)";
+};
+
+function updateBargraphColor(barEl, val){
+  if(!barEl) return;
+  if(val >= 75) barEl.style.backgroundColor = "var(--ui-accent)"; // Green
+  else if(val >= 45) barEl.style.backgroundColor = "#ffb000"; // Amber
+  else barEl.style.backgroundColor = "#ff5555"; // Red
+}
+
+function runStatusSimulation(){
+  setInterval(()=>{
+    const pVal = Math.min(100, Math.max(20, Math.round(basePower + (Math.random() * 4 - 2))));
+    const fVal = Math.min(100, Math.max(20, Math.round(baseField + (Math.random() * 4 - 2))));
+    const cVal = Math.min(100, Math.max(20, Math.round(baseContainment + (Math.random() * 2 - 1))));
+    const oVal = Math.min(100, Math.max(20, Math.round(cycOutput + (Math.random() * 3 - 1.5))));
+    const tVal = Math.min(100, Math.max(20, Math.round(cycTemp + (Math.random() * 2 - 1))));
+
+    const pSpan = $("powerVal"), pBar = $("powerBar");
+    if(pSpan) pSpan.textContent = pVal + "%";
+    if(pBar) { pBar.style.width = pVal + "%"; updateBargraphColor(pBar, pVal); }
+
+    const fSpan = $("fieldVal"), fBar = $("fieldBar");
+    if(fSpan) fSpan.textContent = fVal + "%";
+    if(fBar) { fBar.style.width = fVal + "%"; updateBargraphColor(fBar, fVal); }
+
+    const cSpan = $("containmentVal"), cBar = $("containmentBar");
+    if(cSpan) cSpan.textContent = cVal + "%";
+    if(cBar) { cBar.style.width = cVal + "%"; updateBargraphColor(cBar, cVal); }
+
+    const oSpan = $("cycOutVal"), oBar = $("cycBar");
+    if(oSpan) oSpan.textContent = oVal + "%";
+    if(oBar) { oBar.style.width = oVal + "%"; updateBargraphColor(oBar, oVal); }
+
+    const tSpan = $("cycTempVal"), tBar = $("cycTempBar");
+    if(tSpan) tSpan.textContent = tVal + "°C";
+    if(tBar) { tBar.style.width = tVal + "%"; updateBargraphColor(tBar, 100 - tVal); }
+  }, 1500);
+}
+
+runStatusSimulation();
+
+const cv=$("wave");
+if(cv){
+  const cx=cv.getContext("2d");
+  function draw(t){
+    const d=devicePixelRatio||1;
+    if(cv.clientWidth && cv.clientHeight){
+      cv.width=cv.clientWidth*d;cv.height=cv.clientHeight*d;
+      cx.setTransform(d,0,0,d,0,0);cx.clearRect(0,0,cv.clientWidth,cv.clientHeight);
+      cx.strokeStyle="#39a943";cx.beginPath();
+      for(let x=0;x<cv.clientWidth;x++){
+        let y=cv.clientHeight/2+Math.sin(x*.055+t*.004)*28+Math.sin(x*.013+t*.002)*10;
+        x?cx.lineTo(x,y):cx.moveTo(x,y);
+      }
+      cx.stroke();
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+}
+
+window.addEventListener("load",post);
+
 
 /* FIELD OPERATIONS, TACTICAL UK MAP, SPECTRE DATABASE & MULTI-TEAM DIRECTORY MANAGEMENT */
 (function(){
