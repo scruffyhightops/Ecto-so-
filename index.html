@@ -365,7 +365,7 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
 #app.ecto-focus-mode #layout{height:100%;min-height:0;display:block;}
 #app.ecto-focus-mode main{width:100%;height:100%;min-height:0;overflow-y:auto;padding:14px;}
 #app.ecto-focus-mode::after{content:'ECTO OS // FOCUS';position:fixed;right:10px;top:8px;z-index:10002;padding:4px 7px;border:1px solid var(--ui-accent);font:10px var(--mono);color:var(--ui-accent);background:rgba(2,6,2,.92);pointer-events:none;}
-.sound-test-row{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;}.native-button-audio-test{margin-top:0}.native-button-audio-test>button{width:100%;}.native-button-audio-test>audio{display:block;width:100%;height:38px;margin-top:6px;accent-color:currentColor;}
+.sound-test-row{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;}.native-button-audio-test{margin-top:0}.native-button-audio-test>button{width:100%;}.native-button-audio-test>audio{width:1px;height:1px;opacity:0;position:absolute;pointer-events:none;}
 @media(max-width:900px){#app.ecto-focus-mode main{padding:10px 10px calc(10px + env(safe-area-inset-bottom));}}
 </style><link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#73ff80">
@@ -2511,9 +2511,25 @@ window.addEventListener("load",post);
     const packSafetyNotice = $f("packSafetyNotice");
     const runPackScan = $f("runPackScan");
 
+    let packConnectAudioPending = false;
+
     if(packDisconnectBtn) {
       packDisconnectBtn.onclick = () => {
         if(!packConnected) {
+          // iPad-safe audio path: the real button click directly starts a native <audio>.
+          // The play event below then performs the normal CONNECT PACK operation.
+          const connectAudio = document.getElementById('packConnectAudio');
+          if(connectAudio) {
+            packConnectAudioPending = true;
+            try { connectAudio.currentTime = 0; } catch(e) {}
+            const playPromise = connectAudio.play();
+            if(playPromise && typeof playPromise.catch === 'function') {
+              playPromise.catch(() => { packConnectAudioPending = false; });
+            }
+            return;
+          }
+
+          // Fallback only if the native audio element is unavailable.
           packConnected = true;
           packState = "ONLINE";
           packLinkState.textContent = "ONLINE [CONNECTED]";
@@ -2932,7 +2948,7 @@ window.addEventListener("load",post);
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&app.classList.contains('ecto-focus-mode')){app.classList.remove('ecto-focus-mode');document.body.classList.remove('ecto-focus-active');sync();}}); sync();
 })();
 
-/* ===== ECTO OS AUDIO // v0.3.2 NATIVE BUTTON PROOF ===== */
+/* ===== ECTO OS AUDIO // v0.3.4 HIDDEN NATIVE BUTTON AUDIO ===== */
 (function(){
   const audioState=document.getElementById('audioState');
   const audioModeState=document.getElementById('audioModeState');
@@ -2945,9 +2961,9 @@ window.addEventListener("load",post);
   if(!audio || !btn) return;
 
   audio.addEventListener('play',()=>{
-    // Native media playback has been initiated by the user's direct interaction.
-    // Now run the same CONNECT PACK operation.
-    if(!packConnected){
+    // Native playback was started directly by the CONNECT PACK button click.
+    if(packConnectAudioPending && !packConnected){
+      packConnectAudioPending = false;
       packConnected=true;
       packState='ONLINE';
       packLinkState.textContent='ONLINE [CONNECTED]';
