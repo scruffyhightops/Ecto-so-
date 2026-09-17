@@ -302,8 +302,6 @@ main{
 
 
 /* THREAT MAP / LOCATION MANAGEMENT ROBUST LAYOUT */
-/* V2.2.0: Threat Map uses normal document flow. main owns scrolling; the map itself
-   must never impose a viewport-sized box that pushes the rest of the application off-screen. */
 .screen#ukmap{min-height:0;height:auto;overflow:visible;display:block;}
 .screen#ukmap>.grid{height:auto;min-height:0;}
 .screen#ukmap>.grid>.panel{height:auto;min-height:0;overflow:visible;}
@@ -311,11 +309,12 @@ main{
 .screen#ukmap .tactical-panel{min-height:0;overflow:visible;}
 .screen#ukmap .dossier-box{max-height:220px;overflow:auto;}
 .screen#ukmap .site-list{max-height:150px;overflow:auto;}
-.config-details{grid-column:span 2;border:1px solid var(--ui-border);background:var(--ui-panel);}
-.config-details-summary{width:100%;box-sizing:border-box;padding:13px 15px;min-height:48px;display:flex;align-items:center;justify-content:flex-start;gap:8px;text-align:left;font-size:13px;letter-spacing:1px;color:var(--ui-accent);background:var(--ui-deep);border-bottom:1px solid var(--ui-border);}
-.config-details-summary .dim{margin-left:auto;}
-.config-details-body{padding:15px;}
-.config-details-body.hidden{display:none;}
+#locationmgmt{min-height:0;height:auto;overflow:visible;display:block;}
+#locationmgmt>.grid{height:auto;min-height:0;}
+#locationmgmt .location-management-panel{min-height:0;}
+#locationmgmt .location-admin-gate-page{margin-bottom:0;}
+#locationmgmt .location-db-grid{align-items:start;}
+
 @media(max-width:900px){
   .screen#ukmap .chart-container{min-height:220px;}
   .screen#ukmap .tactical-panel{padding:10px;}
@@ -420,7 +419,7 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
 <div id="error"></div><div class="hint">ENTER = AUTHORISE // ESC = CLEAR // TRY: FIELD-1984 / GM-051 / AUTHOR</div><div id="verified" class="verified hidden"></div></div></div></section>
 <section id="app" class="hidden"><header><div class="title">ECTO OS // FIELD ENGINEERING COMPUTER</div><div class="session" id="session">NO SESSION</div><div class="system-clock" id="systemClock">00:00:00 // 00/00/0000</div></header>
 <div id="layout"><nav>
-<button data-screen="status">1 STATUS</button><button data-screen="containment">2 CONTAINMENT</button><button data-screen="diagnostics">3 DIAGNOSTICS</button><button data-screen="faults">4 SPECTRE DATABASE</button><button data-screen="fieldops">5 FIELD OPERATIONS</button><button data-screen="ukmap">6 UK THREAT MAP</button><button data-screen="incidents">7 INCIDENT DATABASE</button><button data-screen="config">8 CONFIGURATION</button><button id="lock" type="button">LOCK SYSTEM</button>
+<button data-screen="status">1 STATUS</button><button data-screen="containment">2 CONTAINMENT</button><button data-screen="diagnostics">3 DIAGNOSTICS</button><button data-screen="faults">4 SPECTRE DATABASE</button><button data-screen="fieldops">5 FIELD OPERATIONS</button><button data-screen="ukmap">6 UK THREAT MAP</button><button data-screen="incidents">7 INCIDENT DATABASE</button><button data-screen="config">8 CONFIGURATION</button><button data-screen="locationmgmt">9 LOCATION MANAGEMENT</button><button id="lock" type="button">LOCK SYSTEM</button>
 </nav><main>
 <section id="status" class="screen active">
   <h1>SYSTEM STATUS & TELEMETRY</h1>
@@ -815,55 +814,6 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
         <button id="applyRgbBtn" type="button">APPLY RGB PROFILE</button>
       </div>
     </div>
-    <section class="config-details" id="locationManagementDetails">
-      <div class="config-details-summary" id="locationManagementSummary">CITY / SITE CUSTOMISATION <span class="dim">[FIELD NETWORK / AUTHORISED EDITOR]</span></div>
-      <div class="config-details-body">
-      <div id="locationAdminGate" class="location-admin-gate">
-        <div class="panel-title">LOCATION MANAGEMENT // ACCESS CONTROL</div>
-        <div class="dim" style="line-height:1.5;margin-bottom:9px;">Location editing is restricted to authorised ECTO system personnel. Enter a system authorisation code to unlock the field network editor.</div>
-        <div class="location-admin-row"><input id="locationAdminCode" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="ENTER AUTHORISATION CODE"><button id="locationAdminUnlockBtn" type="button">AUTHORISE</button></div>
-        <div id="locationAdminError" class="location-admin-error"></div>
-      </div>
-      <div id="locationAdminContent" class="hidden">
-      <div class="panel" style="border:0;padding:0;background:transparent;">
-      <div class="panel-title">UK FIELD LOCATION DATABASE <span class="dim">[GEO-REFERENCED SECTORS / FAN ARCHIVE]</span></div>
-      <div class="dim" style="line-height:1.5;margin-bottom:8px;">Each field location is stored with geographic coordinates and appears as a live node on the UK Threat Map. Add canonical or fan-submitted locations as the network grows.</div>
-      <div class="location-db-grid">
-        <div>
-          <div class="location-form">
-            <div class="location-field full"><label>LOCATION / CITY</label><input id="locationCityInput" type="text" placeholder="e.g. Portsmouth"></div>
-            <div class="location-field"><label>SECTOR CODE</label><input id="locationCodeInput" type="text" placeholder="e.g. PSM-06"></div>
-            <div class="location-field"><label>REGION</label><input id="locationRegionInput" type="text" placeholder="e.g. Hampshire"></div>
-            <div class="location-field"><label>LATITUDE</label><input id="locationLatInput" type="number" step="0.0001" placeholder="50.8198"></div>
-            <div class="location-field"><label>LONGITUDE</label><input id="locationLonInput" type="number" step="0.0001" placeholder="-1.0880"></div>
-            <div class="location-field"><label>DATA SOURCE</label><select id="locationSourceInput"><option>CANONICAL</option><option>FAN SUBMITTED</option><option>UNVERIFIED</option></select></div>
-            <div class="location-field"><label>LEAD COMMANDER</label><input id="locationLeadInput" type="text" placeholder="Field Commander"></div>
-          </div>
-          <div class="button-row" style="margin-top:10px;"><button id="addLocationBtn" type="button">+ ADD FIELD LOCATION</button><button id="cancelLocationEditBtn" type="button" class="hidden">CANCEL EDIT</button></div>
-          <div class="panel-title" style="margin-top:14px;">INVESTIGATION SITE REGISTER <span class="dim">[CITY / REGION LEVEL]</span></div>
-          <div class="location-form">
-            <div class="location-field full"><label>PARENT CITY / SECTOR</label><select id="siteParentInput"></select></div>
-            <div class="location-field full"><label>SITE NAME</label><input id="siteNameInput" type="text" placeholder="e.g. HMS Victory"></div>
-            <div class="location-field"><label>SITE TYPE</label><select id="siteTypeInput"><option>REAL-WORLD ANCHOR</option><option>INVESTIGATION SITE</option><option>ECTO FIELD SITE</option><option>UNVERIFIED</option></select></div>
-            <div class="location-field"><label>STATUS</label><input id="siteStatusInput" type="text" placeholder="MONITORING"></div>
-            <div class="location-field"><label>LATITUDE</label><input id="siteLatInput" type="number" step="0.0001" placeholder="50.8014"></div>
-            <div class="location-field"><label>LONGITUDE</label><input id="siteLonInput" type="number" step="0.0001" placeholder="-1.1088"></div>
-            <div class="location-field"><label>THREAT</label><select id="siteThreatInput"><option>LOW</option><option>MODERATE</option><option>ELEVATED</option><option>HIGH</option><option>SEVERE</option></select></div>
-            <div class="location-field full"><label>FIELD NOTES / SITE DESCRIPTION</label><textarea id="siteDescInput" rows="3" placeholder="Investigation notes. Enter field notes and site description."></textarea></div>
-          </div>
-          <div class="button-row" style="margin-top:10px;"><button id="addSiteBtn" type="button">+ ADD INVESTIGATION SITE</button><button id="cancelSiteEditBtn" type="button" class="hidden">CANCEL EDIT</button></div>
-        </div>
-        <div>
-          <div class="metric"><span>REGISTERED LOCATIONS</span><b id="locationCountLabel">0</b></div><div class="dim" style="margin:6px 0;line-height:1.4;">SELECT A LOCATION OR SITE TO EDIT ITS STORED RECORD. COORDINATES ARE STORED AS DECIMAL LATITUDE / LONGITUDE.</div>
-          <div id="locationDatabaseList" class="location-list"></div>
-        </div>
-      </div>
-    </div>
-      <div class="location-lock-row"><button id="lockLocationAdminBtn" type="button">LOCK LOCATION MANAGEMENT</button></div>
-      </div>
-      </div>
-    </section>
-
     <div class="panel" style="grid-column: span 2;">
       <div class="panel-title">SYSTEM DATA SYNC <span class="dim">[EXPORT / IMPORT CONFIG ACROSS COMPUTERS]</span></div>
       <div class="button-row">
@@ -879,13 +829,69 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
   </div>
 </section>
 
+<section id="locationmgmt" class="screen">
+  <h1>LOCATION MANAGEMENT // FIELD NETWORK ADMINISTRATION</h1>
+  <div class="grid">
+    <div class="panel location-management-panel">
+      <div id="locationAdminGate" class="location-admin-gate location-admin-gate-page">
+        <div class="panel-title">FIELD NETWORK ADMINISTRATION // RESTRICTED ACCESS</div>
+        <div class="dim" style="line-height:1.5;margin-bottom:12px;">This section controls the ECTO OS geographic field network. A separate administrator password is required. The normal ECTO OS login credential is not used here.</div>
+        <div class="location-admin-row">
+          <input id="locationAdminCode" type="password" inputmode="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="ENTER FIELD ADMIN PASSWORD">
+          <button id="locationAdminUnlockBtn" type="button">AUTHORISE</button>
+        </div>
+        <div id="locationAdminError" class="location-admin-error"></div>
+      </div>
+
+      <div id="locationAdminContent" class="hidden">
+        <div class="panel-title">UK FIELD LOCATION DATABASE <span class="dim">[GEO-REFERENCED SECTORS / FAN ARCHIVE]</span></div>
+        <div class="dim" style="line-height:1.5;margin-bottom:10px;">Authorised personnel can add, correct and maintain field locations and investigation sites. Changes are stored locally in the ECTO OS field network database.</div>
+        <div class="location-db-grid">
+          <div>
+            <div class="location-form">
+              <div class="location-field full"><label>LOCATION / CITY</label><input id="locationCityInput" type="text" placeholder="e.g. Portsmouth"></div>
+              <div class="location-field"><label>SECTOR CODE</label><input id="locationCodeInput" type="text" placeholder="e.g. PSM-06"></div>
+              <div class="location-field"><label>REGION</label><input id="locationRegionInput" type="text" placeholder="e.g. Hampshire"></div>
+              <div class="location-field"><label>LATITUDE</label><input id="locationLatInput" type="number" step="0.0001" placeholder="50.8198"></div>
+              <div class="location-field"><label>LONGITUDE</label><input id="locationLonInput" type="number" step="0.0001" placeholder="-1.0880"></div>
+              <div class="location-field"><label>DATA SOURCE</label><select id="locationSourceInput"><option>CANONICAL</option><option>FAN SUBMITTED</option><option>UNVERIFIED</option></select></div>
+              <div class="location-field"><label>LEAD COMMANDER</label><input id="locationLeadInput" type="text" placeholder="Field Commander"></div>
+            </div>
+            <div class="button-row" style="margin-top:10px;"><button id="addLocationBtn" type="button">+ ADD FIELD LOCATION</button><button id="cancelLocationEditBtn" type="button" class="hidden">CANCEL EDIT</button></div>
+
+            <div class="panel-title" style="margin-top:14px;">INVESTIGATION SITE REGISTER <span class="dim">[CITY / REGION LEVEL]</span></div>
+            <div class="location-form">
+              <div class="location-field full"><label>PARENT CITY / SECTOR</label><select id="siteParentInput"></select></div>
+              <div class="location-field full"><label>SITE NAME</label><input id="siteNameInput" type="text" placeholder="e.g. HMS Victory"></div>
+              <div class="location-field"><label>SITE TYPE</label><select id="siteTypeInput"><option>REAL-WORLD ANCHOR</option><option>INVESTIGATION SITE</option><option>ECTO FIELD SITE</option><option>UNVERIFIED</option></select></div>
+              <div class="location-field"><label>STATUS</label><input id="siteStatusInput" type="text" placeholder="MONITORING"></div>
+              <div class="location-field"><label>LATITUDE</label><input id="siteLatInput" type="number" step="0.0001" placeholder="50.8014"></div>
+              <div class="location-field"><label>LONGITUDE</label><input id="siteLonInput" type="number" step="0.0001" placeholder="-1.1088"></div>
+              <div class="location-field"><label>THREAT</label><select id="siteThreatInput"><option>LOW</option><option>MODERATE</option><option>ELEVATED</option><option>HIGH</option><option>SEVERE</option></select></div>
+              <div class="location-field full"><label>FIELD NOTES / SITE DESCRIPTION</label><textarea id="siteDescInput" rows="3" placeholder="Investigation notes. Enter field notes and site description."></textarea></div>
+            </div>
+            <div class="button-row" style="margin-top:10px;"><button id="addSiteBtn" type="button">+ ADD INVESTIGATION SITE</button><button id="cancelSiteEditBtn" type="button" class="hidden">CANCEL EDIT</button></div>
+          </div>
+          <div>
+            <div class="metric"><span>REGISTERED LOCATIONS</span><b id="locationCountLabel">0</b></div>
+            <div class="dim" style="margin:6px 0;line-height:1.4;">SELECT A LOCATION OR SITE TO EDIT ITS STORED RECORD. COORDINATES ARE STORED AS DECIMAL LATITUDE / LONGITUDE.</div>
+            <div id="locationDatabaseList" class="location-list"></div>
+          </div>
+        </div>
+        <div class="location-lock-row"><button id="lockLocationAdminBtn" type="button">LOCK LOCATION MANAGEMENT</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
 </main></div></section>
 <div id="thermalPrintReport" aria-hidden="true"></div>
 
 <script>
 "use strict";
 const ACCESS={"FIELD":"FIELD ENGINEER","FIELD-1984":"FIELD ENGINEER","ENGINEER":"FIELD ENGINEER","ENG-1984":"FIELD ENGINEER","CONTROL":"MISSION CONTROL","MISSION":"MISSION CONTROL","GM-051":"MISSION CONTROL","AUTHOR":"SYSTEM AUTHOR","ADMIN":"SYSTEM AUTHOR","PROTON":"SYSTEM AUTHOR","1984":"SYSTEM AUTHOR","GHOST":"SYSTEM AUTHOR"};
-const $=id=>document.getElementById(id); let role="";
+const $=id=>document.getElementById(id); let role=""; let locationEditorUnlocked=false;
+const LOCATION_ADMIN_PASSWORD="ECTO-ADMIN-1984";
 const lines=["ECTO OS BIOS 7.1.2 // VERSION 2.1.1","----------------------------------------","CPU / CONTROL LOGIC .............. OK","MEMORY CHECK ..................... OK","POWER BUS ........................ OK","CYCLOTRON CONTROLLER ............. OK","FIELD GENERATOR .................. OK","CONTAINMENT ARRAY ................ OK","THERMAL MANAGEMENT ............... OK","SENSOR ARRAY ..................... OK","LOCAL STORAGE .................... OK","INPUT CONTROLLER ................. OK","SECURITY KERNEL .................. READY",""];
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 let bootFinished=false, loginBusy=false;
@@ -2914,8 +2920,7 @@ window.addEventListener("load",post);
     ["locationSourceInput","siteTypeInput","siteThreatInput"].forEach(initEctoSelect);
     const addSiteBtn=$f("addSiteBtn"); if(addSiteBtn) addSiteBtn.onclick=saveOrAddInvestigationSite;
     const locationAdminUnlockBtn=$f("locationAdminUnlockBtn"),locationAdminCode=$f("locationAdminCode"),locationAdminError=$f("locationAdminError");
-    const LOCATION_ADMIN_CODES=new Set(["FIELD-1984","AUTHOR","ADMIN","PROTON","1984","GHOST"]);
-    const unlockLocationAdmin=()=>{const code=(locationAdminCode?.value||"").replace(/\s+/g,"").toUpperCase();if(code&&LOCATION_ADMIN_CODES.has(code)){setLocationEditorUnlocked(true);if(locationAdminError)locationAdminError.textContent="CLEARANCE VERIFIED // LOCATION MANAGEMENT UNLOCKED";if(locationAdminCode)locationAdminCode.value="";}else if(locationAdminError)locationAdminError.textContent="ACCESS DENIED // AUTHORISATION REQUIRED";};
+    const unlockLocationAdmin=()=>{const code=(locationAdminCode?.value||"").trim();if(code===LOCATION_ADMIN_PASSWORD){setLocationEditorUnlocked(true);if(locationAdminError)locationAdminError.textContent="CLEARANCE VERIFIED // LOCATION MANAGEMENT UNLOCKED";if(locationAdminCode)locationAdminCode.value="";}else if(locationAdminError)locationAdminError.textContent="ACCESS DENIED // FIELD ADMIN PASSWORD REQUIRED";};
     if(locationAdminUnlockBtn)locationAdminUnlockBtn.onclick=unlockLocationAdmin;if(locationAdminCode){locationAdminCode.addEventListener("input",()=>{locationAdminCode.value=locationAdminCode.value.toUpperCase();if(locationAdminError)locationAdminError.textContent="";});locationAdminCode.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();unlockLocationAdmin();}});}
     const lockLocationAdminBtn=$f("lockLocationAdminBtn");if(lockLocationAdminBtn)lockLocationAdminBtn.onclick=()=>{clearLocationEdit();clearSiteEdit();setLocationEditorUnlocked(false);if(locationAdminError)locationAdminError.textContent="LOCATION MANAGEMENT LOCKED";};
     const cancelLocationEditBtn=$f("cancelLocationEditBtn");if(cancelLocationEditBtn)cancelLocationEditBtn.onclick=()=>{clearLocationForm();clearLocationEdit();};
