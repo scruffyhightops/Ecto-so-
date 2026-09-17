@@ -525,6 +525,50 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
 .ecto-select-option:hover,.ecto-select-option:focus{border-color:var(--ui-grid);background:var(--ui-deep);outline:none}
 .ecto-select-option.selected{border-color:var(--ui-accent);color:var(--ui-accent);background:var(--ui-deep)}
 .ecto-select-option:disabled{opacity:.45;cursor:default}
+/* ===== V2.2.16 // ECTO ADMIN SELECTOR INTERFACE =====
+   Location Management only. Native <select> remains the data source;
+   ECTO button/menu handles the visible interaction so iOS never opens
+   its native picker. */
+#locationAdminContent .ecto-select-host{position:relative;width:100%;}
+#locationAdminContent .ecto-select-host > select.ecto-native-source{
+  position:absolute!important;inset:0!important;width:1px!important;height:1px!important;
+  opacity:0!important;pointer-events:none!important;clip:rect(0 0 0 0)!important;
+}
+#locationAdminContent .ecto-select-display{
+  width:100%;min-height:44px;box-sizing:border-box;padding:9px 38px 9px 10px;
+  border:1px solid var(--ui-grid);border-radius:0;background:var(--ui-deep);
+  color:var(--ui-accent);font:inherit;font-size:11px;line-height:1.25;
+  text-align:left;position:relative;cursor:pointer;-webkit-tap-highlight-color:transparent;
+}
+#locationAdminContent .ecto-select-display::after{
+  content:'';position:absolute;right:12px;top:50%;width:8px;height:8px;
+  border-right:1px solid var(--ui-accent);border-bottom:1px solid var(--ui-accent);
+  transform:translateY(-65%) rotate(45deg);pointer-events:none;
+}
+#locationAdminContent .ecto-select-display:focus,
+#locationAdminContent .ecto-select-display.is-open{
+  outline:1px solid var(--ui-accent);border-color:var(--ui-accent);
+  box-shadow:0 0 8px rgba(115,255,128,.14);
+}
+.ecto-select-menu{
+  position:fixed;z-index:30000;box-sizing:border-box;max-height:min(46vh,320px);overflow-y:auto;
+  background:var(--ui-deep);border:1px solid var(--ui-accent);border-radius:0;
+  box-shadow:0 0 18px rgba(0,0,0,.65),0 0 8px rgba(115,255,128,.10);
+  padding:4px;-webkit-overflow-scrolling:touch;
+}
+.ecto-select-option{
+  display:block;width:100%;box-sizing:border-box;border:1px solid transparent;border-radius:0;
+  background:transparent;color:var(--ui-accent);font:inherit;font-size:11px;text-align:left;
+  padding:11px 10px;min-height:42px;cursor:pointer;-webkit-tap-highlight-color:transparent;
+}
+.ecto-select-option + .ecto-select-option{border-top-color:var(--ui-grid)}
+.ecto-select-option:hover,.ecto-select-option:focus{outline:none;border-color:var(--ui-grid);background:var(--ui-panel)}
+.ecto-select-option.is-selected{background:var(--ui-accent);color:#000;border-color:var(--ui-accent)}
+.ecto-select-menu::before{content:'ECTO SELECT';display:block;padding:5px 7px 7px;color:var(--ui-dim);font:9px var(--mono);letter-spacing:.08em;border-bottom:1px solid var(--ui-grid);margin-bottom:2px}
+
+
+
+
 </style><link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#73ff80">
 <meta name="mobile-web-app-capable" content="yes">
@@ -1303,8 +1347,7 @@ window.addEventListener("load",post);
     menu.style.left=left+"px";menu.style.top=top+"px";menu.style.width=width+"px";menu.style.maxHeight=maxH+"px";
   }
   function ectoTransformSelect(select){
-    // LOCATION MANAGEMENT is a protected admin editor. Keep its native select controls intact.
-    if(!select || select.closest("#locationAdminContent"))return;
+    if(!select)return;
     if(select.dataset.ectoSelectReady==="1")return;
     const wrap=document.createElement("div"); wrap.className="ecto-select-wrap";
     select.parentNode.insertBefore(wrap,select); wrap.appendChild(select);
@@ -1312,7 +1355,7 @@ window.addEventListener("load",post);
     const button=document.createElement("button"); button.type="button"; button.className="ecto-select-button"; button.setAttribute("aria-haspopup","listbox"); button.setAttribute("aria-expanded","false");
     const value=document.createElement("span"); value.className="ecto-select-value"; button.appendChild(value);
     wrap.appendChild(button);
-    const sync=()=>{const opt=select.options[select.selectedIndex];value.textContent=opt?opt.textContent:"SELECT";button.disabled=select.disabled;};
+    const sync=()=>{const opt=select.options[select.selectedIndex];value.textContent=opt?opt.textContent:"SELECT";button.disabled=select.disabled;button.setAttribute("aria-disabled",String(select.disabled));};
     sync();
     button.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();if(button.disabled)return;if(ectoOpenSelect&&ectoOpenSelect.button===button){ectoCloseSelect();return;}ectoCloseSelect();
       const menu=document.createElement("div");menu.className="ecto-select-menu";menu.setAttribute("role","listbox");
@@ -1667,6 +1710,7 @@ window.addEventListener("load",post);
     const current=sel.value;
     sel.innerHTML=ukFranchises.map((f,i)=>`<option value="${i}">${escapeHtml(f.city)}</option>`).join("");
     if(current!=="" && ukFranchises[+current]) sel.value=current; else sel.value=String(selectedMapIndex||0);
+    sel.dispatchEvent(new Event("change",{bubbles:true}));
   }
   let editingLocationIndex=-1, locationEditorUnlocked=false;
   let editingSiteKey=null;
@@ -3637,6 +3681,7 @@ window.addEventListener("load",post);
     }
   },true);
 })();
+
 
 /* ===== DISPLAY ERA / RGB THEME CONTROL ===== */
 (function(){
