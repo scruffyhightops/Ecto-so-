@@ -316,20 +316,19 @@ main{
 @media(hover:none){button:hover,.team-card:hover{background:inherit;border-color:var(--ui-grid);}button:active{border-color:var(--ui-accent);} }
 
 
+/* ECTO FIELD GRID // geographic map overlay */
+.screen#ukmap .chart-container{position:relative;overflow:hidden;}
+.screen#ukmap .ecto-grid-overlay{position:absolute;inset:0;pointer-events:none;z-index:2;}
+.screen#ukmap .ecto-grid-badge{position:absolute;left:10px;bottom:8px;padding:5px 7px;border:1px solid var(--ui-grid);background:rgba(0,0,0,.72);color:var(--ui-accent);font:9px monospace;letter-spacing:1px;}
+.screen#ukmap .map-controls{position:relative;z-index:4;}
+.screen#ukmap .grid-ref-band{margin-top:8px;border:1px solid var(--ui-grid);padding:8px;background:rgba(0,0,0,.14);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;}
+.screen#ukmap .grid-ref-cell{min-width:0;}
+.screen#ukmap .grid-ref-label{display:block;font-size:8px;color:var(--ui-dim);letter-spacing:.8px;margin-bottom:3px;}
+.screen#ukmap .grid-ref-value{display:block;color:var(--ui-accent);font-size:12px;font-weight:bold;letter-spacing:1px;}
+@media(max-width:900px){.screen#ukmap .grid-ref-band{grid-template-columns:repeat(2,minmax(0,1fr));}}
 /* THREAT MAP COMPACT VIEW // reduce unnecessary page scrolling on iPad */
-.screen#ukmap .tactical-map-wrapper{min-height:0;align-items:stretch;}
-.screen#ukmap .tactical-panel{min-height:0;min-width:0;}
-.screen#ukmap .chart-container{min-height:0;}
-@media(min-width:901px){
-  .screen#ukmap .tactical-map-wrapper{height:clamp(320px,52vh,500px);}
-}
-@media(max-width:900px){
-  .screen#ukmap .tactical-panel:first-child .chart-container{height:220px;min-height:220px;flex:0 0 220px;}
-  .screen#ukmap .tactical-panel{overflow:hidden;}
-}
-@media(max-width:600px){
-  .screen#ukmap .tactical-panel:first-child .chart-container{height:200px;min-height:200px;flex-basis:200px;}
-}
+.screen#ukmap .tactical-map-wrapper{min-height:0;}
+.screen#ukmap .tactical-panel{min-height:0;}
 .screen#ukmap .dossier-box{max-height:220px;}
 .screen#ukmap .site-list{max-height:150px;}
 @media(max-width:900px){
@@ -434,26 +433,6 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
   .screen#locationadmin .location-db-grid{grid-template-columns:1fr!important;}
   .screen#locationadmin .location-list{max-height:none;}
 }
-
-
-/* ===== V2.2.8 ECTO FIELD GRID ===== */
-.ecto-field-grid-tools{display:grid;grid-template-columns:1fr auto;gap:8px;margin:8px 0;border:1px solid var(--ui-grid);padding:8px;background:var(--ui-deep)}
-.ecto-grid-entry{display:flex;gap:7px;align-items:center;min-width:0}.ecto-grid-entry label{font-size:9px;letter-spacing:1px;color:var(--ui-dim);white-space:nowrap}.ecto-grid-entry input{min-width:0;text-transform:uppercase;letter-spacing:2px;font-weight:bold}
-.ecto-grid-ref{border:1px solid var(--ui-border);padding:7px 9px;margin-top:7px;background:rgba(0,0,0,.18);font-size:10px;letter-spacing:1px}.ecto-grid-ref b{font-size:13px;color:var(--ui-accent);letter-spacing:2px}
-.ecto-grid-legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px;font-size:8px;color:var(--ui-dim)}
-@media(max-width:600px){.ecto-field-grid-tools{grid-template-columns:1fr}.ecto-grid-entry button{width:100%}.ecto-grid-entry{flex-wrap:wrap}.ecto-grid-entry input{width:100%}}
-/* A4 field report */
-#a4PrintReport{display:none}
-@media print{
-  body.a4-printing{background:#fff!important;color:#000!important}
-  body.a4-printing>*{display:none!important}
-  body.a4-printing #a4PrintReport{display:block!important;width:190mm;min-height:277mm;margin:0 auto;background:#fff;color:#000;font-family:monospace;font-size:9.5pt;line-height:1.35;box-sizing:border-box}
-  body.a4-printing #a4PrintReport *{color:#000!important;background:#fff!important;border-color:#000!important;box-shadow:none!important}
-  body.a4-printing #thermalPrintReport{display:none!important}
-  @page{size:A4 portrait;margin:10mm}
-}
-.a4-head{border:2px solid #000;padding:8px 10px;margin-bottom:8px}.a4-head-title{font-size:18pt;font-weight:bold;letter-spacing:2px}.a4-head-sub{font-size:9pt;margin-top:2px;letter-spacing:1px}
-.a4-meta{display:grid;grid-template-columns:1fr 1fr;gap:5px;border:1px solid #000;padding:7px;margin-bottom:8px}.a4-meta>div{border-bottom:1px solid #999;padding:3px}.a4-section{border:1px solid #000;margin-bottom:8px}.a4-section-title{font-weight:bold;border-bottom:1px solid #000;padding:5px 7px;letter-spacing:1px}.a4-section-body{padding:7px}.a4-grid{height:92mm;border:1px solid #000;position:relative;overflow:hidden}.a4-grid table{width:100%;height:100%;border-collapse:collapse;table-layout:fixed}.a4-grid td{border:1px solid #aaa;vertical-align:top;padding:4px;font-size:8px}.a4-grid td.active{outline:2px solid #000;outline-offset:-3px;font-weight:bold}.a4-grid .grid-label{font-size:8px;font-weight:bold}.a4-grid .grid-node{margin-top:4px}.a4-columns{display:grid;grid-template-columns:1fr 1fr;gap:8px}.a4-list{margin:0;padding-left:16px}.a4-footer{border-top:2px solid #000;padding-top:6px;margin-top:10px;font-size:8px;display:flex;justify-content:space-between}
 
 /* ===== V2.2.5 MINIMAL CRT BOOT SCREEN ===== */
 #boot{position:fixed;inset:0;z-index:99999;background:#020602;color:var(--ui-accent);font-family:var(--mono,monospace);display:flex;align-items:center;justify-content:center;overflow:hidden;}
@@ -695,46 +674,38 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
 
 <section id="ukmap" class="screen">
   <h1>UK THREAT MAP // GEOGRAPHIC PARANORMAL TELEMETRY</h1>
-  <div class="grid" style="grid-template-columns: 1fr;">
+  <div class="grid" style="grid-template-columns:1fr;">
     <div class="panel">
-      <!-- TACTICAL REGIONAL MAP COMPONENT -->
       <div class="tactical-map-wrapper">
-        <!-- Left Panel: Canvas Map -->
         <div class="tactical-panel">
-          <h2>ECTO FIELD GRID <small>[GRID NAVIGATION / TACTICAL REFERENCE]</small></h2>
-          <div class="ecto-field-grid-tools">
-            <div class="ecto-grid-entry"><label for="ectoGridInput">ENTER GRID REF</label><input id="ectoGridInput" type="text" maxlength="2" placeholder="C3" autocomplete="off" spellcheck="false"><button type="button" id="ectoGridGoBtn">GO</button></div>
-            <div class="ecto-grid-entry"><button type="button" id="mapUkViewBtn">UK GRID</button><button type="button" id="mapRegionViewBtn">CITY GRID</button></div>
-          </div>
+          <h2>UK REGIONAL SECTOR MAP <small>[REAL-WORLD GEOGRAPHY // ECTO GRID OVERLAY]</small></h2>
           <div class="chart-container">
             <div class="map-breadcrumb" id="mapBreadcrumb">UK FIELD NETWORK</div>
+            <div class="map-controls">
+              <button type="button" id="mapUkViewBtn">UK VIEW</button>
+              <button type="button" id="mapRegionViewBtn">CITY REGION</button>
+            </div>
             <canvas id="tacticalMapCanvas"></canvas>
+            <div class="ecto-grid-overlay" id="ectoGridOverlay"></div>
+            <div class="ecto-grid-badge" id="ectoGridBadge">GRID: C3 // SELECT FIELD LOCATION</div>
           </div>
-          <div class="telemetry-row">
-            <span>Active Radar Sweep:</span>
-            <span class="telemetry-val text-green">360° Omnidirectional Scan</span>
-          </div>
+          <div class="telemetry-row"><span>Active Radar Sweep:</span><span class="telemetry-val text-green">360° Omnidirectional Scan</span></div>
         </div>
-        
-        <!-- Right Panel: Target Details Dossier & Quick Launch -->
         <div class="tactical-panel">
-          <h2>Sector Target Details <small>[INTELLIGENCE DOSSIER]</small></h2>
-          <div class="dossier-box" id="map-target-dossier">
-            <div class="text-blue"><strong>LONDON HQ [LON-01]</strong></div>
-            <div>Lead Commander: Dr. E. Spengler</div>
-            <div>Active Threat: Class-2 Manifested Entity</div>
-            <div>Threat Level: <span class="text-green">NOMINAL (Low)</span></div>
-            <div>GPS Coordinates: 51.5074° N, 0.1278° W</div>
+          <h2>SECTOR TARGET DETAILS <small>[INTELLIGENCE DOSSIER]</small></h2>
+          <div class="dossier-box" id="map-target-dossier"></div>
+          <div class="grid-ref-band" id="mapGridReferenceBand">
+            <div class="grid-ref-cell"><span class="grid-ref-label">UK GRID</span><span class="grid-ref-value" id="mapUkGridRef">--</span></div>
+            <div class="grid-ref-cell"><span class="grid-ref-label">CITY GRID</span><span class="grid-ref-value" id="mapCityGridRef">--</span></div>
+            <div class="grid-ref-cell"><span class="grid-ref-label">SUBSECTOR</span><span class="grid-ref-value" id="mapSubsectorRef">--</span></div>
+            <div class="grid-ref-cell"><span class="grid-ref-label">ECTO VECTOR</span><span class="grid-ref-value" id="mapEvRef">--</span></div>
           </div>
           <div class="button-row" style="margin-bottom:6px;">
-            <button id="openRosterModalBtn" style="border-color: #39a9ff; color: #39a9ff;">OPEN TEAM ROSTER</button>
-            <button id="openMapPreflightBtn" style="border-color: var(--ui-accent); color: var(--ui-accent);">OPEN PREFLIGHT</button>
-            <button id="sectorActionBtn" style="border-color: #ffb000; color: #ffb000;">EXECUTE ACTION</button>
+            <button id="openRosterModalBtn" style="border-color:#39a9ff;color:#39a9ff;">OPEN TEAM ROSTER</button>
+            <button id="openMapPreflightBtn" style="border-color:var(--ui-accent);color:var(--ui-accent);">OPEN PREFLIGHT</button>
+            <button id="sectorActionBtn" style="border-color:#ffb000;color:#ffb000;">EXECUTE ACTION</button>
           </div>
-          
-          <div class="ecto-grid-ref" id="activeEctoGridRef">ECTO VECTOR: <b>--</b></div>
-          <div class="button-row" style="margin-top:7px;margin-bottom:7px;"><button type="button" id="printA4FieldReportBtn">PRINT A4 FIELD REPORT</button></div>
-          <div class="dim" style="margin-top:4px; margin-bottom:2px;">QUICK SELECT SECTOR:</div>
+          <div class="dim" style="margin-top:4px;margin-bottom:2px;">QUICK SELECT SECTOR:</div>
           <div class="teams-submenu" id="ukTeamsSubMenu" style="max-height:90px;"></div>
           <div id="selectedLocationTeamsPanel" class="selected-location-teams" style="margin-top:10px;">
             <div class="dim">AVAILABLE TEAMS AT SELECTED LOCATION</div>
@@ -743,11 +714,10 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
           <div id="cityRegionPanel" class="hidden" style="margin-top:8px;">
             <div class="dim">INVESTIGATION LOCATIONS <span id="siteCountLabel"></span></div>
             <div id="citySiteList" class="site-list"></div>
-            <div class="site-add-note">Real-world places are treated as geographic anchors. Paranormal incidents, ECTO sites and field notes are presented as part of the ECTO OS field network.</div>
+            <div class="site-add-note">Real-world places remain the geographic anchors. ECTO Vector references identify individual field locations without exposing exact public-facing street or property positions.</div>
           </div>
         </div>
       </div>
-
     </div>
   </div>
 </section>
@@ -962,7 +932,6 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
   </div>
 </section>
 </main></div></section>
-<div id="a4PrintReport"></div>
 <div id="thermalPrintReport" aria-hidden="true"></div>
 
 <script>
@@ -1524,7 +1493,7 @@ window.addEventListener("load",post);
     const f=ukFranchises[+parent.value]; if(!f)return; ensureSiteDatabase(f);
     const latN=+lat.value,lonN=+lon.value; if(!Number.isFinite(latN)||!Number.isFinite(lonN)||latN<49||latN>61||lonN<-11||lonN>3){log("SITE ERROR: COORDINATES OUTSIDE UK FIELD RANGE.","alert");return;}
     const prefix=f.locationId||"LOC"; const siteId=`${prefix}-SITE-${String(f.sites.length+1).padStart(2,"0")}`; const siteName=name.value.trim();
-    f.sites.push({name:siteName,siteId,type:type?.value||"INVESTIGATION SITE",lat:latN,lon:lonN,threat:threat?.value||"LOW",status:(status?.value.trim()||"MONITORING").toUpperCase(),desc:desc?.value.trim()||"ECTO investigation site registered by field operations."});
+    const newSite={name:siteName,siteId,type:type?.value||"INVESTIGATION SITE",lat:latN,lon:lonN,threat:threat?.value||"LOW",status:(status?.value.trim()||"MONITORING").toUpperCase(),desc:desc?.value.trim()||"ECTO investigation site registered by field operations."}; ensureEctoVector(newSite,f); f.sites.push(newSite);
     saveLocationDatabase(); renderLocationDatabase(); renderSiteParentOptions(); selectSector(+parent.value);
     [name,status,lat,lon,desc].forEach(x=>{if(x)x.value="";});
     if(type)type.value="REAL-WORLD ANCHOR"; if(threat)threat.value="LOW";
@@ -1671,7 +1640,7 @@ window.addEventListener("load",post);
     activeSubTeamIndex = 0;
     selectedSiteIndex = 0;
     mapViewMode = "uk";
-    updateMapDossier(index); updateEctoGridRef();
+    updateMapDossier(index);
     renderUKTeamsSubMenu();
     renderSelectedLocationTeams(index);
     renderSiteParentOptions();
@@ -1757,17 +1726,6 @@ window.addEventListener("load",post);
     if(selected){const pkeHistory=(selected.pkeHistory||[]).slice(0,8).map(x=>`<span>${escapeHtml(x.time)} // ${escapeHtml(x.pke)} PKE</span>`).join("<br>")||"NO PKE HISTORY";const actions=(selected.actions||[]).map(a=>`<div class="db-action">[${escapeHtml(a.time)}] ${escapeHtml(a.text)}</div>`).join("")||"NO ACTIONS LOGGED";dossier.innerHTML=`<div class="db-head"><b>${escapeHtml(selected.incidentId)} // STORED DOSSIER</b><span class="incident-db-status ${selected.closed?"closed":"open"}">${selected.closed?"CLOSED":"OPEN"}</span></div><div class="db-grid"><div>DATE: <b>${escapeHtml(selected.date)}</b></div><div>TIME: <b>${escapeHtml(selected.time)}</b></div><div>SECTOR: <b>${escapeHtml(selected.sector)}</b></div><div>LEAD: <b>${escapeHtml(selected.lead)}</b></div><div>THREAT: <b>${escapeHtml(selected.threat)}</b></div><div>ENTITY: <b>${escapeHtml(selected.ghost)}</b></div><div>PKE: <b>${escapeHtml(selected.pke)}</b></div><div>STAGE: <b>${escapeHtml(selected.responseStage)}</b></div><div>STATUS: <b>${escapeHtml(selected.responseStatus)}</b></div><div>UNIT: <b>${escapeHtml(selected.team)}</b></div><div>TRAP: <b>${escapeHtml(selected.trapState)}</b></div><div>CONTAINMENT: <b>${escapeHtml(selected.containment)}</b></div><div>GRID: <b>${escapeHtml(selected.coordinates)}</b></div></div><div class="db-actions"><b>PKE HISTORY</b><br>${pkeHistory}<br><br><b>ACTION LOG</b>${actions}</div>`;dossier.scrollTop=scroll;if(printBtn)printBtn.disabled=false;}else{dossier.innerHTML='<div class="dim">SELECT AN INCIDENT TO VIEW THE STORED DOSSIER.</div>';if(printBtn)printBtn.disabled=true;}
   }
   function buildIncidentReport(index){return snapshotIncidentReport(index);}
-  function printA4FieldReport(){
-    const host=$f("a4PrintReport"),f=ukFranchises[selectedMapIndex]; if(!host||!f)return; ensureSiteDatabase(f);
-    const site=(mapViewMode==="region"&&selectedSiteIndex>=0)?f.sites[selectedSiteIndex]:null;
-    const ref=site?ectoSiteGridRef(site,selectedSiteIndex,f):`${ectoUkGridRef(f)}-B2-00-BASE`;
-    const date=new Date(); const ds=date.toLocaleDateString("en-GB"),ts=date.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
-    const cells=[]; for(let r=1;r<=4;r++)for(let c=0;c<5;c++){const cell=String.fromCharCode(65+c)+r;const matches=ukFranchises.filter(x=>ectoUkGridRef(x)===cell);cells.push(`<td class="${matches.some(x=>x===f)?"active":""}"><div class="grid-label">${cell}</div>${matches.map(x=>`<div class="grid-node">${escapeHtml(locationDisplayName(x))}</div>`).join("")}</td>`);} 
-    const sites=(f.sites||[]).map((x,i)=>`<li><b>${escapeHtml(x.name)}</b> — ${escapeHtml(ectoSiteGridRef(x,i,f))} — ${escapeHtml(x.status||"MONITORING")}</li>`).join("")||"<li>NO INVESTIGATION SITES REGISTERED</li>";
-    host.innerHTML=`<div class="a4-head"><div class="a4-head-title">ECTO OS // FIELD INVESTIGATION REPORT</div><div class="a4-head-sub">ECTO FIELD OPERATIONS DIVISION // A4 ARCHIVAL RECORD</div></div><div class="a4-meta"><div>DATE: <b>${ds}</b></div><div>TIME: <b>${ts}</b></div><div>LOCATION: <b>${escapeHtml(locationDisplayName(f))}</b></div><div>ECTO VECTOR: <b>${escapeHtml(ref)}</b></div><div>THREAT CLASS: <b>${escapeHtml(f.threat||"UNASSESSED")}</b></div><div>STATUS: <b>${escapeHtml(f.responseStatus||"MONITORING")}</b></div></div><div class="a4-section"><div class="a4-section-title">TACTICAL UK FIELD GRID</div><div class="a4-section-body"><div class="a4-grid"><table><tbody>${[0,1,2,3].map(r=>`<tr>${cells.slice(r*5,r*5+5).join("")}</tr>`).join("")}</tbody></table></div></div></div><div class="a4-columns"><div class="a4-section"><div class="a4-section-title">SELECTED SECTOR</div><div class="a4-section-body">LOCATION: <b>${escapeHtml(locationDisplayName(f))}</b><br>UK GRID: <b>${escapeHtml(ectoUkGridRef(f))}</b><br>CITY GRID: <b>${escapeHtml(ectoCityGridRef(f))}</b><br>FIELD VECTOR: <b>${escapeHtml(ref)}</b><br>LEAD: ${escapeHtml(f.lead||"UNASSIGNED")}</div></div><div class="a4-section"><div class="a4-section-title">THREAT TELEMETRY</div><div class="a4-section-body">THREAT: <b>${escapeHtml(f.threat||"LOW")}</b><br>ENTITY: ${escapeHtml(f.ghost||"NO ACTIVE IDENTIFICATION")}<br>STAGE: ${escapeHtml(f.responseStage||"STANDING BY")}<br>TRAP: ${escapeHtml(f.trapState||"STOWED")}</div></div></div><div class="a4-section"><div class="a4-section-title">INVESTIGATION SITE REGISTER</div><div class="a4-section-body"><ul class="a4-list">${sites}</ul></div></div><div class="a4-section"><div class="a4-section-title">FIELD NOTES</div><div class="a4-section-body" style="height:42mm">&nbsp;<br><br><br><br><br></div></div><div class="a4-footer"><span>ECTO OS // AUTHORISED FIELD RECORD</span><span>GRID DATA // GEOGRAPHIC ANCHOR HIDDEN</span></div>`;
-    document.body.classList.add("a4-printing"); window.print(); setTimeout(()=>document.body.classList.remove("a4-printing"),1000);
-  }
-
   function printStoredIncidentReport(report){
     if(!report)return;
     const box=document.getElementById("thermalPrintReport"); if(!box)return;
@@ -1800,7 +1758,7 @@ window.addEventListener("load",post);
         <div>Type: <span class="text-blue">${escapeHtml(selectedSite.type)}</span></div>
         <div>Status: <span class="text-blue">${escapeHtml(selectedSite.status)}</span></div>
         <div>Threat Level: <span class="text-blue">${escapeHtml(selectedSite.threat)}</span></div>
-        <div>Coordinates: ${Number(selectedSite.lat).toFixed(4)}° N, ${Math.abs(Number(selectedSite.lon)).toFixed(4)}° ${Number(selectedSite.lon)<0?"W":"E"}</div>
+        <div>Coordinates: ${Number(selectedSite.lat).toFixed(4)}° N, ${Math.abs(Number(selectedSite.lon)).toFixed(4)}° ${Number(selectedSite.lon)<0?"W":"E"}</div><div>ECTO Grid Reference: <span class="text-blue">${escapeHtml(getFullGridRef(f,selectedSite))}</span></div>
         <div style="margin-top:7px;line-height:1.45;">${escapeHtml(selectedSite.desc||"")}</div>
         <div class="dim" style="margin-top:7px;">PARENT SECTOR: ${escapeHtml(f.city)}</div>
       `;
@@ -1821,67 +1779,13 @@ window.addEventListener("load",post);
         <div>Spectral Match: <span class="text-blue">${escapeHtml(f.spectralMatch||"NO MATCH ANALYSIS")}</span></div>
         <div>Containment Capacity: <span class="text-blue">${f.cellsOccupied||0} / ${f.cells||0}</span></div>
         <div>PKE History: <span class="dim">${f.pkeHistory&&f.pkeHistory.length ? f.pkeHistory.slice(0,5).map(x=>escapeHtml(x.pke)).join(" / ")+" PKE" : "NO HISTORY"}</span></div>
-        <div>GPS Coordinates: ${escapeHtml(f.latLon)}</div>
+        <div>GPS Coordinates: ${escapeHtml(f.latLon)}</div><div>ECTO Grid Reference: <span class="text-blue">${escapeHtml(getFullGridRef(f,null))}</span></div>
         <div class="dim" style="margin-top:7px;">CITY REGION: ${f.sites.length} INVESTIGATION LOCATION(S) // TAP CITY REGION TO OPEN</div>
       `;
     }
+    updateGridReferenceUI();
+    drawEctoGridOverlay();
     wireMapDossierControls();
-  }
-
-  function ectoUkGridRef(f){
-    const lon=Number(f?.lon),lat=Number(f?.lat); if(!Number.isFinite(lat)||!Number.isFinite(lon)) return "--";
-    const col=Math.max(0,Math.min(4,Math.floor(((lon+8.5)/(10.3))*5)));
-    const row=Math.max(0,Math.min(3,Math.floor(((59.2-lat)/(9.4))*4)));
-    return String.fromCharCode(65+col)+(row+1);
-  }
-  function ectoCityGridRef(f){
-    const uk=ectoUkGridRef(f); return uk+"-A1";
-  }
-  function ectoSubsectorForSite(site,f){
-    const lat=Number(site?.lat),lon=Number(site?.lon),clat=Number(f?.lat),clon=Number(f?.lon);
-    if(![lat,lon,clat,clon].every(Number.isFinite)) return "01";
-    const dLat=Math.max(.001,Math.abs(lat-clat)),dLon=Math.max(.001,Math.abs(lon-clon));
-    const y=Math.max(0,Math.min(2,Math.floor(((lat-clat)/(dLat*3)+.5)*3)));
-    const x=Math.max(0,Math.min(2,Math.floor(((lon-clon)/(dLon*3)+.5)*3)));
-    return String(y*3+x+1).padStart(2,"0");
-  }
-  function ectoVectorForSite(site,index,f){ return `EV${String(index+1).padStart(2,"0")}`; }
-  function ectoSiteGridRef(site,index,f){ return `${ectoUkGridRef(f)}-B2-${ectoSubsectorForSite(site,f)}-${ectoVectorForSite(site,index,f)}`; }
-  function updateEctoGridRef(){
-    const box=$f("activeEctoGridRef"); if(!box)return;
-    const f=ukFranchises[selectedMapIndex]; if(!f)return;
-    const site=(mapViewMode==="region"&&selectedSiteIndex>=0)?(f.sites||[])[selectedSiteIndex]:null;
-    const ref=site?ectoSiteGridRef(site,selectedSiteIndex,f):`${ectoUkGridRef(f)}-B2-00-BASE`;
-    box.innerHTML=`ECTO VECTOR: <b>${escapeHtml(ref)}</b>`;
-  }
-  function gotoEctoUkGrid(ref){
-    const m=String(ref||"").trim().toUpperCase().match(/^([A-E])([1-4])$/); if(!m)return false;
-    const col=m[1].charCodeAt(0)-65,row=Number(m[2])-1;
-    let best=-1,bestDist=Infinity;
-    ukFranchises.forEach((f,i)=>{const r=ectoUkGridRef(f);const c=r.charCodeAt(0)-65,rr=Number(r.slice(1))-1;const d=Math.abs(c-col)+Math.abs(rr-row);if(d<bestDist){bestDist=d;best=i;}});
-    if(best<0)return false; selectSector(best); setMapView("uk"); return true;
-  }
-  function drawGridFrame(ctx,w,h,cols,rows){
-    ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue("--ui-grid").trim();ctx.lineWidth=1;
-    for(let c=1;c<cols;c++){const x=w*c/cols;ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();}
-    for(let r=1;r<rows;r++){const y=h*r/rows;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
-    ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue("--ui-accent").trim();ctx.strokeRect(.5,.5,w-1,h-1);
-  }
-  function drawEctoGridMap(ctx,w,h){
-    ctx.clearRect(0,0,w,h); const dim=getComputedStyle(document.documentElement).getPropertyValue("--ui-dim").trim();
-    if(mapViewMode==="uk"){
-      const cols=5,rows=4; drawGridFrame(ctx,w,h,cols,rows); ctx.fillStyle=dim;ctx.font="bold 9px monospace";
-      for(let c=0;c<cols;c++)ctx.fillText(String.fromCharCode(65+c),w*(c+.5)/cols-3,12);
-      for(let r=0;r<rows;r++)ctx.fillText(String(r+1),5,h*(r+.5)/rows+3);
-      ukFranchises.forEach((f,idx)=>{const ref=ectoUkGridRef(f),c=ref.charCodeAt(0)-65,r=Number(ref.slice(1))-1;const x=w*(c+.5)/cols,y=h*(r+.5)/rows;const selected=idx===selectedMapIndex;ctx.fillStyle=selected?"#fff":dim;ctx.font=selected?"bold 10px monospace":"9px monospace";ctx.fillText(ref,x-10,y-10);drawNode(ctx,x,y,f.threatColor,selected,locationDisplayName(f));});
-      ctx.fillStyle=dim;ctx.font="8px monospace";ctx.fillText("UK GRID // TYPE A1–E4 TO SELECT SECTOR",10,h-9);
-    }else{
-      const f=ukFranchises[selectedMapIndex];ensureSiteDatabase(f);drawGridFrame(ctx,w,h,3,3);
-      ctx.fillStyle=dim;ctx.font="8px monospace";ctx.fillText(`CITY GRID // ${locationDisplayName(f).toUpperCase()}`,8,12);
-      const cityX=w/2,cityY=h/2;drawNode(ctx,cityX,cityY,"#39a9ff",false,locationDisplayName(f));
-      (f.sites||[]).forEach((site,i)=>{const lat=Number(site.lat),lon=Number(site.lon);let x=w/2,y=h/2;if(Number.isFinite(lat)&&Number.isFinite(lon)){const dx=Math.max(-1,Math.min(1,(lon-Number(f.lon))/.08)),dy=Math.max(-1,Math.min(1,(Number(f.lat)-lat)/.05));x=w*(.5+dx*.43);y=h*(.5+dy*.43);}drawNode(ctx,x,y,site.threat==="SEVERE"?"#ff55dd":site.threat==="HIGH"?"#ff5555":site.threat==="ELEVATED"?"#ffb000":"var(--ui-accent)",i===selectedSiteIndex,ectoSiteGridRef(site,i,f));});
-      ctx.fillStyle=dim;ctx.font="8px monospace";ctx.fillText("CITY GRID // 3 × 3 SUBSECTORS // ECTO VECTOR",10,h-9);
-    }
   }
 
   function initTacticalMap() {
@@ -1892,31 +1796,98 @@ window.addEventListener("load",post);
     const ukBtn=$f("mapUkViewBtn"), regionBtn=$f("mapRegionViewBtn");
     if(ukBtn) ukBtn.onclick=()=>setMapView("uk");
     if(regionBtn) regionBtn.onclick=()=>setMapView("region");
-    const gridInput=$f("ectoGridInput"),gridGo=$f("ectoGridGoBtn");
-    const runGrid=()=>{const ok=gotoEctoUkGrid(gridInput?.value||"");if(ok){if(gridInput)gridInput.value=ectoUkGridRef(ukFranchises[selectedMapIndex]);}else if(gridInput){gridInput.select();}};
-    if(gridGo)gridGo.onclick=runGrid;
-    if(gridInput)gridInput.onkeydown=e=>{if(e.key==="Enter")runGrid();};
     function render(){
       if(!canvas.parentElement) return;
       canvas.width=canvas.parentElement.clientWidth || 300;
       canvas.height=canvas.parentElement.clientHeight || 260;
-      drawEctoGridMap(ctx,canvas.width,canvas.height);
+      drawTacticalMap(ctx,canvas.width,canvas.height);
+      updateGridReferenceUI(); drawEctoGridOverlay();
       requestAnimationFrame(render);
     }
     render();
   }
 
+  function ectoUkGridFromCoords(lat,lon){
+    const cols=[-6,-4,-2.5,-0.5,1.0,2.5];
+    let ci=0; for(let i=0;i<cols.length-1;i++){if(lon>=cols[i]&&lon<cols[i+1]){ci=i;break;}}
+    if(lon>=cols[cols.length-1])ci=4;
+    // Tactical UK rows are numbered north-to-south, with southern England as row 3.
+    let row=3;
+    if(lat>=57) row=1; else if(lat>=54.5) row=2; else if(lat<49.8) row=4;
+    return `${String.fromCharCode(65+ci)}${row}`;
+  }
+  function getUkGridRef(f){ return f.ukGridRef || ectoUkGridFromCoords(Number(f.lat),Number(f.lon)); }
+  function getCityGridRef(f){
+    if(f.cityGridRef) return String(f.cityGridRef);
+    const uk=getUkGridRef(f), col=uk.charCodeAt(0)-65;
+    const lonMin=[-6,-4,-2.5,-0.5,1.0][col]??-2.5, lonMax=[-4,-2.5,-0.5,1.0,2.5][col]??-0.5;
+    const latRow=Number(uk.slice(1));
+    const bands={1:[57,60],2:[54.5,57],3:[49.8,54.5],4:[49,49.8]};
+    const [latMin,latMax]=bands[latRow]||[49.8,54.5];
+    const x=Math.max(0,Math.min(2,Math.floor(((Number(f.lon)-lonMin)/(lonMax-lonMin))*3)));
+    const y=Math.max(0,Math.min(2,Math.floor(((latMax-Number(f.lat))/(latMax-latMin))*3)));
+    return `${String.fromCharCode(65+x)}${y+1}`;
+  }
+  function getSubsectorRef(f,site){
+    const uk=getUkGridRef(f), city=getCityGridRef(f); if(!site) return `${uk}-${city}`;
+    const b=regionBounds(f), lon=Number(site.lon), lat=Number(site.lat);
+    const col=Math.max(0,Math.min(2,Math.floor(((lon-b.minLon)/(b.maxLon-b.minLon))*3)));
+    const row=Math.max(0,Math.min(2,Math.floor(((b.maxLat-lat)/(b.maxLat-b.minLat))*3)));
+    return String((row*3)+col+1).padStart(2,'0');
+  }
+  function drawEctoGridCanvas(ctx,w,h){
+    const grid=getComputedStyle(document.documentElement).getPropertyValue('--ui-grid').trim()||'#16222b';
+    const dim=getComputedStyle(document.documentElement).getPropertyValue('--ui-dim').trim()||'#65727d';
+    ctx.save(); ctx.lineWidth=1; ctx.setLineDash([3,4]); ctx.strokeStyle=grid; ctx.fillStyle=dim; ctx.font='8px monospace';
+    if(mapViewMode==='uk'){
+      const minLon=-8.5,maxLon=1.8,minLat=49.8,maxLat=59.2,padX=Math.max(22,w*.06),padY=Math.max(18,h*.07);
+      const xFor=lon=>padX+((lon-minLon)/(maxLon-minLon))*(w-padX*2), yFor=lat=>padY+((maxLat-lat)/(maxLat-minLat))*(h-padY*2);
+      const cols=[-6,-4,-2.5,-0.5,1.0,1.8];
+      const rows=[59.2,56.85,54.5,52.15,49.8];
+      cols.forEach((lon,i)=>{if(i>0&&i<cols.length-1){const x=xFor(lon);ctx.beginPath();ctx.moveTo(x,padY);ctx.lineTo(x,h-padY);ctx.stroke();}});
+      rows.forEach((lat,i)=>{if(i>0&&i<rows.length-1){const y=yFor(lat);ctx.beginPath();ctx.moveTo(padX,y);ctx.lineTo(w-padX,y);ctx.stroke();}});
+      ['A','B','C','D','E'].forEach((l,i)=>ctx.fillText(l,padX+(i+.5)*(w-padX*2)/5-3,padY+10));
+      ['1','2','3','4'].forEach((l,i)=>ctx.fillText(l,padX+4,padY+(i+.5)*(h-padY*2)/4+3));
+    }else{
+      const f=ukFranchises[selectedMapIndex],b=regionBounds(f),padX=34,padY=34;
+      for(let i=1;i<3;i++){const x=padX+i*(w-padX*2)/3,y=padY+i*(h-padY*2)/3;ctx.beginPath();ctx.moveTo(x,padY);ctx.lineTo(x,h-padY);ctx.stroke();ctx.beginPath();ctx.moveTo(padX,y);ctx.lineTo(w-padX,y);ctx.stroke();}
+      ['A','B','C'].forEach((l,i)=>ctx.fillText(l,padX+(i+.5)*(w-padX*2)/3-3,padY+10));
+      ['1','2','3'].forEach((l,i)=>ctx.fillText(l,padX+4,padY+(i+.5)*(h-padY*2)/3+3));
+      ctx.fillText(`${getUkGridRef(f)}-${getCityGridRef(f)} // 3×3`,w-90,h-8);
+    }
+    ctx.restore();
+  }
+  function ensureEctoVector(site,f){
+    if(site.ectoVector) return site.ectoVector;
+    if(f.evSequence===undefined) f.evSequence=0;
+    f.evSequence=Math.max(Number(f.evSequence)||0, ...((f.sites||[]).map(s=>{const m=String(s.ectoVector||'').match(/EV(\d+)$/);return m?Number(m[1]):0;})),0);
+    f.evSequence++;
+    site.ectoVector=`EV${String(f.evSequence).padStart(2,'0')}`;
+    return site.ectoVector;
+  }
+  function getFullGridRef(f,site){
+    const uk=getUkGridRef(f),city=getCityGridRef(f),sub=getSubsectorRef(f,site);
+    return site ? `${uk}-${city}-${sub}-${ensureEctoVector(site,f)}` : `${uk}-${city}`;
+  }
+  function updateGridReferenceUI(){
+    const f=ukFranchises[selectedMapIndex]; if(!f)return; ensureSiteDatabase(f);
+    const site=mapViewMode==='region'&&selectedSiteIndex>=0?f.sites[selectedSiteIndex]:null;
+    const uk=getUkGridRef(f), city=getCityGridRef(f), sub=getSubsectorRef(f,site), ev=site?ensureEctoVector(site,f):'--';
+    const set=(id,v)=>{const x=$f(id);if(x)x.textContent=v;};
+    set('mapUkGridRef',uk);set('mapCityGridRef',city);set('mapSubsectorRef',site?sub:'--');set('mapEvRef',ev);
+    const badge=$f('ectoGridBadge'); if(badge)badge.textContent=`GRID: ${site?getFullGridRef(f,site):uk+'-'+city}`;
+  }
+  function drawEctoGridOverlay(){
+    const host=$f('ectoGridOverlay'); if(!host)return; host.innerHTML='';
+    const f=ukFranchises[selectedMapIndex]; if(!f)return;
+    if(mapViewMode==='uk'){
+      const label=document.createElement('div');label.style.cssText='position:absolute;right:10px;top:8px;padding:4px 6px;border:1px solid var(--ui-grid);background:rgba(0,0,0,.58);color:var(--ui-dim);font:8px monospace;letter-spacing:.7px;';label.textContent='UK GRID // GEO-REFERENCE OVERLAY';host.appendChild(label);return;
+    }
+    const label=document.createElement('div');label.style.cssText='position:absolute;right:10px;top:8px;padding:4px 6px;border:1px solid var(--ui-grid);background:rgba(0,0,0,.58);color:var(--ui-dim);font:8px monospace;letter-spacing:.7px;';label.textContent=`CITY GRID // ${getUkGridRef(f)}-${getCityGridRef(f)} // 3×3 SUBSECTORS`;host.appendChild(label);
+  }
   function projectGeo(lat,lon,minLon,maxLon,maxLat,minLat,w,h,padX=22,padY=18){
     lat=Number(lat);lon=Number(lon);minLon=Number(minLon);maxLon=Number(maxLon);maxLat=Number(maxLat);minLat=Number(minLat);
-    const lonSpan=Math.max(0.000001,maxLon-minLon),latSpan=Math.max(0.000001,maxLat-minLat);
-    const midLat=((maxLat+minLat)/2)*Math.PI/180;
-    const geoWidth=lonSpan*Math.cos(midLat);
-    const geoHeight=latSpan;
-    const usableW=Math.max(1,w-padX*2),usableH=Math.max(1,h-padY*2);
-    const scale=Math.min(usableW/geoWidth,usableH/geoHeight);
-    const drawW=geoWidth*scale,drawH=geoHeight*scale;
-    const left=(w-drawW)/2,top=(h-drawH)/2;
-    return {x:left+(lon-minLon)*Math.cos(midLat)*scale,y:top+(maxLat-lat)*scale};
+    return {x:padX+((lon-minLon)/(maxLon-minLon))*(w-padX*2),y:padY+((maxLat-lat)/(maxLat-minLat))*(h-padY*2)};
   }
   function projectLocation(f,w,h){
     const q=projectGeo(Number(f.lat),Number(f.lon),-8.5,1.8,59.2,49.8,w,h,Math.max(22,w*.06),Math.max(18,h*.07));
@@ -1927,20 +1898,20 @@ window.addEventListener("load",post);
       ensureSiteDatabase(ukFranchises[selectedMapIndex]);
       mapViewMode="region"; selectedSiteIndex=selectedSiteIndex<0?0:selectedSiteIndex;
       const panel=$f("cityRegionPanel"); if(panel) panel.classList.remove("hidden");
-      renderCitySites(); updateMapDossier(selectedMapIndex); updateEctoGridRef();
+      renderCitySites(); updateMapDossier(selectedMapIndex);
       const b=$f("mapBreadcrumb"); if(b) b.textContent=`CITY REGION // ${locationDisplayName(ukFranchises[selectedMapIndex]).toUpperCase()}`;
     }else{
       mapViewMode="uk"; selectedSiteIndex=-1;
       const panel=$f("cityRegionPanel"); if(panel) panel.classList.add("hidden");
       const b=$f("mapBreadcrumb"); if(b) b.textContent="UK FIELD NETWORK";
-      updateMapDossier(selectedMapIndex); updateEctoGridRef();
+      updateMapDossier(selectedMapIndex);
     }
   }
   function renderCitySites(){
     const f=ukFranchises[selectedMapIndex]; if(!f)return; ensureSiteDatabase(f);
     const list=$f("citySiteList"), count=$f("siteCountLabel"); if(!list)return;
     if(count) count.textContent=`[${f.sites.length}]`;
-    list.innerHTML=f.sites.map((s,i)=>`<div class="site-row${i===selectedSiteIndex?" active":""}" data-site-index="${i}"><div><b>${escapeHtml(s.name)}</b><div class="site-meta">${escapeHtml(s.siteId)} // ${escapeHtml(s.status)}</div></div><div><span class="site-tag">${escapeHtml(s.type)}</span></div></div>`).join("");
+    list.innerHTML=f.sites.map((s,i)=>`<div class="site-row${i===selectedSiteIndex?" active":""}" data-site-index="${i}"><div><b>${escapeHtml(s.name)}</b><div class="site-meta">${escapeHtml(getFullGridRef(f,s))} // ${escapeHtml(s.status)}</div></div><div><span class="site-tag">${escapeHtml(s.type)}</span></div></div>`).join("");
     list.querySelectorAll("[data-site-index]").forEach(row=>row.onclick=()=>{selectedSiteIndex=+row.dataset.siteIndex; renderCitySites(); updateMapDossier(selectedMapIndex);});
   }
   function regionBounds(f){
@@ -1954,6 +1925,7 @@ window.addEventListener("load",post);
     ctx.strokeStyle=gridColor; ctx.lineWidth=1;
     for(let i=1;i<6;i++){let x=w*i/6;ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();let y=h*i/6;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
     const dim=getComputedStyle(document.documentElement).getPropertyValue("--ui-dim").trim();
+    drawEctoGridCanvas(ctx,w,h);
     if(mapViewMode==="uk"){
       // Tactical vector network: join the geographic city nodes instead of drawing a filled/organic UK blob.
       const pts=ukFranchises.map((f,idx)=>({idx,f,q:projectLocation(f,w,h)}));
@@ -1974,9 +1946,6 @@ window.addEventListener("load",post);
       const f=ukFranchises[selectedMapIndex]; ensureSiteDatabase(f); const b=regionBounds(f);
       ctx.fillStyle=dim;ctx.font="8px monospace";ctx.fillText(`CITY REGION // ${locationDisplayName(f).toUpperCase()}`,8,12);
       ctx.strokeStyle="rgba(57,169,255,0.16)";ctx.lineWidth=1.5;ctx.strokeRect(18,24,w-36,h-42);
-      const cityQ=projectGeo(Number(f.lat),Number(f.lon),b.minLon,b.maxLon,b.maxLat,b.minLat,w,h,34,34);
-      drawNode(ctx,cityQ.x,cityQ.y,"#39a9ff",false,locationDisplayName(f));
-      ctx.fillStyle=dim;ctx.font="8px monospace";ctx.fillText("FIELD LOCATION",cityQ.x+10,cityQ.y+14);
       f.sites.forEach((site,idx)=>{const q=projectGeo(Number(site.lat),Number(site.lon),b.minLon,b.maxLon,b.maxLat,b.minLat,w,h,34,34);let color=site.threat==="SEVERE"?"#ff55dd":site.threat==="HIGH"?"#ff5555":site.threat==="ELEVATED"?"#ffb000":"var(--ui-accent)";drawNode(ctx,q.x,q.y,color,idx===selectedSiteIndex,site.name);});
     }
   }
@@ -2744,8 +2713,6 @@ window.addEventListener("load",post);
     if(closeSectorActionBtn && sectorActionModal) closeSectorActionBtn.onclick=closeSectorActionConsole;
     if(cancelSectorActionBtn && sectorActionConfirm) cancelSectorActionBtn.onclick=()=>{pendingSectorAction=null;sectorActionConfirm.classList.add("hidden");sectorActionWarning.textContent="SELECT AN OPERATIONAL PROTOCOL";};
     if(confirmSectorActionBtn) confirmSectorActionBtn.onclick=executeSectorAction;
-    const printA4FieldReportBtn=$f("printA4FieldReportBtn");
-    if(printA4FieldReportBtn)printA4FieldReportBtn.onclick=printA4FieldReport;
     const printIncidentReportBtn=$f("printIncidentReportBtn");
     if(printIncidentReportBtn) printIncidentReportBtn.onclick=()=>printThermalIncidentReport(selectedMapIndex);
     if(sectorActionModal) sectorActionModal.onclick=e=>{if(e.target===sectorActionModal) closeSectorActionConsole()};
