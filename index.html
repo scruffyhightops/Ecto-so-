@@ -300,6 +300,24 @@ main{
 }
 @media(hover:none){button:hover,.team-card:hover{background:inherit;border-color:var(--ui-grid);}button:active{border-color:var(--ui-accent);} }
 
+
+/* THREAT MAP COMPACT VIEW // reduce unnecessary page scrolling on iPad */
+.screen#ukmap .tactical-map-wrapper{min-height:0;}
+.screen#ukmap .tactical-panel{min-height:0;}
+.screen#ukmap .dossier-box{max-height:220px;}
+.screen#ukmap .site-list{max-height:150px;}
+@media(max-width:900px){
+  .screen#ukmap .chart-container{min-height:220px;}
+  .screen#ukmap .tactical-panel{padding:10px;}
+  .screen#ukmap .dossier-box{max-height:190px;}
+  .screen#ukmap .site-list{max-height:135px;}
+}
+@media(max-width:600px){
+  .screen#ukmap .chart-container{min-height:200px;}
+  .screen#ukmap .dossier-box{max-height:175px;}
+  .screen#ukmap .site-list{max-height:120px;}
+}
+
 /* TABLET LANDSCAPE LAYOUT */
 @media (min-width:901px) and (max-width:1180px) and (orientation:landscape){
   header{height:60px;padding:0 16px;gap:12px}
@@ -822,7 +840,7 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
           <div class="button-row" style="margin-top:10px;"><button id="addSiteBtn" type="button">+ ADD INVESTIGATION SITE</button><button id="cancelSiteEditBtn" type="button" class="hidden">CANCEL EDIT</button></div>
         </div>
         <div>
-          <div class="metric"><span>REGISTERED LOCATIONS</span><b id="locationCountLabel">0</b></div><div class="dim" style="margin:6px 0;line-height:1.4;">SELECT EDIT TO CORRECT CITY OR SITE RECORDS. COORDINATES ARE STORED AS DECIMAL LATITUDE / LONGITUDE.</div>
+          <div class="metric"><span>REGISTERED LOCATIONS</span><b id="locationCountLabel">0</b></div><div class="dim" style="margin:6px 0;line-height:1.4;">SELECT A LOCATION OR SITE TO EDIT ITS STORED RECORD. COORDINATES ARE STORED AS DECIMAL LATITUDE / LONGITUDE.</div>
           <div id="locationDatabaseList" class="location-list"></div>
         </div>
       </div>
@@ -1721,29 +1739,12 @@ window.addEventListener("load",post);
       updateMapDossier(selectedMapIndex);
     }
   }
-  function deleteInvestigationSite(parentIndex,siteIndex){
-    const f=ukFranchises[parentIndex]; if(!f)return; ensureSiteDatabase(f);
-    if(!Number.isInteger(siteIndex)||siteIndex<0||siteIndex>=f.sites.length)return;
-    const removed=f.sites[siteIndex];
-    f.sites.splice(siteIndex,1);
-    if(editingSiteKey && editingSiteKey.parentIndex===parentIndex){
-      if(editingSiteKey.siteIndex===siteIndex) clearSiteEdit();
-      else if(editingSiteKey.siteIndex>siteIndex) editingSiteKey.siteIndex--;
-    }
-    if(selectedSiteIndex===siteIndex) selectedSiteIndex=f.sites.length?Math.min(siteIndex,f.sites.length-1):-1;
-    else if(selectedSiteIndex>siteIndex) selectedSiteIndex--;
-    saveLocationDatabase(); renderLocationDatabase(); renderSiteParentOptions(); renderCitySites(); updateMapDossier(parentIndex);
-    log(`Investigation site deleted: ${removed.name} // ${f.city}.`,'warn');
-  }
-
   function renderCitySites(){
     const f=ukFranchises[selectedMapIndex]; if(!f)return; ensureSiteDatabase(f);
     const list=$f("citySiteList"), count=$f("siteCountLabel"); if(!list)return;
     if(count) count.textContent=`[${f.sites.length}]`;
-    list.innerHTML=f.sites.map((s,i)=>`<div class="site-row${i===selectedSiteIndex?" active":""}" data-site-index="${i}"><div><b>${escapeHtml(s.name)}</b><div class="site-meta">${escapeHtml(s.siteId)} // ${escapeHtml(s.status)}</div></div><div style="display:flex;align-items:center;gap:5px;"><span class="site-tag">${escapeHtml(s.type)}</span><button type="button" data-edit-site="${i}" style="min-height:38px;padding:6px 8px;font-size:9px;">EDIT</button><button type="button" data-delete-site="${i}" style="min-height:38px;padding:6px 8px;font-size:9px;border-color:#ff5555;color:#ff5555;">DELETE</button></div></div>`).join("");
-    list.querySelectorAll("[data-site-index]").forEach(row=>row.onclick=e=>{if(e.target.closest("[data-edit-site]"))return;selectedSiteIndex=+row.dataset.siteIndex; renderCitySites(); updateMapDossier(selectedMapIndex);});
-    list.querySelectorAll("[data-edit-site]").forEach(btn=>btn.onclick=e=>{e.stopPropagation();startSiteEdit(selectedMapIndex,+btn.dataset.editSite);});
-    list.querySelectorAll("[data-delete-site]").forEach(btn=>btn.onclick=e=>{e.stopPropagation();deleteInvestigationSite(selectedMapIndex,+btn.dataset.deleteSite);});
+    list.innerHTML=f.sites.map((s,i)=>`<div class="site-row${i===selectedSiteIndex?" active":""}" data-site-index="${i}"><div><b>${escapeHtml(s.name)}</b><div class="site-meta">${escapeHtml(s.siteId)} // ${escapeHtml(s.status)}</div></div><div><span class="site-tag">${escapeHtml(s.type)}</span></div></div>`).join("");
+    list.querySelectorAll("[data-site-index]").forEach(row=>row.onclick=()=>{selectedSiteIndex=+row.dataset.siteIndex; renderCitySites(); updateMapDossier(selectedMapIndex);});
   }
   function regionBounds(f){
     const sites=f.sites||[]; let lats=[f.lat],lons=[f.lon]; sites.forEach(s=>{lats.push(Number(s.lat));lons.push(Number(s.lon));});
