@@ -1514,9 +1514,16 @@ window.addEventListener("load",post);
     const wrap=document.createElement("div");
     wrap.id="configurationSiteRegister";
     wrap.style.cssText="margin-top:10px;border-top:1px solid var(--ui-grid);padding-top:10px;";
-    wrap.innerHTML=`<div class="panel-title">INVESTIGATION SITES // ${escapeHtml(locationDisplayName(f).toUpperCase())} <span class="dim">[DELETE / MANAGE]</span></div>`+
-      (f.sites.length?f.sites.map((site,i)=>`<div class="location-row" style="margin-top:5px;grid-template-columns:1fr auto;"><div><b>${escapeHtml(site.name)}</b><div class="location-meta">${escapeHtml(site.siteId)} // ${escapeHtml(site.status)}</div></div><button type="button" data-config-delete-site="${i}" style="border-color:#ff5555;color:#ff5555;min-height:38px;">DELETE</button></div>`).join(""):'<div class="dim" style="margin-top:6px;">NO INVESTIGATION SITES REGISTERED FOR THIS LOCATION.</div>');
+    wrap.innerHTML=`<div class="panel-title">INVESTIGATION SITES // ${escapeHtml(locationDisplayName(f).toUpperCase())} <span class="dim">[EDIT / DELETE]</span></div>`+
+      (f.sites.length?f.sites.map((site,i)=>`<div class="location-row" style="margin-top:5px;grid-template-columns:minmax(0,1fr) auto;"><div><b>${escapeHtml(site.name)}</b><div class="location-meta">${escapeHtml(site.siteId||"SITE")} // ${escapeHtml(site.status||"MONITORING")} // ${escapeHtml(site.threat||"LOW")}</div></div><div class="button-row" style="margin:0;gap:4px;justify-content:flex-end;"><button type="button" data-config-edit-site="${i}" style="min-height:38px;">EDIT</button><button type="button" data-config-delete-site="${i}" style="border-color:#ff5555;color:#ff5555;min-height:38px;">DELETE</button></div></div>`).join(""):'<div class="dim" style="margin-top:6px;">NO INVESTIGATION SITES REGISTERED FOR THIS LOCATION.</div>');
     host.parentNode.appendChild(wrap);
+    wrap.querySelectorAll("[data-config-edit-site]").forEach(btn=>btn.onclick=()=>{
+      startSiteEdit(parentIndex,+btn.dataset.configEditSite);
+      const editor=$f("siteNameInput");
+      if(editor)editor.focus({preventScroll:true});
+      const siteSection=editor?.closest(".location-form");
+      if(siteSection)siteSection.scrollIntoView({behavior:"smooth",block:"center"});
+    });
     wrap.querySelectorAll("[data-config-delete-site]").forEach(btn=>btn.onclick=()=>deleteInvestigationSiteFromConfig(parentIndex,+btn.dataset.configDeleteSite));
   }
 
