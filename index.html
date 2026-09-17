@@ -461,6 +461,36 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
   .screen#locationadmin .location-list{max-height:none;}
 }
 
+/* V2.2.15 // ECTO-STYLED NATIVE SELECTS
+   Keep the working native <select> behaviour; style only the closed control.
+   This deliberately does NOT hide, replace, wrap, or intercept the select. */
+#locationAdminContent .location-form select{
+  -webkit-appearance:none;
+  appearance:none;
+  width:100%;
+  min-height:44px;
+  box-sizing:border-box;
+  padding:9px 38px 9px 10px;
+  border:1px solid var(--ui-grid);
+  border-radius:0;
+  background-color:var(--ui-deep);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2373ff80' stroke-width='1.4'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 12px center;
+  background-size:12px 8px;
+  color:var(--ui-accent);
+  font:inherit;
+  font-size:11px;
+  line-height:1.25;
+  color-scheme:dark;
+}
+#locationAdminContent .location-form select:focus{
+  outline:1px solid var(--ui-accent);
+  border-color:var(--ui-accent);
+  box-shadow:0 0 8px rgba(115,255,128,.10);
+}
+#locationAdminContent .location-form select:disabled{opacity:.45;cursor:not-allowed;}
+
 /* ===== V2.2.5 MINIMAL CRT BOOT SCREEN ===== */
 #boot{position:fixed;inset:0;z-index:99999;background:#020602;color:var(--ui-accent);font-family:var(--mono,monospace);display:flex;align-items:center;justify-content:center;overflow:hidden;}
 #boot.hidden{display:none;}
