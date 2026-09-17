@@ -569,6 +569,28 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
 
 
 
+
+/* V2.2.17 // ECTO SELECTION PANELS FOR LOCATION MANAGEMENT */
+#locationAdminContent select[data-ecto-admin-ready="1"]{
+  position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important;clip:rect(0 0 0 0)!important;
+}
+.ecto-admin-select-button{
+  width:100%;min-height:44px;box-sizing:border-box;padding:9px 36px 9px 10px;
+  position:relative;display:flex;align-items:center;text-align:left;
+  border:1px solid var(--ui-grid);border-radius:0;background:var(--ui-deep);
+  color:var(--ui-accent);font:inherit;font-size:11px;letter-spacing:.4px;
+  cursor:pointer;-webkit-tap-highlight-color:transparent;
+}
+.ecto-admin-select-button:focus,.ecto-admin-select-button.is-open{outline:1px solid var(--ui-accent);border-color:var(--ui-accent);box-shadow:0 0 8px rgba(115,255,128,.14);}
+.ecto-admin-select-button:disabled{opacity:.5;cursor:default;}
+.ecto-admin-select-value{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ecto-admin-select-arrow{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:9px;color:var(--ui-dim);}
+.ecto-admin-select-panel{position:fixed;z-index:4500;box-sizing:border-box;overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--ui-deep);border:1px solid var(--ui-accent);box-shadow:0 0 18px rgba(0,0,0,.65),0 0 8px rgba(115,255,128,.10);padding:4px;}
+.ecto-admin-select-panel-head{padding:6px 8px 7px;border-bottom:1px solid var(--ui-grid);margin-bottom:3px;color:var(--ui-dim);font:9px var(--mono);letter-spacing:1px;}
+.ecto-admin-select-option{display:block;width:100%;min-height:44px;padding:11px 10px;box-sizing:border-box;border:1px solid transparent;border-radius:0;background:transparent;color:var(--ui-accent);font:inherit;font-size:11px;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.ecto-admin-select-option+.ecto-admin-select-option{border-top-color:var(--ui-grid);}
+.ecto-admin-select-option:focus,.ecto-admin-select-option:hover{outline:none;border-color:var(--ui-grid);background:var(--ui-panel);}
+.ecto-admin-select-option.is-selected{background:var(--ui-accent);color:#000;border-color:var(--ui-accent);}
 </style><link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#73ff80">
 <meta name="mobile-web-app-capable" content="yes">
@@ -1365,15 +1387,94 @@ window.addEventListener("load",post);
     select.addEventListener("change",sync);
   }
   function initEctoSelectSystem(){
-    document.querySelectorAll("select").forEach(ectoTransformSelect);
-    const observer=new MutationObserver(mutations=>{for(const m of mutations){for(const node of m.addedNodes){if(node.nodeType!==1)continue;if(node.matches?.("select"))ectoTransformSelect(node);node.querySelectorAll?.("select").forEach(ectoTransformSelect);}}});
+    // Location Management uses its own selection-panel controls below.
+    // Do not transform its native selects with the global selector system.
+    document.querySelectorAll("select").forEach(select=>{
+      if(select.closest("#locationAdminContent")) return;
+      ectoTransformSelect(select);
+    });
+    const observer=new MutationObserver(mutations=>{for(const m of mutations){for(const node of m.addedNodes){if(node.nodeType!==1)continue;
+      if(node.matches?.("select") && !node.closest?.("#locationAdminContent"))ectoTransformSelect(node);
+      node.querySelectorAll?.("select").forEach(select=>{if(!select.closest("#locationAdminContent"))ectoTransformSelect(select);});
+    }}});
     observer.observe(document.body,{childList:true,subtree:true});
     document.addEventListener("click",e=>{if(ectoOpenSelect&&!e.target.closest(".ecto-select-button")&&!e.target.closest(".ecto-select-menu"))ectoCloseSelect();});
     window.addEventListener("resize",()=>{if(ectoOpenSelect)ectoPositionSelect(ectoOpenSelect.button,ectoOpenSelect.menu);});
     window.addEventListener("scroll",()=>{if(ectoOpenSelect)ectoPositionSelect(ectoOpenSelect.button,ectoOpenSelect.menu);},true);
     document.addEventListener("keydown",e=>{if(e.key==="Escape"&&ectoOpenSelect)ectoCloseSelect();});
   }
-  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",initEctoSelectSystem,{once:true});else initEctoSelectSystem();
+
+  // LOCATION MANAGEMENT // ECTO SELECTION PANELS
+  // These controls deliberately avoid HTML select interaction on iOS.
+  const ectoAdminSelectIds=["locationSourceInput","siteParentInput","siteTypeInput","siteThreatInput"];
+  let ectoAdminOpen=null;
+  function closeEctoAdminPanel(){
+    if(!ectoAdminOpen)return;
+    const {button,panel}=ectoAdminOpen;
+    panel.remove();
+    button.classList.remove("is-open");
+    button.setAttribute("aria-expanded","false");
+    ectoAdminOpen=null;
+  }
+  function positionEctoAdminPanel(button,panel){
+    const r=button.getBoundingClientRect();
+    const maxH=Math.min(window.innerHeight*.55,420);
+    let top=r.bottom+5;
+    if(top+maxH>window.innerHeight-8) top=Math.max(8,r.top-maxH-5);
+    let left=Math.max(8,r.left), width=Math.min(r.width,window.innerWidth-16);
+    if(left+width>window.innerWidth-8) left=Math.max(8,window.innerWidth-8-width);
+    panel.style.left=left+"px"; panel.style.top=top+"px"; panel.style.width=width+"px"; panel.style.maxHeight=maxH+"px";
+  }
+  function refreshEctoAdminButton(select,button){
+    const opt=select.options[select.selectedIndex];
+    button.querySelector(".ecto-admin-select-value").textContent=opt?opt.textContent:"SELECT";
+    button.disabled=select.disabled;
+  }
+  function ectoAdminTransformSelect(select){
+    if(!select || select.dataset.ectoAdminReady==="1")return;
+    select.dataset.ectoAdminReady="1";
+    const button=document.createElement("button");
+    button.type="button"; button.className="ecto-admin-select-button";
+    button.setAttribute("aria-haspopup","listbox"); button.setAttribute("aria-expanded","false");
+    const value=document.createElement("span"); value.className="ecto-admin-select-value"; button.appendChild(value);
+    const arrow=document.createElement("span"); arrow.className="ecto-admin-select-arrow"; arrow.textContent="▼"; button.appendChild(arrow);
+    select.insertAdjacentElement("afterend",button);
+    refreshEctoAdminButton(select,button);
+    select.addEventListener("change",()=>refreshEctoAdminButton(select,button));
+    button.addEventListener("click",e=>{
+      e.preventDefault(); e.stopPropagation();
+      if(button.disabled)return;
+      if(ectoAdminOpen?.button===button){closeEctoAdminPanel();return;}
+      closeEctoAdminPanel();
+      const panel=document.createElement("div"); panel.className="ecto-admin-select-panel"; panel.setAttribute("role","listbox");
+      const head=document.createElement("div"); head.className="ecto-admin-select-panel-head"; head.textContent="ECTO SELECT // CHOOSE VALUE"; panel.appendChild(head);
+      Array.from(select.options).forEach((opt,i)=>{
+        const b=document.createElement("button"); b.type="button"; b.className="ecto-admin-select-option"+(i===select.selectedIndex?" is-selected":"");
+        b.textContent=opt.textContent; b.disabled=opt.disabled; b.setAttribute("role","option"); b.setAttribute("aria-selected",i===select.selectedIndex?"true":"false");
+        b.onclick=()=>{
+          if(opt.disabled)return;
+          select.selectedIndex=i;
+          select.dispatchEvent(new Event("change",{bubbles:true}));
+          refreshEctoAdminButton(select,button);
+          closeEctoAdminPanel();
+          button.focus({preventScroll:true});
+        };
+        panel.appendChild(b);
+      });
+      document.body.appendChild(panel); button.classList.add("is-open"); button.setAttribute("aria-expanded","true");
+      ectoAdminOpen={button,panel}; positionEctoAdminPanel(button,panel);
+    });
+  }
+  function initEctoAdminSelectionPanels(){
+    ectoAdminSelectIds.forEach(id=>{const select=$f(id);if(select)ectoAdminTransformSelect(select);});
+    document.addEventListener("click",e=>{if(ectoAdminOpen&&!e.target.closest(".ecto-admin-select-button")&&!e.target.closest(".ecto-admin-select-panel"))closeEctoAdminPanel();});
+    document.addEventListener("keydown",e=>{if(e.key==="Escape"&&ectoAdminOpen)closeEctoAdminPanel();});
+    window.addEventListener("resize",()=>{if(ectoAdminOpen)positionEctoAdminPanel(ectoAdminOpen.button,ectoAdminOpen.panel);});
+    window.addEventListener("scroll",()=>{if(ectoAdminOpen)positionEctoAdminPanel(ectoAdminOpen.button,ectoAdminOpen.panel);},true);
+  }
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",()=>{initEctoSelectSystem();initEctoAdminSelectionPanels();},{once:true});
+  }else{initEctoSelectSystem();initEctoAdminSelectionPanels();}
 
   const coreEquipment=["Proton Pack","PKE Meter","Ghost Trap","Ecto Goggles"];
   const optionalEquipment="Giga-Metre";
