@@ -778,7 +778,7 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
       <div id="locationAdminGate" class="location-admin-gate">
         <div class="panel-title">LOCATION MANAGEMENT // ACCESS CONTROL</div>
         <div class="dim" style="line-height:1.5;margin-bottom:9px;">Location editing is restricted to authorised ECTO system personnel. Enter a system authorisation code to unlock the field network editor.</div>
-        <div class="location-admin-row"><input id="locationAdminCode" type="password" inputmode="text" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="ENTER AUTHORISATION CODE"><button id="locationAdminUnlockBtn" type="button">AUTHORISE</button></div>
+        <div class="location-admin-row"><input id="locationAdminCode" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="ENTER AUTHORISATION CODE"><button id="locationAdminUnlockBtn" type="button">AUTHORISE</button></div>
         <div id="locationAdminError" class="location-admin-error"></div>
       </div>
       <div id="locationAdminContent" class="hidden">
@@ -1371,7 +1371,7 @@ window.addEventListener("load",post);
   }
   let editingLocationIndex=-1;
   let editingSiteKey=null;
-  function setLocationEditorUnlocked(unlocked){const gate=$f("locationAdminGate"),content=$f("locationAdminContent");if(gate)gate.classList.toggle("hidden",unlocked);if(content)content.classList.toggle("hidden",!unlocked);}
+  function setLocationEditorUnlocked(unlocked){locationEditorUnlocked=!!unlocked;const gate=$f("locationAdminGate"),content=$f("locationAdminContent");if(gate)gate.classList.toggle("hidden",locationEditorUnlocked);if(content)content.classList.toggle("hidden",!locationEditorUnlocked);}
   function clearLocationEdit(){editingLocationIndex=-1;const b=$f("addLocationBtn"),c=$f("cancelLocationEditBtn");if(b){b.textContent="+ ADD FIELD LOCATION";b.classList.remove("location-editing");}if(c)c.classList.add("hidden");}
   function clearSiteEdit(){editingSiteKey=null;const b=$f("addSiteBtn"),c=$f("cancelSiteEditBtn");if(b){b.textContent="+ ADD INVESTIGATION SITE";b.classList.remove("location-editing");}if(c)c.classList.add("hidden");}
   function clearLocationForm(){["locationCityInput","locationCodeInput","locationRegionInput","locationLatInput","locationLonInput","locationLeadInput"].forEach(id=>{const x=$f(id);if(x)x.value="";});const source=$f("locationSourceInput");if(source)source.value="FAN SUBMITTED";}
@@ -1597,6 +1597,36 @@ window.addEventListener("load",post);
     printStoredIncidentReport(stored||current);
   }
 
+  let locationEditorUnlocked=false;
+  function openLocationManagementFromMap(mode,index,siteIndex=-1){
+    const configScreen=document.querySelector('.screen#config');
+    if(!configScreen)return;
+    document.querySelectorAll('.screen').forEach(sc=>sc.classList.toggle('active',sc.id==='config'));
+    document.querySelectorAll('[data-screen]').forEach(nav=>nav.classList.toggle('active',nav.dataset.screen==='config'));
+    const details=document.querySelector('details.config-details');
+    if(details)details.open=true;
+    if(!locationEditorUnlocked){
+      const code=$f('locationAdminCode');
+      if(code){code.focus({preventScroll:true});}
+      const err=$f('locationAdminError');
+      if(err)err.textContent='AUTHORISATION REQUIRED // ENTER SYSTEM CLEARANCE CODE';
+      return;
+    }
+    if(mode==='site' && siteIndex>=0)startSiteEdit(index,siteIndex);
+    else startLocationEdit(index);
+    const target=$f(mode==='site'?'siteNameInput':'locationCityInput');
+    if(target)target.scrollIntoView({behavior:'smooth',block:'center'});
+  }
+
+  function wireMapDossierControls(){
+    const editLoc=$f('mapEditSelectedLocationBtn');
+    if(editLoc)editLoc.onclick=()=>openLocationManagementFromMap('location',selectedMapIndex);
+    const editSite=$f('mapEditSelectedSiteBtn');
+    if(editSite)editSite.onclick=()=>openLocationManagementFromMap('site',selectedMapIndex,selectedSiteIndex);
+    const pf=$f('mapPreflightBtn');
+    if(pf)pf.onclick=()=>{document.querySelectorAll('.screen').forEach(sc=>sc.classList.toggle('active',sc.id==='fieldops'));document.querySelectorAll('[data-screen]').forEach(nav=>nav.classList.toggle('active',nav.dataset.screen==='fieldops'));renderPreflight();updateReadiness();};
+  }
+
   function updateMapDossier(index) {
     const f = ensureSectorState(ukFranchises[index]);
     const dossier = $("map-target-dossier");
@@ -1612,6 +1642,7 @@ window.addEventListener("load",post);
         <div>Threat Level: <span class="text-blue">${escapeHtml(selectedSite.threat)}</span></div>
         <div>Coordinates: ${Number(selectedSite.lat).toFixed(4)}° N, ${Math.abs(Number(selectedSite.lon)).toFixed(4)}° ${Number(selectedSite.lon)<0?"W":"E"}</div>
         <div style="margin-top:7px;line-height:1.45;">${escapeHtml(selectedSite.desc||"")}</div>
+        <div class="button-row" style="margin-top:9px;"><button type="button" id="mapEditSelectedSiteBtn">EDIT INVESTIGATION SITE</button></div>
         <div class="dim" style="margin-top:7px;">PARENT SECTOR: ${escapeHtml(f.city)}</div>
       `;
     }else{
@@ -1632,9 +1663,11 @@ window.addEventListener("load",post);
         <div>Containment Capacity: <span class="text-blue">${f.cellsOccupied||0} / ${f.cells||0}</span></div>
         <div>PKE History: <span class="dim">${f.pkeHistory&&f.pkeHistory.length ? f.pkeHistory.slice(0,5).map(x=>escapeHtml(x.pke)).join(" / ")+" PKE" : "NO HISTORY"}</span></div>
         <div>GPS Coordinates: ${escapeHtml(f.latLon)}</div>
+        <div class="button-row" style="margin-top:9px;"><button type="button" id="mapEditSelectedLocationBtn">EDIT FIELD LOCATION</button><button type="button" id="mapPreflightBtn" style="border-color:#ffb000;color:#ffb000;">PRE-FLIGHT</button></div>
         <div class="dim" style="margin-top:7px;">CITY REGION: ${f.sites.length} INVESTIGATION LOCATION(S) // TAP CITY REGION TO OPEN</div>
       `;
     }
+    wireMapDossierControls();
   }
 
   function initTacticalMap() {
@@ -2801,8 +2834,9 @@ window.addEventListener("load",post);
     const addLocationBtn=$f("addLocationBtn"); if(addLocationBtn) addLocationBtn.onclick=saveOrAddFieldLocation;
     const addSiteBtn=$f("addSiteBtn"); if(addSiteBtn) addSiteBtn.onclick=saveOrAddInvestigationSite;
     const locationAdminUnlockBtn=$f("locationAdminUnlockBtn"),locationAdminCode=$f("locationAdminCode"),locationAdminError=$f("locationAdminError");
-    const unlockLocationAdmin=()=>{const code=(locationAdminCode?.value||"").replace(/\s+/g,"").toUpperCase();if(code&&Object.prototype.hasOwnProperty.call(ACCESS,code)&&ACCESS[code]==="SYSTEM AUTHOR"){setLocationEditorUnlocked(true);if(locationAdminError)locationAdminError.textContent="CLEARANCE VERIFIED // LOCATION MANAGEMENT UNLOCKED";if(locationAdminCode)locationAdminCode.value="";}else if(locationAdminError)locationAdminError.textContent="ACCESS DENIED // AUTHORISATION REQUIRED";};
-    if(locationAdminUnlockBtn)locationAdminUnlockBtn.onclick=unlockLocationAdmin;if(locationAdminCode)locationAdminCode.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();unlockLocationAdmin();}});
+    const LOCATION_ADMIN_CODES=new Set(["FIELD-1984","AUTHOR","ADMIN","PROTON","1984","GHOST"]);
+    const unlockLocationAdmin=()=>{const code=(locationAdminCode?.value||"").replace(/\s+/g,"").toUpperCase();if(code&&LOCATION_ADMIN_CODES.has(code)){setLocationEditorUnlocked(true);if(locationAdminError)locationAdminError.textContent="CLEARANCE VERIFIED // LOCATION MANAGEMENT UNLOCKED";if(locationAdminCode)locationAdminCode.value="";}else if(locationAdminError)locationAdminError.textContent="ACCESS DENIED // AUTHORISATION REQUIRED";};
+    if(locationAdminUnlockBtn)locationAdminUnlockBtn.onclick=unlockLocationAdmin;if(locationAdminCode){locationAdminCode.addEventListener("input",()=>{locationAdminCode.value=locationAdminCode.value.toUpperCase();if(locationAdminError)locationAdminError.textContent="";});locationAdminCode.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();unlockLocationAdmin();}});}
     const lockLocationAdminBtn=$f("lockLocationAdminBtn");if(lockLocationAdminBtn)lockLocationAdminBtn.onclick=()=>{clearLocationEdit();clearSiteEdit();setLocationEditorUnlocked(false);if(locationAdminError)locationAdminError.textContent="LOCATION MANAGEMENT LOCKED";};
     const cancelLocationEditBtn=$f("cancelLocationEditBtn");if(cancelLocationEditBtn)cancelLocationEditBtn.onclick=()=>{clearLocationForm();clearLocationEdit();};
     const cancelSiteEditBtn=$f("cancelSiteEditBtn");if(cancelSiteEditBtn)cancelSiteEditBtn.onclick=()=>{clearSiteForm();clearSiteEdit();};
