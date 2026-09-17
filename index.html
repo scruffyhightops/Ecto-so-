@@ -491,7 +491,7 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
 }
 #locationAdminContent .location-form select:disabled{opacity:.45;cursor:not-allowed;}
 
-/* ===== V2.2.19 // ECTO INPUT CONTROLS =====
+/* ===== V2.2.20 // ECTO INPUT CONTROLS =====
    Replace browser/iOS-looking text-entry controls with a consistent
    ECTO terminal treatment. Native keyboard/input behaviour is preserved.
    Selectors remain on their existing V2.2.18 ECTO Selection Panel system. */
@@ -696,6 +696,29 @@ textarea{
 .ecto-admin-select-option+.ecto-admin-select-option{border-top-color:var(--ui-grid);}
 .ecto-admin-select-option:focus,.ecto-admin-select-option:hover{outline:none;border-color:var(--ui-grid);background:var(--ui-panel);}
 .ecto-admin-select-option.is-selected{background:var(--ui-accent);color:#000;border-color:var(--ui-accent);}
+
+/* V2.2.20 // Investigation Site Register contained scrolling */
+.ecto-site-register-list{
+  max-height:360px;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+  border:1px solid var(--ui-grid);
+  padding:5px;
+  margin-top:5px;
+}
+.ecto-site-register-meta{font-size:.78rem;opacity:.72;margin-top:4px;letter-spacing:.04em}
+.ecto-site-row{align-items:center}
+.ecto-site-main{min-width:0}
+.ecto-site-main b{overflow-wrap:anywhere}
+.ecto-site-actions{display:flex;gap:5px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.ecto-site-actions button{min-width:78px}
+@media (max-width:600px){
+  .ecto-site-register-list{max-height:280px}
+  .ecto-site-row{grid-template-columns:1fr !important}
+  .ecto-site-actions{justify-content:flex-start;margin-top:5px}
+  .ecto-site-actions button{flex:1 1 110px}
+}
 </style><link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#73ff80">
 <meta name="mobile-web-app-capable" content="yes">
@@ -1960,17 +1983,28 @@ window.addEventListener("load",post);
     const wrap=document.createElement("div");
     wrap.id="configurationSiteRegister";
     wrap.style.cssText="margin-top:10px;border-top:1px solid var(--ui-grid);padding-top:10px;";
+    const previousScroll=window.__ectoSiteRegisterScroll||0;
     wrap.innerHTML=`<div class="panel-title">INVESTIGATION SITES // ${escapeHtml(locationDisplayName(f).toUpperCase())} <span class="dim">[EDIT / DELETE]</span></div>`+
-      (f.sites.length?f.sites.map((site,i)=>`<div class="location-row" style="margin-top:5px;grid-template-columns:minmax(0,1fr) auto;"><div><b>${escapeHtml(site.name)}</b><div class="location-meta">${escapeHtml(site.siteId||"SITE")} // ${escapeHtml(site.status||"MONITORING")} // ${escapeHtml(site.threat||"LOW")}</div></div><div class="button-row" style="margin:0;gap:4px;justify-content:flex-end;"><button type="button" data-config-edit-site="${i}" style="min-height:38px;">EDIT</button><button type="button" data-config-delete-site="${i}" style="border-color:#ff5555;color:#ff5555;min-height:38px;">DELETE</button></div></div>`).join(""):'<div class="dim" style="margin-top:6px;">NO INVESTIGATION SITES REGISTERED FOR THIS LOCATION.</div>');
+      `<div class="ecto-site-register-meta">${f.sites.length} RECORD${f.sites.length===1?"":"S"}</div>`+
+      `<div id="ectoSiteScroll" class="ecto-site-register-list">`+
+      (f.sites.length?f.sites.map((site,i)=>`<div class="location-row ecto-site-row" style="margin-top:5px;grid-template-columns:minmax(0,1fr) auto;"><div class="ecto-site-main"><b>${escapeHtml(site.name)}</b><div class="location-meta">${escapeHtml(site.siteId||"SITE")} // ${escapeHtml(site.status||"MONITORING")} // ${escapeHtml(site.threat||"LOW")}</div><div class="location-meta">${escapeHtml(site.siteType||"INVESTIGATION SITE")}</div></div><div class="ecto-site-actions"><button type="button" data-config-edit-site="${i}" style="min-height:38px;">EDIT</button><button type="button" data-config-delete-site="${i}" style="border-color:#ff5555;color:#ff5555;min-height:38px;">DELETE</button></div></div>`).join(""):'<div class="dim" style="margin-top:6px;">NO INVESTIGATION SITES REGISTERED FOR THIS LOCATION.</div>')+
+      `</div>`;
     host.parentNode.appendChild(wrap);
+    const scrollBox=wrap.querySelector("#ectoSiteScroll");
+    if(scrollBox)scrollBox.scrollTop=previousScroll;
     wrap.querySelectorAll("[data-config-edit-site]").forEach(btn=>btn.onclick=()=>{
+      if(scrollBox)window.__ectoSiteRegisterScroll=scrollBox.scrollTop;
       startSiteEdit(parentIndex,+btn.dataset.configEditSite);
       const editor=$f("siteNameInput");
       if(editor)editor.focus({preventScroll:true});
       const siteSection=editor?.closest(".location-form");
       if(siteSection)siteSection.scrollIntoView({behavior:"smooth",block:"center"});
     });
-    wrap.querySelectorAll("[data-config-delete-site]").forEach(btn=>btn.onclick=()=>deleteInvestigationSiteFromConfig(parentIndex,+btn.dataset.configDeleteSite));
+    wrap.querySelectorAll("[data-config-delete-site]").forEach(btn=>btn.onclick=()=>{
+      if(scrollBox)window.__ectoSiteRegisterScroll=scrollBox.scrollTop;
+      deleteInvestigationSiteFromConfig(parentIndex,+btn.dataset.configDeleteSite);
+    });
+    if(scrollBox)scrollBox.addEventListener("scroll",()=>{window.__ectoSiteRegisterScroll=scrollBox.scrollTop;},{passive:true});
   }
 
   function deleteInvestigationSiteFromConfig(parentIndex,siteIndex){
