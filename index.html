@@ -106,6 +106,21 @@ header{height:58px;border-bottom:1px solid var(--ui-border);display:flex;justify
 @media(max-width:650px){.incident-db-toolbar{grid-template-columns:1fr}.incident-db-row{grid-template-columns:1fr 1fr}.incident-db-row .db-hide-small{display:none}.incident-db-dossier .db-grid{grid-template-columns:1fr}}
 @media(max-width:560px){.action-grid{grid-template-columns:1fr}.action-option{min-height:64px}}
 
+
+/* V2.2.3 Location Management layout polish */
+.location-admin-content-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;padding-bottom:9px;border-bottom:1px solid var(--ui-grid)}
+.location-admin-content-head .panel-title{margin:0}
+.location-section-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:14px 0 8px;padding:7px 9px;border:1px solid var(--ui-grid);background:rgba(0,0,0,.16);font-size:10px;letter-spacing:1px;color:var(--ui-accent)}
+.location-section-head .dim{font-size:8px;letter-spacing:.7px}
+.location-editor-panel{border:1px solid var(--ui-grid);padding:10px;background:rgba(0,0,0,.08)}
+.location-list-panel{border:1px solid var(--ui-grid);padding:10px;background:rgba(0,0,0,.08)}
+.location-list-panel .location-list{margin-top:8px}
+.location-new-row{display:flex;justify-content:flex-end;margin-bottom:8px}
+@media(max-width:900px){
+  .location-admin-content-head{align-items:flex-start;flex-direction:column}
+  .location-new-row{justify-content:stretch}
+  .location-new-row button{width:100%}
+}
 @media(max-width:900px){.tactical-map-wrapper{grid-template-columns:1fr}.add-member-form{flex-direction:column}}
 
 /* IPAD / TOUCH UI ENHANCEMENTS */
@@ -848,10 +863,15 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
         <div id="locationAdminError" class="location-admin-error" aria-live="polite"></div>
       </div>
       <div id="locationAdminContent" class="hidden">
-        <div class="panel-title">UK FIELD LOCATION DATABASE <span class="dim">[GEO-REFERENCED SECTORS / FIELD NETWORK]</span></div>
-        <div class="dim" style="line-height:1.5;margin-bottom:12px;">Add or correct field locations and investigation sites. Changes are stored in the ECTO configuration data and reflected by the Threat Map.</div>
+        <div class="location-admin-content-head">
+          <div class="panel-title">UK FIELD LOCATION DATABASE <span class="dim">[GEO-REFERENCED SECTORS / FIELD NETWORK]</span></div>
+          <div class="dim">DATABASE: ONLINE // EDIT MODE: AUTHORISED</div>
+        </div>
+        <div class="dim" style="line-height:1.5;margin-bottom:12px;">Select a stored location to edit its record, or create a new field location. Investigation sites are managed separately beneath the location record.</div>
         <div class="location-db-grid" style="grid-template-columns:minmax(0,1.35fr) minmax(280px,.85fr);align-items:start;">
           <div>
+            <div class="location-section-head"><span>LOCATION RECORD</span><span class="dim">[CITY / SECTOR / GEO-REFERENCE]</span></div>
+            <div class="location-editor-panel">
             <div class="location-form">
               <div class="location-field full"><label>LOCATION / CITY</label><input id="locationCityInput" type="text" placeholder="e.g. Portsmouth"></div>
               <div class="location-field"><label>SECTOR CODE</label><input id="locationCodeInput" type="text" placeholder="e.g. PSM-06"></div>
@@ -862,7 +882,8 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
               <div class="location-field"><label>LEAD COMMANDER</label><input id="locationLeadInput" type="text" placeholder="Field Commander"></div>
             </div>
             <div class="button-row" style="margin-top:10px;"><button id="addLocationBtn" type="button">+ ADD FIELD LOCATION</button><button id="cancelLocationEditBtn" type="button" class="hidden">CANCEL EDIT</button></div>
-            <div class="panel-title" style="margin-top:18px;">INVESTIGATION SITE REGISTER <span class="dim">[CITY / REGION LEVEL]</span></div>
+            </div>
+            <div class="location-section-head"><span>INVESTIGATION SITE REGISTER</span><span class="dim">[CITY / REGION LEVEL]</span></div>
             <div class="location-form">
               <div class="location-field full"><label>PARENT CITY / SECTOR</label><select id="siteParentInput"></select></div>
               <div class="location-field full"><label>SITE NAME</label><input id="siteNameInput" type="text" placeholder="e.g. HMS Victory"></div>
@@ -875,9 +896,11 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
             </div>
             <div class="button-row" style="margin-top:10px;"><button id="addSiteBtn" type="button">+ ADD INVESTIGATION SITE</button><button id="cancelSiteEditBtn" type="button" class="hidden">CANCEL EDIT</button></div>
           </div>
-          <div>
+          <div class="location-list-panel">
+            <div class="location-section-head" style="margin-top:0;"><span>LOCATION REGISTER</span><span class="dim">[SELECT RECORD]</span></div>
             <div class="metric"><span>REGISTERED LOCATIONS</span><b id="locationCountLabel">0</b></div>
-            <div class="dim" style="margin:8px 0;line-height:1.4;">SELECT A LOCATION TO EDIT ITS STORED RECORD. COORDINATES ARE STORED AS DECIMAL LATITUDE / LONGITUDE.</div>
+            <div class="dim" style="margin:8px 0;line-height:1.4;">SELECT A LOCATION BELOW TO LOAD ITS STORED RECORD INTO THE EDITOR.</div>
+            <div class="location-new-row"><button id="newLocationRecordBtn" type="button">+ NEW LOCATION RECORD</button></div>
             <div id="locationDatabaseList" class="location-list"></div>
           </div>
         </div>
@@ -2929,6 +2952,7 @@ window.addEventListener("load",post);
     if(locationAdminUnlockBtn)locationAdminUnlockBtn.onclick=unlockLocationAdmin;if(locationAdminCode){locationAdminCode.addEventListener("input",()=>{locationAdminCode.value=locationAdminCode.value.toUpperCase();if(locationAdminError){locationAdminError.textContent="";locationAdminError.classList.remove("denied","granted");}if(locationAdminStatus)locationAdminStatus.textContent="LOCKED // CODE ENTERED";});locationAdminCode.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();unlockLocationAdmin();}});}
     const lockLocationAdminBtn=$f("lockLocationAdminBtn");if(lockLocationAdminBtn)lockLocationAdminBtn.onclick=()=>{clearLocationEdit();clearSiteEdit();setLocationEditorUnlocked(false);setLocationAdminStatus("LOCKED // AWAITING CODE","LOCATION MANAGEMENT LOCKED");if(locationAdminCode)locationAdminCode.value="";};
     const cancelLocationEditBtn=$f("cancelLocationEditBtn");if(cancelLocationEditBtn)cancelLocationEditBtn.onclick=()=>{clearLocationForm();clearLocationEdit();};
+    const newLocationRecordBtn=$f("newLocationRecordBtn");if(newLocationRecordBtn)newLocationRecordBtn.onclick=()=>{clearLocationForm();clearLocationEdit();const x=$f("locationCityInput");if(x){x.focus({preventScroll:true});}};
     const cancelSiteEditBtn=$f("cancelSiteEditBtn");if(cancelSiteEditBtn)cancelSiteEditBtn.onclick=()=>{clearSiteForm();clearSiteEdit();};
     renderSiteParentOptions();
     renderLocationDatabase();
