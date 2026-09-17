@@ -7,45 +7,6 @@
 body:after{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(#0000 0 3px,var(--ui-accent)08 4px);z-index:9}
 button,input,select{font:inherit}button{background:#071207;color:var(--ui-accent);border:1px solid var(--ui-border);padding:10px 14px;cursor:pointer}button:focus{outline:1px solid var(--ui-accent)}button:disabled{opacity:0.4;cursor:not-allowed}
 .hidden{display:none!important}#boot{height:100%;display:flex;align-items:center;justify-content:center;padding:16px}.box{width:min(820px,100%);max-height:94vh;overflow:auto;border:1px solid var(--ui-border);padding:24px;background:#030c03}.logo{text-align:center;font-size:clamp(20px,4vw,34px);letter-spacing:3px;margin-bottom:20px}#post{white-space:pre-wrap;line-height:1.65;min-height:250px}.login{border-top:1px solid var(--ui-border);padding-top:20px}.login-title{text-align:center;letter-spacing:3px;margin-bottom:16px}.row{display:flex;gap:10px}#accessCode{flex:1;min-width:0;background:var(--ui-deep);color:var(--ui-accent);border:1px solid var(--ui-border);padding:15px;text-transform:uppercase;letter-spacing:2px}.hint{text-align:center;color:var(--ui-dim);font-size:12px;margin-top:12px}#error{text-align:center;color:#ff5555;height:22px;margin-top:10px}.verified{margin-top:12px;border:1px solid var(--ui-border);padding:12px;text-align:center}
-
-/* ECTO OS BOOT SEQUENCE // v0.4.0 */
-#boot{height:100%;overflow:auto;display:flex;align-items:center;justify-content:center;padding:18px;background:#010401}
-.ecto-boot-shell{width:min(1240px,94vw);border:1px solid var(--ui-border);background:rgba(2,10,3,.94);padding:26px;box-shadow:0 0 32px rgba(115,255,128,.06) inset}
-.ecto-boot-head{text-align:center;padding-bottom:20px}
-.ecto-gb-mark{width:82px;height:82px;margin:0 auto 9px;border:1px solid var(--ui-border);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;color:var(--ui-accent);letter-spacing:2px}
-.ecto-gb-mark span{font-size:25px;font-weight:bold}.ecto-gb-mark small{font-size:8px;letter-spacing:3px;margin-top:5px}
-.ecto-boot-brand{font-size:clamp(30px,5vw,52px);font-weight:bold;letter-spacing:.14em}
-.ecto-boot-sub{font-size:11px;letter-spacing:.18em;margin-top:7px;color:var(--ui-dim)}
-.ecto-boot-grid{display:grid;grid-template-columns:1.08fr 1fr;gap:16px}
-.ecto-boot-box{border:1px solid var(--ui-border);padding:14px;min-height:245px;background:#020802}
-.ecto-boot-box-title{border-bottom:1px solid var(--ui-border);padding-bottom:8px;margin-bottom:11px;font-size:11px;letter-spacing:.12em}
-.ecto-boot-line{font-size:11px;line-height:1.72;white-space:pre-wrap}
-.ecto-boot-line::before{content:"> ";color:var(--ui-accent)}
-.ecto-diag{display:grid;gap:10px}
-.ecto-diag-row{display:grid;grid-template-columns:minmax(0,1fr) 30px 40%;gap:7px;align-items:center;font-size:10px}
-.ecto-diag-bar{height:10px;border:1px solid var(--ui-border);padding:2px}
-.ecto-diag-bar i{display:block;height:100%;width:0;background:var(--ui-accent);transition:width .35s ease}
-.ecto-boot-bottom{margin-top:16px;border:1px solid var(--ui-border);padding:12px}
-.ecto-loading-label{font-size:11px;letter-spacing:.08em}
-.ecto-progress{height:16px;border:1px solid var(--ui-border);padding:2px;margin-top:8px}
-.ecto-progress i{display:block;height:100%;width:0;background:var(--ui-accent);transition:width .4s ease}
-.ecto-boot-status{text-align:center;margin-top:10px;font-size:11px;letter-spacing:.16em;min-height:15px}
-.ecto-boot-footer{text-align:center;color:var(--ui-dim);font-size:9px;letter-spacing:.12em;margin-top:12px}
-.ecto-login-panel{margin-top:18px;border-top:1px solid var(--ui-border);padding-top:20px}
-@media(max-width:760px){
-  #boot{align-items:flex-start;padding:10px}
-  .ecto-boot-shell{width:100%;padding:16px}
-  .ecto-boot-grid{grid-template-columns:1fr}
-  .ecto-boot-box{min-height:190px}
-  .ecto-boot-brand{font-size:28px}
-  .ecto-boot-sub{font-size:9px;letter-spacing:.1em}
-  .ecto-diag-row{grid-template-columns:minmax(0,1fr) 26px 36%}
-}
-@media(max-width:600px){
-  .ecto-boot-box{padding:11px}
-  .ecto-boot-line{font-size:10px}
-}
-
 header{height:58px;border-bottom:1px solid var(--ui-border);display:flex;justify-content:space-between;align-items:center;padding:0 14px;gap:12px}.title{font-weight:bold;letter-spacing:2px}.session{font-size:12px}.system-clock{font-size:11px;color:var(--ui-dim);text-align:right;line-height:1.35}.header-tools{display:flex;align-items:center;gap:10px;margin-left:auto}.fullscreen-btn{min-width:118px;padding:8px 10px;font-size:10px;letter-spacing:1px}.fullscreen-btn.active{background:var(--ui-accent);color:#000;border-color:var(--ui-accent)} .fullscreen-fallback .fullscreen-btn{background:var(--ui-accent);color:#000;border-color:var(--ui-accent)}
 #app.fullscreen-fallback{overflow:auto}#app.fullscreen-fallback #layout{min-height:0}#layout{height:calc(100% - 58px);min-height:0;display:grid;grid-template-columns:185px minmax(0,1fr);grid-template-rows:minmax(0,1fr);overflow:hidden}nav{border-right:1px solid var(--ui-border);padding:9px;overflow:auto}nav button{display:block;width:100%;margin-bottom:7px;text-align:left}main{padding:14px;overflow:auto;min-width:0;min-height:0;height:100%;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}.screen{display:none}.screen.active{display:block}h1{font-size:20px;letter-spacing:2px;border-bottom:1px solid var(--ui-border);padding-bottom:10px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.panel{border:1px solid var(--ui-border);padding:15px;background:var(--ui-panel)}.big{font-size:28px;margin:8px 0}.metric{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px dotted var(--ui-grid)}.bar{height:13px;border:1px solid var(--ui-border);margin:6px 0 12px}.bar i{display:block;height:100%;background:var(--ui-accent);transition:width 0.4s ease, background-color 0.4s ease}canvas{width:100%;height:190px;border:1px solid var(--ui-border)}
 @media(max-width:720px){#layout{grid-template-columns:1fr;grid-template-rows:60px minmax(0,1fr)}nav{height:60px;border-right:0;border-bottom:1px solid var(--ui-border);display:flex;gap:6px;overflow-x:auto}nav button{min-width:110px;margin:0}.row{flex-direction:column}.grid{grid-template-columns:1fr}}
@@ -101,7 +62,7 @@ header{height:58px;border-bottom:1px solid var(--ui-border);display:flex;justify
 .location-list{max-height:300px;overflow:auto;background:var(--ui-deep);border:1px solid var(--ui-grid)}
 .location-row{display:grid;grid-template-columns:1.25fr .7fr .7fr auto;gap:7px;align-items:center;padding:9px;border-bottom:1px dotted var(--ui-grid);font-size:10px}
 .location-row:last-child{border-bottom:0}.location-row.active{background:#071a07}.location-row b{color:#39a9ff}.location-meta{color:var(--ui-dim);font-size:9px}.location-row button{min-height:36px;padding:6px 8px;font-size:9px}
-.location-status{font-size:8px;letter-spacing:.8px;color:var(--ui-dim)}
+.location-status{font-size:8px;letter-spacing:.8px;color:var(--ui-dim)}.location-admin-gate{border:1px solid var(--ui-border);background:var(--ui-deep);padding:14px;margin-bottom:12px}.location-admin-row{display:flex;gap:8px}.location-admin-row input{flex:1;min-width:0;min-height:48px;padding:10px;background:var(--ui-panel);color:var(--ui-accent);border:1px solid var(--ui-grid);font:inherit}.location-admin-row input:focus{outline:1px solid var(--ui-accent);border-color:var(--ui-accent)}.location-admin-error{min-height:18px;margin-top:7px;color:#ff5555;font-size:10px}.location-editing{border-color:#ffb000!important;color:#ffb000!important}.location-lock-row{display:flex;justify-content:flex-end;margin-top:8px}.location-lock-row button{min-height:42px}@media(max-width:600px){.location-admin-row{flex-direction:column}.location-row{grid-template-columns:1fr auto}.location-row .location-meta:nth-child(3){display:none}}
 .config-details{grid-column:span 2;border:1px solid var(--ui-border);background:var(--ui-panel)}.config-details>summary{list-style:none;cursor:pointer;padding:13px 15px;font-size:13px;letter-spacing:1px;color:var(--ui-accent);background:var(--ui-deep);min-height:48px;display:flex;align-items:center;justify-content:space-between}.config-details>summary::-webkit-details-marker{display:none}.config-details>summary:after{content:"[ OPEN ]";font-size:9px;color:var(--ui-dim)}.config-details[open]>summary:after{content:"[ CLOSE ]"}.config-details-body{padding:15px;border-top:1px solid var(--ui-border)}.fullscreen-config-row{display:flex;gap:8px;flex-wrap:wrap}.fullscreen-config-row button{min-height:46px}.config-note{font-size:10px;color:var(--ui-dim);line-height:1.5;margin-top:8px}
 @media(max-width:820px){.location-db-grid{grid-template-columns:1fr}.location-row{grid-template-columns:1.2fr .8fr auto}.location-row .location-meta:nth-child(3){display:none}}
 .spectre-pke-warning{color:#ffb000}.spectre-edit-shell{background:var(--ui-deep);border:1px solid var(--ui-border);padding:14px;box-shadow:inset 0 0 18px rgba(0,0,0,.22)}.spectre-edit-grid{display:grid;grid-template-columns:1.25fr .75fr;gap:10px;margin-top:12px}.spectre-edit-field{display:flex;flex-direction:column;gap:5px;min-width:0}.spectre-edit-field label{font-size:9px;letter-spacing:1.2px;color:var(--ui-dim)}.spectre-edit-field input,.spectre-edit-field select,.spectre-edit-field textarea{box-sizing:border-box;width:100%;min-width:0;min-height:44px;padding:9px 10px;background:var(--ui-panel);border:1px solid var(--ui-grid);border-radius:0;color:var(--ui-accent);font:inherit;font-size:11px;caret-color:var(--ui-accent)}.spectre-edit-field textarea{min-height:110px;resize:vertical;line-height:1.45}.spectre-edit-field select{appearance:auto}.spectre-edit-field input:focus,.spectre-edit-field select:focus,.spectre-edit-field textarea:focus{outline:1px solid var(--ui-accent);border-color:var(--ui-accent);box-shadow:0 0 8px rgba(115,255,128,.12)}.spectre-edit-band{margin-top:10px;padding:7px 9px;border-left:2px solid var(--ui-accent);background:var(--ui-panel)}.spectre-edit-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:12px}@media(max-width:700px){.spectre-class-selector{grid-template-columns:repeat(4,minmax(0,1fr))}.spectre-edit-grid{grid-template-columns:1fr}}
@@ -404,7 +365,7 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
 #app.ecto-focus-mode #layout{height:100%;min-height:0;display:block;}
 #app.ecto-focus-mode main{width:100%;height:100%;min-height:0;overflow-y:auto;padding:14px;}
 #app.ecto-focus-mode::after{content:'ECTO OS // FOCUS';position:fixed;right:10px;top:8px;z-index:10002;padding:4px 7px;border:1px solid var(--ui-accent);font:10px var(--mono);color:var(--ui-accent);background:rgba(2,6,2,.92);pointer-events:none;}
-.sound-test-row{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;}.native-button-audio-test{margin-top:0}.native-button-audio-test>button{width:100%;}.native-button-audio-test>audio,#pkeConnectAudio,#trapConnectAudio{width:1px;height:1px;opacity:0;position:absolute;pointer-events:none;}
+.sound-test-row{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;}.native-button-audio-test{margin-top:0}.native-button-audio-test>button{width:100%;}.native-button-audio-test>audio{width:1px;height:1px;opacity:0;position:absolute;pointer-events:none;}
 @media(max-width:900px){#app.ecto-focus-mode main{padding:10px 10px calc(10px + env(safe-area-inset-bottom));}}
 </style><link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#73ff80">
@@ -414,42 +375,10 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
 <meta name="apple-mobile-web-app-title" content="ECTO OS">
 <link rel="apple-touch-icon" href="./icons/icon-192.png">
 </head><body>
-<section id="boot">
-<div class="ecto-boot-shell">
-  <div class="ecto-boot-head">
-    <div class="ecto-gb-mark"><span>GB</span><small>ECTO</small></div>
-    <div class="ecto-boot-brand">ECTO OS</div>
-    <div class="ecto-boot-sub">PARANORMAL FIELD OPERATIONS COMPUTER</div>
-  </div>
-
-  <div class="ecto-boot-grid">
-    <div class="ecto-boot-box">
-      <div class="ecto-boot-box-title">SYSTEM INITIALISATION</div>
-      <div id="bootLog"></div>
-    </div>
-    <div class="ecto-boot-box">
-      <div class="ecto-boot-box-title">SYSTEM DIAGNOSTICS</div>
-      <div id="bootDiagnostics" class="ecto-diag"></div>
-    </div>
-  </div>
-
-  <div class="ecto-boot-bottom">
-    <div class="ecto-loading-label">LOADING ECTO OS...</div>
-    <div class="ecto-progress"><i id="bootProgress"></i></div>
-    <div id="bootStatus" class="ecto-boot-status">BOOT SEQUENCE INITIALISING...</div>
-  </div>
-
-  <div class="ecto-boot-footer">LOCAL FIELD COMPUTER // STANDALONE OPERATING ENVIRONMENT</div>
-
-  <div class="ecto-login-panel hidden" id="loginPanel">
-    <div class="login-title">SECURITY KERNEL // ACCESS REQUIRED</div>
-    <div class="row"><input id="accessCode" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="ENTER CLEARANCE CODE"><button id="authorise" type="button">AUTHORISE</button></div>
-    <div id="error"></div>
-    <div class="hint">ENTER = AUTHORISE // ESC = CLEAR // TRY: FIELD-1984 / GM-051 / AUTHOR</div>
-    <div id="verified" class="verified hidden"></div>
-  </div>
-</div>
-</section>
+<section id="boot"><div class="box"><div class="logo">ECTO OS // FIELD SYSTEM</div><div id="post"></div>
+<div id="loginPanel" class="login hidden"><div class="login-title">SECURITY KERNEL // ACCESS REQUIRED</div>
+<div class="row"><input id="accessCode" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="ENTER CLEARANCE CODE"><button id="authorise" type="button">AUTHORISE</button></div>
+<div id="error"></div><div class="hint">ENTER = AUTHORISE // ESC = CLEAR // TRY: FIELD-1984 / GM-051 / AUTHOR</div><div id="verified" class="verified hidden"></div></div></div></section>
 <section id="app" class="hidden"><header><div class="title">ECTO OS // FIELD ENGINEERING COMPUTER</div><div class="session" id="session">NO SESSION</div><div class="system-clock" id="systemClock">00:00:00 // 00/00/0000</div></header>
 <div id="layout"><nav>
 <button data-screen="status">1 STATUS</button><button data-screen="containment">2 CONTAINMENT</button><button data-screen="diagnostics">3 DIAGNOSTICS</button><button data-screen="faults">4 SPECTRE DATABASE</button><button data-screen="fieldops">5 FIELD OPERATIONS</button><button data-screen="ukmap">6 UK THREAT MAP</button><button data-screen="incidents">7 INCIDENT DATABASE</button><button data-screen="config">8 CONFIGURATION</button><button id="lock" type="button">LOCK SYSTEM</button>
@@ -492,7 +421,7 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
       </div>
     </div>
 
-    <div class="panel" style="grid-column: span 2;">
+    <div class="panele="grid-column: span 2;">
       <div class="panel-title">PROTON FIELD STATUS & RESONANCE</div>
       FIELD INTENSITY: <b>88%</b><br>COHERENCE: <b>94%</b><br>OSCILLATION: <b>3.2 Hz</b><br>PHASE LOCK: <b>STABLE</b><br><br>
       <div class="dim">Note: Real-time PKE Spectrum and Electromagnetic Analysis monitors have been relocated to the Containment tab for integrated safety control.</div>
@@ -586,7 +515,6 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
         <button id="pkeToggleBtn" type="button">CONNECT PKE</button>
         <button id="pkeDiagBtn" type="button" disabled>RUN SWEEP</button>
       </div>
-      <audio id="pkeConnectAudio" controls playsinline preload="auto" src="./sounds/button.mp3" aria-label="CONNECT PKE sound"></audio>
     </div>
 
     <!-- GHOST TRAP DIAGNOSTICS -->
@@ -600,7 +528,6 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
         <button id="trapToggleBtn" type="button">CONNECT TRAP</button>
         <button id="trapPurgeBtn" type="button" disabled>PURGE MATRIX</button>
       </div>
-      <audio id="trapConnectAudio" controls playsinline preload="auto" src="./sounds/trap-deploy.mp3" aria-label="CONNECT TRAP sound"></audio>
     </div>
 
     <!-- HARDWARE EVENT TRACE & SAFETY LOG -->
@@ -695,6 +622,7 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
           </div>
           <div class="button-row" style="margin-bottom:6px;">
             <button id="openRosterModalBtn" style="border-color: #39a9ff; color: #39a9ff;">OPEN TEAM ROSTER</button>
+            <button id="openMapPreflightBtn" style="border-color: var(--ui-accent); color: var(--ui-accent);">OPEN PREFLIGHT</button>
             <button id="sectorActionBtn" style="border-color: #ffb000; color: #ffb000;">EXECUTE ACTION</button>
           </div>
           
@@ -703,7 +631,7 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
           <div id="cityRegionPanel" class="hidden" style="margin-top:8px;">
             <div class="dim">INVESTIGATION LOCATIONS <span id="siteCountLabel"></span></div>
             <div id="citySiteList" class="site-list"></div>
-            <div class="site-add-note">Real-world places are treated as geographic anchors. Paranormal incidents, fictional sites and ECTO field notes are fictional in this application.</div>
+            <div class="site-add-note">Real-world places are treated as geographic anchors. Paranormal incidents, ECTO sites and field notes are presented as part of the ECTO OS field network.</div>
           </div>
         </div>
       </div>
@@ -824,7 +752,7 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
     <div class="panel">
       <div class="panel-title">AUDIO SYSTEM <span class="dim">[NATIVE OUTPUT]</span></div>
       <div class="metric"><span>AUDIO OUTPUT</span><b id="audioState">NATIVE ACTIVE</b></div>
-      <div class="config-note">v0.3.1: operational buttons use the integrated ECTO sound system. No separate sound controls are displayed.</div>
+      <div class="config-note">v2.1.1: operational buttons use the integrated ECTO sound system. No separate sound controls are displayed.</div>
       <div class="metric"><span>SOUND MODE</span><b id="audioModeState">INTEGRATED // BUTTON LINKED</b></div>
       <div class="config-note">Sound is assigned to the existing operational controls. The Diagnosis area and its button names remain unchanged.</div>
     </div>
@@ -847,6 +775,13 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
     <details class="config-details">
       <summary>CITY / SITE CUSTOMISATION <span class="dim">[FIELD NETWORK]</span></summary>
       <div class="config-details-body">
+      <div id="locationAdminGate" class="location-admin-gate">
+        <div class="panel-title">LOCATION MANAGEMENT // ACCESS CONTROL</div>
+        <div class="dim" style="line-height:1.5;margin-bottom:9px;">Location editing is restricted to authorised ECTO system personnel. Enter a system authorisation code to unlock the field network editor.</div>
+        <div class="location-admin-row"><input id="locationAdminCode" type="password" inputmode="text" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="ENTER AUTHORISATION CODE"><button id="locationAdminUnlockBtn" type="button">AUTHORISE</button></div>
+        <div id="locationAdminError" class="location-admin-error"></div>
+      </div>
+      <div id="locationAdminContent" class="hidden">
       <div class="panel" style="border:0;padding:0;background:transparent;">
       <div class="panel-title">UK FIELD LOCATION DATABASE <span class="dim">[GEO-REFERENCED SECTORS / FAN ARCHIVE]</span></div>
       <div class="dim" style="line-height:1.5;margin-bottom:8px;">Each field location is stored with geographic coordinates and appears as a live node on the UK Threat Map. Add canonical or fan-submitted locations as the network grows.</div>
@@ -861,27 +796,27 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
             <div class="location-field"><label>DATA SOURCE</label><select id="locationSourceInput"><option>CANONICAL</option><option>FAN SUBMITTED</option><option>UNVERIFIED</option></select></div>
             <div class="location-field"><label>LEAD COMMANDER</label><input id="locationLeadInput" type="text" placeholder="Field Commander"></div>
           </div>
-          <div class="button-row" style="margin-top:10px;"><button id="addLocationBtn" type="button">+ ADD FIELD LOCATION</button></div>
+          <div class="button-row" style="margin-top:10px;"><button id="addLocationBtn" type="button">+ ADD FIELD LOCATION</button><button id="cancelLocationEditBtn" type="button" class="hidden">CANCEL EDIT</button></div>
           <div class="panel-title" style="margin-top:14px;">INVESTIGATION SITE REGISTER <span class="dim">[CITY / REGION LEVEL]</span></div>
           <div class="location-form">
             <div class="location-field full"><label>PARENT CITY / SECTOR</label><select id="siteParentInput"></select></div>
             <div class="location-field full"><label>SITE NAME</label><input id="siteNameInput" type="text" placeholder="e.g. HMS Victory"></div>
-            <div class="location-field"><label>SITE TYPE</label><select id="siteTypeInput"><option>REAL-WORLD ANCHOR</option><option>FICTIONAL INVESTIGATION</option><option>FICTIONAL ECTO SITE</option><option>UNVERIFIED</option></select></div>
+            <div class="location-field"><label>SITE TYPE</label><select id="siteTypeInput"><option>REAL-WORLD ANCHOR</option><option>INVESTIGATION SITE</option><option>ECTO FIELD SITE</option><option>UNVERIFIED</option></select></div>
             <div class="location-field"><label>STATUS</label><input id="siteStatusInput" type="text" placeholder="MONITORING"></div>
             <div class="location-field"><label>LATITUDE</label><input id="siteLatInput" type="number" step="0.0001" placeholder="50.8014"></div>
             <div class="location-field"><label>LONGITUDE</label><input id="siteLonInput" type="number" step="0.0001" placeholder="-1.1088"></div>
             <div class="location-field"><label>THREAT</label><select id="siteThreatInput"><option>LOW</option><option>MODERATE</option><option>ELEVATED</option><option>HIGH</option><option>SEVERE</option></select></div>
-            <div class="location-field full"><label>FIELD NOTES / SITE DESCRIPTION</label><textarea id="siteDescInput" rows="3" placeholder="Investigation notes. Identify fictional material clearly when appropriate."></textarea></div>
+            <div class="location-field full"><label>FIELD NOTES / SITE DESCRIPTION</label><textarea id="siteDescInput" rows="3" placeholder="Investigation notes. Enter field notes and site description."></textarea></div>
           </div>
-          <div class="button-row" style="margin-top:10px;"><button id="addSiteBtn" type="button">+ ADD INVESTIGATION SITE</button></div>
+          <div class="button-row" style="margin-top:10px;"><button id="addSiteBtn" type="button">+ ADD INVESTIGATION SITE</button><button id="cancelSiteEditBtn" type="button" class="hidden">CANCEL EDIT</button></div>
         </div>
         <div>
-          <div class="metric"><span>REGISTERED LOCATIONS</span><b id="locationCountLabel">0</b></div>
+          <div class="metric"><span>REGISTERED LOCATIONS</span><b id="locationCountLabel">0</b></div><div class="dim" style="margin:6px 0;line-height:1.4;">SELECT EDIT TO CORRECT CITY OR SITE RECORDS. COORDINATES ARE STORED AS DECIMAL LATITUDE / LONGITUDE.</div>
           <div id="locationDatabaseList" class="location-list"></div>
         </div>
       </div>
     </div>
-
+      <div class="location-lock-row"><button id="lockLocationAdminBtn" type="button">LOCK LOCATION MANAGEMENT</button></div>
       </div>
       </div>
     </details>
@@ -908,64 +843,18 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
 "use strict";
 const ACCESS={"FIELD":"FIELD ENGINEER","FIELD-1984":"FIELD ENGINEER","ENGINEER":"FIELD ENGINEER","ENG-1984":"FIELD ENGINEER","CONTROL":"MISSION CONTROL","MISSION":"MISSION CONTROL","GM-051":"MISSION CONTROL","AUTHOR":"SYSTEM AUTHOR","ADMIN":"SYSTEM AUTHOR","PROTON":"SYSTEM AUTHOR","1984":"SYSTEM AUTHOR","GHOST":"SYSTEM AUTHOR"};
 const $=id=>document.getElementById(id); let role="";
-const bootSystems=[
-  "FIELD COMPUTER INITIALISATION",
-  "PKE SENSOR ARRAY",
-  "CONTAINMENT GRID",
-  "SPECTRAL DATABASE",
-  "UK THREAT NETWORK",
-  "THERMAL MANAGEMENT",
-  "SECURITY KERNEL"
-];
+const lines=["ECTO OS BIOS 7.1.2 // VERSION 2.1.1","----------------------------------------","CPU / CONTROL LOGIC .............. OK","MEMORY CHECK ..................... OK","POWER BUS ........................ OK","CYCLOTRON CONTROLLER ............. OK","FIELD GENERATOR .................. OK","CONTAINMENT ARRAY ................ OK","THERMAL MANAGEMENT ............... OK","SENSOR ARRAY ..................... OK","LOCAL STORAGE .................... OK","INPUT CONTROLLER ................. OK","SECURITY KERNEL .................. READY",""];
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 let bootFinished=false, loginBusy=false;
 
-function buildBootDiagnostics(){
-  const box=$("bootDiagnostics");
-  if(!box || box.dataset.ready) return;
-  box.dataset.ready="1";
-  bootSystems.forEach((name,i)=>{
-    const row=document.createElement("div");
-    row.className="ecto-diag-row";
-    row.innerHTML=`<span>${name}</span><b id="diagState${i}">--</b><span class="ecto-diag-bar"><i id="diagFill${i}"></i></span>`;
-    box.appendChild(row);
-  });
-}
-
 async function post(){
-  const logBox=$("bootLog"), panel=$("loginPanel");
-  if(!logBox || !panel) return;
-  buildBootDiagnostics();
-
-  for(let i=0;i<bootSystems.length;i++){
-    const line=document.createElement("div");
-    line.className="ecto-boot-line";
-    line.textContent=bootSystems[i]+" ........ OK";
-    logBox.appendChild(line);
-
-    const state=$("diagState"+i), fill=$("diagFill"+i);
-    if(state) state.textContent="RUN";
-    if(fill) fill.style.width="18%";
-
-    const pause=430 + Math.floor(Math.random()*720);
-    await sleep(pause);
-
-    if(state) state.textContent="OK";
-    if(fill) fill.style.width="100%";
-
-    const pct=Math.round(((i+1)/bootSystems.length)*100);
-    const progress=$("bootProgress");
-    if(progress) progress.style.width=pct+"%";
-
-    const status=$("bootStatus");
-    if(status){
-      status.textContent=i===bootSystems.length-1
-        ? "SYSTEMS OPERATIONAL // READY"
-        : "INITIALISING // "+pct+"%";
-    }
+  const postBox=$("post");
+  const panel=$("loginPanel");
+  if(!postBox || !panel) return;
+  for(const x of lines){
+    postBox.textContent += x + "\n";
+    await sleep(35);
   }
-
-  await sleep(550);
   bootFinished=true;
   panel.classList.remove("hidden");
   focusLogin();
@@ -1140,7 +1029,6 @@ if(cv){
 }
 
 window.addEventListener("load",post);
-
 
 /* FIELD OPERATIONS, TACTICAL UK MAP, SPECTRE DATABASE & MULTI-TEAM DIRECTORY MANAGEMENT */
 (function(){
@@ -1417,27 +1305,27 @@ window.addEventListener("load",post);
     "Portsmouth": [
       {name:"Historic Dockyard",siteId:"PSM-HDO-01",type:"REAL-WORLD ANCHOR",lat:50.8007,lon:-1.1080,threat:"ELEVATED",status:"UNDER OBSERVATION",desc:"Historic maritime site used as a geographic investigation anchor. Fictional ECTO telemetry is layered onto the real location for field-play purposes."},
       {name:"HMS Victory",siteId:"PSM-HV-02",type:"REAL-WORLD ANCHOR",lat:50.8014,lon:-1.1088,threat:"HIGH",status:"ACTIVE INVESTIGATION",desc:"ECTO OS investigation location associated with intermittent PKE spikes, unexplained deck-level movement and residual apparition reports. Paranormal activity described here is fictional."},
-      {name:"Mary Rose Museum",siteId:"PSM-MRM-03",type:"REAL-WORLD ANCHOR",lat:50.8001,lon:-1.1089,threat:"MODERATE",status:"MONITORING",desc:"Maritime history anchor with a fictional low-level psychokinetic monitoring profile."},
-      {name:"Dockyard Basin",siteId:"PSM-DB-04",type:"REAL-WORLD ANCHOR",lat:50.8000,lon:-1.1060,threat:"ELEVATED",status:"PKE MONITORING",desc:"Fictional field zone used for waterfront telemetry and response drills."},
-      {name:"BLACKWATER SUB-LEVEL",siteId:"PSM-BLK-05",type:"FICTIONAL ECTO SITE",lat:50.8070,lon:-1.0950,threat:"SEVERE",status:"RESTRICTED",desc:"Fictional underground containment annex beneath the Portsmouth sector. Access restricted to authorised field teams."},
-      {name:"SOUTHSEA RESIDUAL EVENT",siteId:"PSM-SSE-06",type:"FICTIONAL INVESTIGATION",lat:50.7830,lon:-1.0900,threat:"MODERATE",status:"UNRESOLVED",desc:"Fictional recurring manifestation zone used for residential haunting investigations."}
+      {name:"Mary Rose Museum",siteId:"PSM-MRM-03",type:"REAL-WORLD ANCHOR",lat:50.8001,lon:-1.1089,threat:"MODERATE",status:"MONITORING",desc:"Maritime history anchor with a low-level psychokinetic monitoring profile."},
+      {name:"Dockyard Basin",siteId:"PSM-DB-04",type:"REAL-WORLD ANCHOR",lat:50.8000,lon:-1.1060,threat:"ELEVATED",status:"PKE MONITORING",desc:"Field zone used for waterfront telemetry and response drills."},
+      {name:"BLACKWATER SUB-LEVEL",siteId:"PSM-BLK-05",type:"ECTO FIELD SITE",lat:50.8070,lon:-1.0950,threat:"SEVERE",status:"RESTRICTED",desc:"Fictional underground containment annex beneath the Portsmouth sector. Access restricted to authorised field teams."},
+      {name:"SOUTHSEA RESIDUAL EVENT",siteId:"PSM-SSE-06",type:"INVESTIGATION SITE",lat:50.7830,lon:-1.0900,threat:"MODERATE",status:"UNRESOLVED",desc:"Recurring manifestation zone used for residential haunting investigations."}
     ],
     "London": [
-      {name:"ECTO London HQ",siteId:"LON-HQ-01",type:"FICTIONAL ECTO SITE",lat:51.5074,lon:-0.1278,threat:"LOW",status:"OPERATIONAL",desc:"Primary fictional ECTO command anchor for the London sector."},
-      {name:"WEST END RESIDUAL ZONE",siteId:"LON-WE-02",type:"FICTIONAL INVESTIGATION",lat:51.5110,lon:-0.1300,threat:"ELEVATED",status:"MONITORING",desc:"Fictional urban residual event site."}
+      {name:"ECTO London HQ",siteId:"LON-HQ-01",type:"ECTO FIELD SITE",lat:51.5074,lon:-0.1278,threat:"LOW",status:"OPERATIONAL",desc:"Primary ECTO command anchor for the London sector."},
+      {name:"WEST END RESIDUAL ZONE",siteId:"LON-WE-02",type:"INVESTIGATION SITE",lat:51.5110,lon:-0.1300,threat:"ELEVATED",status:"MONITORING",desc:"Fictional urban residual event site."}
     ],
     "Edinburgh": [
-      {name:"OLD TOWN FIELD ZONE",siteId:"EDI-OT-01",type:"REAL-WORLD ANCHOR",lat:55.9500,lon:-3.1900,threat:"ELEVATED",status:"MONITORING",desc:"Geographic anchor for fictional Edinburgh investigations."},
-      {name:"VAULT 7",siteId:"EDI-V7-02",type:"FICTIONAL INVESTIGATION",lat:55.9480,lon:-3.1880,threat:"HIGH",status:"RESTRICTED",desc:"Fictional underground investigation location."}
+      {name:"OLD TOWN FIELD ZONE",siteId:"EDI-OT-01",type:"REAL-WORLD ANCHOR",lat:55.9500,lon:-3.1900,threat:"ELEVATED",status:"MONITORING",desc:"Geographic anchor for Edinburgh investigations."},
+      {name:"VAULT 7",siteId:"EDI-V7-02",type:"INVESTIGATION SITE",lat:55.9480,lon:-3.1880,threat:"HIGH",status:"RESTRICTED",desc:"Restricted underground investigation location."}
     ],
     "Manchester": [
-      {name:"NORTHERN RAIL FIELD ZONE",siteId:"MCR-NR-01",type:"FICTIONAL INVESTIGATION",lat:53.4840,lon:-2.2380,threat:"HIGH",status:"ACTIVE INVESTIGATION",desc:"Fictional transit-sector anomaly site."}
+      {name:"NORTHERN RAIL FIELD ZONE",siteId:"MCR-NR-01",type:"INVESTIGATION SITE",lat:53.4840,lon:-2.2380,threat:"HIGH",status:"ACTIVE INVESTIGATION",desc:"Transit-sector anomaly site."}
     ],
     "Birmingham": [
-      {name:"MIDLANDS POWER ANNEX",siteId:"BHM-MPA-01",type:"FICTIONAL ECTO SITE",lat:52.4850,lon:-1.8900,threat:"ELEVATED",status:"MONITORING",desc:"Fictional ECTO equipment and containment support site."}
+      {name:"MIDLANDS POWER ANNEX",siteId:"BHM-MPA-01",type:"ECTO FIELD SITE",lat:52.4850,lon:-1.8900,threat:"ELEVATED",status:"MONITORING",desc:"ECTO equipment and containment support site."}
     ],
     "Bristol": [
-      {name:"HARBOUR RESIDUAL ZONE",siteId:"BST-HRZ-01",type:"FICTIONAL INVESTIGATION",lat:51.4500,lon:-2.5920,threat:"MODERATE",status:"MONITORING",desc:"Fictional waterfront manifestation zone."}
+      {name:"HARBOUR RESIDUAL ZONE",siteId:"BST-HRZ-01",type:"INVESTIGATION SITE",lat:51.4500,lon:-2.5920,threat:"MODERATE",status:"MONITORING",desc:"Waterfront manifestation zone."}
     ]
   };
   additionalUkLocations.forEach(f=>{ if(!ukFranchises.some(x=>x.city===f.city)) ukFranchises.push(f); });
@@ -1447,12 +1335,12 @@ window.addEventListener("load",post);
     if(!f.sites.length){
       const key=cityKey(f), seed=starterInvestigationSites[key];
       if(seed) f.sites=seed.map(x=>({...x}));
-      else f.sites=[{name:`${locationDisplayName(f).toUpperCase()} FIELD HUB`,siteId:`${f.locationId}-HUB`,type:"FICTIONAL ECTO SITE",lat:f.lat,lon:f.lon,threat:f.threat||"LOW",status:"MONITORING",desc:`Fictional ECTO field investigation anchor for the ${locationDisplayName(f)} sector.`}];
+      else f.sites=[{name:`${locationDisplayName(f).toUpperCase()} FIELD HUB`,siteId:`${f.locationId}-HUB`,type:"ECTO FIELD SITE",lat:f.lat,lon:f.lon,threat:f.threat||"LOW",status:"MONITORING",desc:`ECTO field investigation anchor for the ${locationDisplayName(f)} sector.`}];
     }
     f.sites.forEach((site,i)=>{
       if(typeof site.lat!=="number") site.lat=f.lat; if(typeof site.lon!=="number") site.lon=f.lon;
       if(!site.siteId) site.siteId=`${f.locationId}-SITE-${String(i+1).padStart(2,"0")}`;
-      if(!site.type) site.type="FICTIONAL INVESTIGATION"; if(!site.status) site.status="MONITORING"; if(!site.threat) site.threat="LOW";
+      if(!site.type) site.type="INVESTIGATION SITE"; if(!site.status) site.status="MONITORING"; if(!site.threat) site.threat="LOW";
     });
     return f;
   }
@@ -1481,13 +1369,25 @@ window.addEventListener("load",post);
     sel.innerHTML=ukFranchises.map((f,i)=>`<option value="${i}">${escapeHtml(f.city)}</option>`).join("");
     if(current!=="" && ukFranchises[+current]) sel.value=current; else sel.value=String(selectedMapIndex||0);
   }
+  let editingLocationIndex=-1;
+  let editingSiteKey=null;
+  function setLocationEditorUnlocked(unlocked){const gate=$f("locationAdminGate"),content=$f("locationAdminContent");if(gate)gate.classList.toggle("hidden",unlocked);if(content)content.classList.toggle("hidden",!unlocked);}
+  function clearLocationEdit(){editingLocationIndex=-1;const b=$f("addLocationBtn"),c=$f("cancelLocationEditBtn");if(b){b.textContent="+ ADD FIELD LOCATION";b.classList.remove("location-editing");}if(c)c.classList.add("hidden");}
+  function clearSiteEdit(){editingSiteKey=null;const b=$f("addSiteBtn"),c=$f("cancelSiteEditBtn");if(b){b.textContent="+ ADD INVESTIGATION SITE";b.classList.remove("location-editing");}if(c)c.classList.add("hidden");}
+  function clearLocationForm(){["locationCityInput","locationCodeInput","locationRegionInput","locationLatInput","locationLonInput","locationLeadInput"].forEach(id=>{const x=$f(id);if(x)x.value="";});const source=$f("locationSourceInput");if(source)source.value="FAN SUBMITTED";}
+  function clearSiteForm(){["siteNameInput","siteStatusInput","siteLatInput","siteLonInput","siteDescInput"].forEach(id=>{const x=$f(id);if(x)x.value="";});const type=$f("siteTypeInput"),threat=$f("siteThreatInput");if(type)type.value="REAL-WORLD ANCHOR";if(threat)threat.value="LOW";}
+  function startLocationEdit(index){const f=ukFranchises[index];if(!f)return;editingLocationIndex=index;$f("locationCityInput").value=locationDisplayName(f);$f("locationCodeInput").value=f.locationId||"";$f("locationRegionInput").value=f.region||"";$f("locationLatInput").value=Number(f.lat).toFixed(4);$f("locationLonInput").value=Number(f.lon).toFixed(4);$f("locationSourceInput").value=f.source||"CANONICAL";$f("locationLeadInput").value=f.lead||"";const b=$f("addLocationBtn"),c=$f("cancelLocationEditBtn");if(b){b.textContent="SAVE CITY LOCATION";b.classList.add("location-editing");}if(c)c.classList.remove("hidden");}
+  function saveOrAddFieldLocation(){const city=$f("locationCityInput"),code=$f("locationCodeInput"),region=$f("locationRegionInput"),lat=$f("locationLatInput"),lon=$f("locationLonInput"),source=$f("locationSourceInput"),lead=$f("locationLeadInput");if(!city||!lat||!lon||!city.value.trim()||lat.value===""||lon.value===""){log("LOCATION ERROR: CITY, LATITUDE AND LONGITUDE REQUIRED.","alert");return;}const cityName=city.value.trim(),sectorCode=(code?.value.trim()||`LOC-${String(ukFranchises.length+1).padStart(2,"0")}`).toUpperCase();const latN=Number(lat.value),lonN=Number(lon.value);if(!Number.isFinite(latN)||!Number.isFinite(lonN)||latN<49||latN>61||lonN<-11||lonN>3){log("LOCATION ERROR: COORDINATES OUTSIDE UK FIELD RANGE.","alert");return;}if(editingLocationIndex>=0&&ukFranchises[editingLocationIndex]){const f=ukFranchises[editingLocationIndex];const old=locationDisplayName(f);f.city=`${cityName} [${sectorCode}]`;f.region=region?.value.trim()||"UK";f.lat=latN;f.lon=lonN;f.source=source?.value||"FAN SUBMITTED";f.lead=lead?.value.trim()||"UNASSIGNED FIELD COMMANDER";f.locationId=sectorCode;hydrateLocationRecord(f);ensureSiteDatabase(f);saveLocationDatabase();renderLocationDatabase();renderSiteParentOptions();renderUKTeamsSubMenu();selectSector(editingLocationIndex);clearLocationForm();clearLocationEdit();setMapView("uk");log(`Field location updated: ${old} -> ${cityName} [${sectorCode}].`,"info");return;}addFieldLocation();}
+  function startSiteEdit(parentIndex,siteIndex){const f=ukFranchises[parentIndex];if(!f)return;ensureSiteDatabase(f);const site=f.sites[siteIndex];if(!site)return;editingSiteKey={parentIndex,siteIndex};$f("siteParentInput").value=String(parentIndex);$f("siteNameInput").value=site.name||"";$f("siteTypeInput").value=site.type||"REAL-WORLD ANCHOR";$f("siteStatusInput").value=site.status||"MONITORING";$f("siteLatInput").value=Number(site.lat).toFixed(4);$f("siteLonInput").value=Number(site.lon).toFixed(4);$f("siteThreatInput").value=site.threat||"LOW";$f("siteDescInput").value=site.desc||"";const b=$f("addSiteBtn"),c=$f("cancelSiteEditBtn");if(b){b.textContent="SAVE INVESTIGATION SITE";b.classList.add("location-editing");}if(c)c.classList.remove("hidden");}
+  function saveOrAddInvestigationSite(){if(!editingSiteKey){addInvestigationSite();return;}const k=editingSiteKey,parent=$f("siteParentInput"),name=$f("siteNameInput"),type=$f("siteTypeInput"),status=$f("siteStatusInput"),lat=$f("siteLatInput"),lon=$f("siteLonInput"),threat=$f("siteThreatInput"),desc=$f("siteDescInput");if(!parent||!name||!lat||!lon||!name.value.trim()||lat.value===""||lon.value===""){log("SITE ERROR: PARENT CITY, SITE NAME, LATITUDE AND LONGITUDE REQUIRED.","alert");return;}const f=ukFranchises[+parent.value];if(!f)return;ensureSiteDatabase(f);const site=f.sites[k.siteIndex];if(!site)return;const latN=Number(lat.value),lonN=Number(lon.value);if(!Number.isFinite(latN)||!Number.isFinite(lonN)||latN<49||latN>61||lonN<-11||lonN>3){log("SITE ERROR: COORDINATES OUTSIDE UK FIELD RANGE.","alert");return;}site.name=name.value.trim();site.type=type?.value||"REAL-WORLD ANCHOR";site.status=(status?.value.trim()||"MONITORING").toUpperCase();site.lat=latN;site.lon=lonN;site.threat=threat?.value||"LOW";site.desc=desc?.value.trim()||"";saveLocationDatabase();renderLocationDatabase();renderSiteParentOptions();selectSector(+parent.value);setMapView("region");renderCitySites();updateMapDossier(+parent.value);clearSiteForm();clearSiteEdit();log(`Investigation site updated: ${site.name} // ${f.city}.`,"info");}
+
   function addInvestigationSite(){
     const parent=$f("siteParentInput"), name=$f("siteNameInput"), type=$f("siteTypeInput"), status=$f("siteStatusInput"), lat=$f("siteLatInput"), lon=$f("siteLonInput"), threat=$f("siteThreatInput"), desc=$f("siteDescInput");
     if(!parent||!name||!lat||!lon||!name.value.trim()||lat.value===""||lon.value===""){log("SITE ERROR: PARENT CITY, SITE NAME, LATITUDE AND LONGITUDE REQUIRED.","alert");return;}
     const f=ukFranchises[+parent.value]; if(!f)return; ensureSiteDatabase(f);
     const latN=+lat.value,lonN=+lon.value; if(!Number.isFinite(latN)||!Number.isFinite(lonN)||latN<49||latN>61||lonN<-11||lonN>3){log("SITE ERROR: COORDINATES OUTSIDE UK FIELD RANGE.","alert");return;}
     const prefix=f.locationId||"LOC"; const siteId=`${prefix}-SITE-${String(f.sites.length+1).padStart(2,"0")}`; const siteName=name.value.trim();
-    f.sites.push({name:siteName,siteId,type:type?.value||"FICTIONAL INVESTIGATION",lat:latN,lon:lonN,threat:threat?.value||"LOW",status:(status?.value.trim()||"MONITORING").toUpperCase(),desc:desc?.value.trim()||"Fictional ECTO investigation site registered by field operations."});
+    f.sites.push({name:siteName,siteId,type:type?.value||"INVESTIGATION SITE",lat:latN,lon:lonN,threat:threat?.value||"LOW",status:(status?.value.trim()||"MONITORING").toUpperCase(),desc:desc?.value.trim()||"ECTO investigation site registered by field operations."});
     saveLocationDatabase(); renderLocationDatabase(); renderSiteParentOptions(); selectSector(+parent.value);
     [name,status,lat,lon,desc].forEach(x=>{if(x)x.value="";});
     if(type)type.value="REAL-WORLD ANCHOR"; if(threat)threat.value="LOW";
@@ -1497,8 +1397,9 @@ window.addEventListener("load",post);
   function renderLocationDatabase(){
     const list=$f("locationDatabaseList"), count=$f("locationCountLabel"); if(!list)return;
     if(count)count.textContent=ukFranchises.length;
-    list.innerHTML=ukFranchises.map((f,i)=>`<div class="location-row${i===selectedMapIndex?" active":""}"><div><b>${escapeHtml(locationDisplayName(f))}</b><div class="location-meta">${escapeHtml(f.region||"UK")} // ${escapeHtml(f.locationId||"")}</div></div><div><span class="location-status">${escapeHtml(f.source||"CANONICAL")}</span><br><span class="location-meta">${f.lat.toFixed(4)}, ${f.lon.toFixed(4)}</span></div><div class="location-meta">${escapeHtml(f.threat)}</div><button type="button" data-location-index="${i}">INSPECT</button></div>`).join("");
-    list.querySelectorAll("[data-location-index]").forEach(btn=>btn.onclick=()=>{selectSector(+btn.dataset.locationIndex); document.querySelectorAll(".screen").forEach(sc=>sc.classList.toggle("active",sc.id==="ukmap")); document.querySelectorAll("[data-screen]").forEach(nav=>nav.classList.toggle("active",nav.dataset.screen==="ukmap"));});
+    list.innerHTML=ukFranchises.map((f,i)=>`<div class="location-row${i===selectedMapIndex?" active":""}"><div><b>${escapeHtml(locationDisplayName(f))}</b><div class="location-meta">${escapeHtml(f.region||"UK")} // ${escapeHtml(f.locationId||"")}</div></div><div><span class="location-status">${escapeHtml(f.source||"CANONICAL")}</span><br><span class="location-meta">${Number(f.lat).toFixed(4)}, ${Number(f.lon).toFixed(4)}</span></div><div class="location-meta">${escapeHtml(f.threat)}</div><div class="button-row" style="margin:0;gap:4px;"><button type="button" data-location-index="${i}">INSPECT</button><button type="button" data-edit-location="${i}">EDIT</button></div></div>`).join("");
+    list.querySelectorAll("[data-location-index]").forEach(btn=>btn.onclick=()=>{selectSector(+btn.dataset.locationIndex); document.querySelectorAll(".screen").forEach(sc=>sc.classList.toggle("active",sc.id==="ukmap"));});
+    list.querySelectorAll("[data-edit-location]").forEach(btn=>btn.onclick=()=>startLocationEdit(+btn.dataset.editLocation));
   }
   function addFieldLocation(){
     const city=$f("locationCityInput"), code=$f("locationCodeInput"), region=$f("locationRegionInput"), lat=$f("locationLatInput"), lon=$f("locationLonInput"), source=$f("locationSourceInput"), lead=$f("locationLeadInput");
@@ -1673,25 +1574,13 @@ window.addEventListener("load",post);
   function getIncidentReportById(id){return incidentReports.find(r=>r.incidentId===id)||null;}
   function escapeHtml(v){return String(v??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[m]));}
   function renderIncidentDatabase(){
-    const list=$f("incidentDatabaseList"), dossier=$f("incidentDatabaseDossier"), printBtn=$f("printStoredIncidentBtn");
-    if(!list||!dossier)return;
-    const q=($f("incidentSearchInput")?.value||"").trim().toLowerCase();
-    const filter=$f("incidentStatusFilter")?.value||"ALL";
-    const rows=incidentReports.filter(r=>{
-      const hay=[r.incidentId,r.sector,r.lead,r.ghost,r.team,r.threat,r.responseStatus].join(" ").toLowerCase();
-      const statusOk=filter==="ALL"||(filter==="CLOSED"?r.closed:!r.closed);
-      return statusOk && (!q||hay.includes(q));
-    });
-    list.innerHTML=rows.length?rows.map(r=>`<div class="incident-db-row${r.incidentId===selectedIncidentDbId?" active":""}" data-incident-id="${escapeHtml(r.incidentId)}"><b>${escapeHtml(r.incidentId)}</b><span>${escapeHtml(r.date)}</span><span>${escapeHtml(r.sector)}</span><span class="incident-db-status ${r.closed?"closed":"open"}">${escapeHtml(r.responseStatus)}</span><span class="db-hide-small">${escapeHtml(r.threat)}</span></div>`).join(""):'<div class="incident-db-empty">NO INCIDENT RECORDS MATCH CURRENT FILTER</div>';
+    const list=$f("incidentDatabaseList"),dossier=$f("incidentDatabaseDossier"),printBtn=$f("printStoredIncidentBtn");if(!list||!dossier)return;
+    const preservedId=selectedIncidentDbId,scroll=dossier.scrollTop,q=($f("incidentSearchInput")?.value||"").trim().toLowerCase(),filter=$f("incidentStatusFilter")?.value||"ALL";
+    const rows=incidentReports.filter(r=>{const hay=[r.incidentId,r.sector,r.lead,r.ghost,r.team,r.threat,r.responseStatus].join(" ").toLowerCase();return (filter==="ALL"||(filter==="CLOSED"?r.closed:!r.closed))&&(!q||hay.includes(q));});
+    list.innerHTML=rows.length?rows.map(r=>`<div class="incident-db-row${r.incidentId===preservedId?" active":""}" data-incident-id="${escapeHtml(r.incidentId)}"><b>${escapeHtml(r.incidentId)}</b><span>${escapeHtml(r.date)}</span><span>${escapeHtml(r.sector)}</span><span class="incident-db-status ${r.closed?"closed":"open"}">${escapeHtml(r.responseStatus)}</span><span class="db-hide-small">${escapeHtml(r.threat)}</span></div>`).join(""):'<div class="incident-db-empty">NO INCIDENT RECORDS MATCH CURRENT FILTER</div>';
     list.querySelectorAll("[data-incident-id]").forEach(row=>row.onclick=()=>{selectedIncidentDbId=row.dataset.incidentId;renderIncidentDatabase();});
-    const selected=getIncidentReportById(selectedIncidentDbId)||rows[0]||null;
-    if(selected && selectedIncidentDbId!==selected.incidentId){selectedIncidentDbId=selected.incidentId;}
-    if(selected){
-      const pkeHistory=(selected.pkeHistory||[]).slice(0,8).map(x=>`<span>${escapeHtml(x.time)} // ${escapeHtml(x.pke)} PKE</span>`).join("<br>")||"NO PKE HISTORY";
-      const actions=(selected.actions||[]).map(a=>`<div class="db-action">[${escapeHtml(a.time)}] ${escapeHtml(a.text)}</div>`).join("")||"NO ACTIONS LOGGED";
-      dossier.innerHTML=`<div class="db-head"><b>${escapeHtml(selected.incidentId)} // STORED DOSSIER</b><span class="incident-db-status ${selected.closed?"closed":"open"}">${selected.closed?"CLOSED":"OPEN"}</span></div><div class="db-grid"><div>DATE: <b>${escapeHtml(selected.date)}</b></div><div>TIME: <b>${escapeHtml(selected.time)}</b></div><div>SECTOR: <b>${escapeHtml(selected.sector)}</b></div><div>LEAD: <b>${escapeHtml(selected.lead)}</b></div><div>THREAT: <b>${escapeHtml(selected.threat)}</b></div><div>ENTITY: <b>${escapeHtml(selected.ghost)}</b></div><div>PKE: <b>${escapeHtml(selected.pke)}</b></div><div>STAGE: <b>${escapeHtml(selected.responseStage)}</b></div><div>STATUS: <b>${escapeHtml(selected.responseStatus)}</b></div><div>UNIT: <b>${escapeHtml(selected.team)}</b></div><div>TRAP: <b>${escapeHtml(selected.trapState)}</b></div><div>CONTAINMENT: <b>${escapeHtml(selected.containment)}</b></div><div>GRID: <b>${escapeHtml(selected.coordinates)}</b></div></div><div class="db-actions"><b>PKE HISTORY</b><br>${pkeHistory}<br><br><b>ACTION LOG</b>${actions}</div>`;
-      if(printBtn)printBtn.disabled=false;
-    }else{dossier.innerHTML='<div class="dim">SELECT AN INCIDENT TO VIEW THE STORED DOSSIER.</div>';if(printBtn)printBtn.disabled=true;}
+    let selected=preservedId?getIncidentReportById(preservedId):null;if(!selected){selected=rows[0]||null;if(selected)selectedIncidentDbId=selected.incidentId;}
+    if(selected){const pkeHistory=(selected.pkeHistory||[]).slice(0,8).map(x=>`<span>${escapeHtml(x.time)} // ${escapeHtml(x.pke)} PKE</span>`).join("<br>")||"NO PKE HISTORY";const actions=(selected.actions||[]).map(a=>`<div class="db-action">[${escapeHtml(a.time)}] ${escapeHtml(a.text)}</div>`).join("")||"NO ACTIONS LOGGED";dossier.innerHTML=`<div class="db-head"><b>${escapeHtml(selected.incidentId)} // STORED DOSSIER</b><span class="incident-db-status ${selected.closed?"closed":"open"}">${selected.closed?"CLOSED":"OPEN"}</span></div><div class="db-grid"><div>DATE: <b>${escapeHtml(selected.date)}</b></div><div>TIME: <b>${escapeHtml(selected.time)}</b></div><div>SECTOR: <b>${escapeHtml(selected.sector)}</b></div><div>LEAD: <b>${escapeHtml(selected.lead)}</b></div><div>THREAT: <b>${escapeHtml(selected.threat)}</b></div><div>ENTITY: <b>${escapeHtml(selected.ghost)}</b></div><div>PKE: <b>${escapeHtml(selected.pke)}</b></div><div>STAGE: <b>${escapeHtml(selected.responseStage)}</b></div><div>STATUS: <b>${escapeHtml(selected.responseStatus)}</b></div><div>UNIT: <b>${escapeHtml(selected.team)}</b></div><div>TRAP: <b>${escapeHtml(selected.trapState)}</b></div><div>CONTAINMENT: <b>${escapeHtml(selected.containment)}</b></div><div>GRID: <b>${escapeHtml(selected.coordinates)}</b></div></div><div class="db-actions"><b>PKE HISTORY</b><br>${pkeHistory}<br><br><b>ACTION LOG</b>${actions}</div>`;dossier.scrollTop=scroll;if(printBtn)printBtn.disabled=false;}else{dossier.innerHTML='<div class="dim">SELECT AN INCIDENT TO VIEW THE STORED DOSSIER.</div>';if(printBtn)printBtn.disabled=true;}
   }
   function buildIncidentReport(index){return snapshotIncidentReport(index);}
   function printStoredIncidentReport(report){
@@ -1767,6 +1656,7 @@ window.addEventListener("load",post);
   }
 
   function projectGeo(lat,lon,minLon,maxLon,maxLat,minLat,w,h,padX=22,padY=18){
+    lat=Number(lat);lon=Number(lon);minLon=Number(minLon);maxLon=Number(maxLon);maxLat=Number(maxLat);minLat=Number(minLat);
     return {x:padX+((lon-minLon)/(maxLon-minLon))*(w-padX*2),y:padY+((maxLat-lat)/(maxLat-minLat))*(h-padY*2)};
   }
   function projectLocation(f,w,h){
@@ -1791,8 +1681,9 @@ window.addEventListener("load",post);
     const f=ukFranchises[selectedMapIndex]; if(!f)return; ensureSiteDatabase(f);
     const list=$f("citySiteList"), count=$f("siteCountLabel"); if(!list)return;
     if(count) count.textContent=`[${f.sites.length}]`;
-    list.innerHTML=f.sites.map((s,i)=>`<div class="site-row${i===selectedSiteIndex?" active":""}" data-site-index="${i}"><div><b>${escapeHtml(s.name)}</b><div class="site-meta">${escapeHtml(s.siteId)} // ${escapeHtml(s.status)}</div></div><span class="site-tag">${escapeHtml(s.type)}</span></div>`).join("");
-    list.querySelectorAll("[data-site-index]").forEach(row=>row.onclick=()=>{selectedSiteIndex=+row.dataset.siteIndex; renderCitySites(); updateMapDossier(selectedMapIndex);});
+    list.innerHTML=f.sites.map((s,i)=>`<div class="site-row${i===selectedSiteIndex?" active":""}" data-site-index="${i}"><div><b>${escapeHtml(s.name)}</b><div class="site-meta">${escapeHtml(s.siteId)} // ${escapeHtml(s.status)}</div></div><div style="display:flex;align-items:center;gap:5px;"><span class="site-tag">${escapeHtml(s.type)}</span><button type="button" data-edit-site="${i}" style="min-height:38px;padding:6px 8px;font-size:9px;">EDIT</button></div></div>`).join("");
+    list.querySelectorAll("[data-site-index]").forEach(row=>row.onclick=e=>{if(e.target.closest("[data-edit-site]"))return;selectedSiteIndex=+row.dataset.siteIndex; renderCitySites(); updateMapDossier(selectedMapIndex);});
+    list.querySelectorAll("[data-edit-site]").forEach(btn=>btn.onclick=e=>{e.stopPropagation();startSiteEdit(selectedMapIndex,+btn.dataset.editSite);});
   }
   function regionBounds(f){
     const sites=f.sites||[]; let lats=[f.lat],lons=[f.lon]; sites.forEach(s=>{lats.push(Number(s.lat));lons.push(Number(s.lon));});
@@ -2445,6 +2336,9 @@ window.addEventListener("load",post);
       };
     }
 
+    const openMapPreflightBtn=$f("openMapPreflightBtn");
+    if(openMapPreflightBtn)openMapPreflightBtn.onclick=()=>{renderPreflight();updateReadiness();document.querySelectorAll(".screen").forEach(sc=>sc.classList.toggle("active",sc.id==="fieldops"));log(`Opened team preflight from threat map // ${ukFranchises[selectedMapIndex]?.city||"CURRENT SECTOR"}.`,"info");};
+
     const sectorActionBtn = $f("sectorActionBtn");
     const sectorActionModal = $f("sectorActionModal");
     const closeSectorActionBtn = $f("closeSectorActionBtn");
@@ -2784,43 +2678,26 @@ window.addEventListener("load",post);
 
     if(pkeToggleBtn) {
       pkeToggleBtn.onclick = () => {
-        if(!pkeConnected) {
-          const pkeAudio = $f("pkeConnectAudio");
-          const connectPke = () => {
-            if(pkeConnected) return;
-            pkeConnected = true;
-            pkeLinkState.textContent = "ONLINE [CONNECTED]";
-            pkeLinkState.style.color = "var(--ui-accent)";
-            pkeFieldVal.textContent = "1.42 uT";
-            pkeWingVal.textContent = "DEPLOYED (100%)";
-            pkeResVal.textContent = "420.5 PKE";
-            pkeToggleBtn.textContent = "DISCONNECT PKE";
-            pkeDiagBtn.removeAttribute("disabled");
-            diagLog("PKE Meter hardware linked successfully.", "info");
-          };
-          if(pkeAudio) {
-            try { pkeAudio.currentTime = 0; } catch(e) {}
-            const playPromise = pkeAudio.play();
-            if(playPromise && typeof playPromise.then === "function") {
-              playPromise.then(connectPke).catch(connectPke);
-            } else {
-              connectPke();
-            }
-          } else {
-            connectPke();
-          }
-          return;
+        pkeConnected = !pkeConnected;
+        if(pkeConnected) {
+          pkeLinkState.textContent = "ONLINE [CONNECTED]";
+          pkeLinkState.style.color = "var(--ui-accent)";
+          pkeFieldVal.textContent = "1.42 uT";
+          pkeWingVal.textContent = "DEPLOYED (100%)";
+          pkeResVal.textContent = "420.5 PKE";
+          pkeToggleBtn.textContent = "DISCONNECT PKE";
+          pkeDiagBtn.removeAttribute("disabled");
+          diagLog("PKE Meter hardware linked successfully.", "info");
+        } else {
+          pkeLinkState.textContent = "OFFLINE [DISCONNECTED]";
+          pkeLinkState.style.color = "#ff5555";
+          pkeFieldVal.textContent = "0.00 uT";
+          pkeWingVal.textContent = "STOWED (0%)";
+          pkeResVal.textContent = "0.0 PKE";
+          pkeToggleBtn.textContent = "CONNECT PKE";
+          pkeDiagBtn.setAttribute("disabled", "true");
+          diagLog("PKE Meter disconnected from bus.", "warn");
         }
-
-        pkeConnected = false;
-        pkeLinkState.textContent = "OFFLINE [DISCONNECTED]";
-        pkeLinkState.style.color = "#ff5555";
-        pkeFieldVal.textContent = "0.00 uT";
-        pkeWingVal.textContent = "STOWED (0%)";
-        pkeResVal.textContent = "0.0 PKE";
-        pkeToggleBtn.textContent = "CONNECT PKE";
-        pkeDiagBtn.setAttribute("disabled", "true");
-        diagLog("PKE Meter disconnected from bus.", "warn");
       };
 
       pkeDiagBtn.onclick = () => {
@@ -2845,43 +2722,26 @@ window.addEventListener("load",post);
 
     if(trapToggleBtn) {
       trapToggleBtn.onclick = () => {
-        if(!trapConnected) {
-          const trapAudio = $f("trapConnectAudio");
-          const connectTrap = () => {
-            if(trapConnected) return;
-            trapConnected = true;
-            trapLinkState.textContent = "ONLINE [CONNECTED]";
-            trapLinkState.style.color = "var(--ui-accent)";
-            trapPedalVal.textContent = "SECURE (RF LINK OK)";
-            trapTempVal.textContent = "21.4 °C";
-            trapDoorVal.textContent = "READY / ARMED";
-            trapToggleBtn.textContent = "DISCONNECT TRAP";
-            trapPurgeBtn.removeAttribute("disabled");
-            diagLog("Ghost Trap solid-state module linked.", "info");
-          };
-          if(trapAudio) {
-            try { trapAudio.currentTime = 0; } catch(e) {}
-            const playPromise = trapAudio.play();
-            if(playPromise && typeof playPromise.then === "function") {
-              playPromise.then(connectTrap).catch(connectTrap);
-            } else {
-              connectTrap();
-            }
-          } else {
-            connectTrap();
-          }
-          return;
+        trapConnected = !trapConnected;
+        if(trapConnected) {
+          trapLinkState.textContent = "ONLINE [CONNECTED]";
+          trapLinkState.style.color = "var(--ui-accent)";
+          trapPedalVal.textContent = "SECURE (RF LINK OK)";
+          trapTempVal.textContent = "21.4 °C";
+          trapDoorVal.textContent = "READY / ARMED";
+          trapToggleBtn.textContent = "DISCONNECT TRAP";
+          trapPurgeBtn.removeAttribute("disabled");
+          diagLog("Ghost Trap solid-state module linked.", "info");
+        } else {
+          trapLinkState.textContent = "OFFLINE [DISCONNECTED]";
+          trapLinkState.style.color = "#ff5555";
+          trapPedalVal.textContent = "DISCONNECTED";
+          trapTempVal.textContent = "18.2 °C";
+          trapDoorVal.textContent = "LOCKED / STABILISED";
+          trapToggleBtn.textContent = "CONNECT TRAP";
+          trapPurgeBtn.setAttribute("disabled", "true");
+          diagLog("Ghost Trap isolated and unlinked safely.", "warn");
         }
-
-        trapConnected = false;
-        trapLinkState.textContent = "OFFLINE [DISCONNECTED]";
-        trapLinkState.style.color = "#ff5555";
-        trapPedalVal.textContent = "DISCONNECTED";
-        trapTempVal.textContent = "18.2 °C";
-        trapDoorVal.textContent = "LOCKED / STABILISED";
-        trapToggleBtn.textContent = "CONNECT TRAP";
-        trapPurgeBtn.setAttribute("disabled", "true");
-        diagLog("Ghost Trap isolated and unlinked safely.", "warn");
       };
 
       trapPurgeBtn.onclick = () => {
@@ -2938,8 +2798,14 @@ window.addEventListener("load",post);
     loadIncidentDatabase();
     ukFranchises.forEach(ensureSectorState);
     ukFranchises.forEach(hydrateLocationRecord);
-    const addLocationBtn=$f("addLocationBtn"); if(addLocationBtn) addLocationBtn.onclick=addFieldLocation;
-    const addSiteBtn=$f("addSiteBtn"); if(addSiteBtn) addSiteBtn.onclick=addInvestigationSite;
+    const addLocationBtn=$f("addLocationBtn"); if(addLocationBtn) addLocationBtn.onclick=saveOrAddFieldLocation;
+    const addSiteBtn=$f("addSiteBtn"); if(addSiteBtn) addSiteBtn.onclick=saveOrAddInvestigationSite;
+    const locationAdminUnlockBtn=$f("locationAdminUnlockBtn"),locationAdminCode=$f("locationAdminCode"),locationAdminError=$f("locationAdminError");
+    const unlockLocationAdmin=()=>{const code=(locationAdminCode?.value||"").replace(/\s+/g,"").toUpperCase();if(code&&Object.prototype.hasOwnProperty.call(ACCESS,code)&&ACCESS[code]==="SYSTEM AUTHOR"){setLocationEditorUnlocked(true);if(locationAdminError)locationAdminError.textContent="CLEARANCE VERIFIED // LOCATION MANAGEMENT UNLOCKED";if(locationAdminCode)locationAdminCode.value="";}else if(locationAdminError)locationAdminError.textContent="ACCESS DENIED // AUTHORISATION REQUIRED";};
+    if(locationAdminUnlockBtn)locationAdminUnlockBtn.onclick=unlockLocationAdmin;if(locationAdminCode)locationAdminCode.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();unlockLocationAdmin();}});
+    const lockLocationAdminBtn=$f("lockLocationAdminBtn");if(lockLocationAdminBtn)lockLocationAdminBtn.onclick=()=>{clearLocationEdit();clearSiteEdit();setLocationEditorUnlocked(false);if(locationAdminError)locationAdminError.textContent="LOCATION MANAGEMENT LOCKED";};
+    const cancelLocationEditBtn=$f("cancelLocationEditBtn");if(cancelLocationEditBtn)cancelLocationEditBtn.onclick=()=>{clearLocationForm();clearLocationEdit();};
+    const cancelSiteEditBtn=$f("cancelSiteEditBtn");if(cancelSiteEditBtn)cancelSiteEditBtn.onclick=()=>{clearSiteForm();clearSiteEdit();};
     renderSiteParentOptions();
     renderLocationDatabase();
     seedIncidentDatabase();
@@ -2964,13 +2830,14 @@ window.addEventListener("load",post);
     if(exportConfigBtn){
       exportConfigBtn.onclick = () => {
         const payload = {
-          version: "2.0",
-          locationDbVersion: "1.0",
+          version: "2.1.1",
+          appVersion: "2.1.1",
+          locationDbVersion: "1.1",
           exportDate: new Date().toISOString(),
           ukFranchises: ukFranchises,
           incidentReports: incidentReports,
           spectreCategories: spectreCategories,
-          preflightVersion: "2.1",
+          preflightVersion: "2.1.1",
           settingsVersion: "1.0",
           settings: ectoSettings,
           telemetry: { ukFranchises: ukFranchises, incidentReports: incidentReports, spectreCategories: spectreCategories }
