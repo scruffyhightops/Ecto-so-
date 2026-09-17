@@ -28,7 +28,7 @@ header{height:58px;border-bottom:1px solid var(--ui-border);display:flex;justify
 .tactical-panel h2 small{font-size:10px;color:var(--ui-dim)}
 .chart-container{flex:1;position:relative;width:100%;min-height:260px;background:var(--ui-deep);border:1px solid var(--ui-grid);display:flex;align-items:center;justify-content:center;margin-bottom:8px}
 .chart-container canvas{width:100%;height:100%;display:block;cursor:pointer;border:none}
-.map-controls{position:absolute;top:8px;right:8px;display:flex;gap:4px;z-index:3;flex-wrap:wrap;justify-content:flex-end}.map-controls button{min-width:42px;min-height:38px;padding:6px 9px;background:rgba(0,0,0,.88);font-size:10px}.map-breadcrumb{position:absolute;top:8px;left:8px;z-index:3;padding:5px 8px;border:1px solid var(--ui-grid);background:rgba(0,0,0,.82);font:10px monospace;color:var(--ui-dim);pointer-events:none}.site-list{display:grid;gap:5px;margin-top:8px;max-height:190px;overflow:auto}.site-row{display:grid;grid-template-columns:1fr auto;gap:8px;padding:8px;border:1px solid var(--ui-grid);background:var(--ui-deep);cursor:pointer}.site-row.active{border-color:var(--ui-accent);box-shadow:0 0 8px rgba(57,255,128,.08)}.site-row b{font-size:11px}.site-meta{font-size:9px;color:var(--ui-dim);margin-top:2px}.site-tag{font-size:8px;border:1px solid var(--ui-grid);padding:3px 5px;color:var(--ui-dim);white-space:nowrap}.site-add-note{margin-top:7px;font-size:9px;color:var(--ui-dim);line-height:1.45}
+.map-controls{position:absolute;top:8px;right:8px;display:flex;gap:4px;z-index:3;flex-wrap:wrap;justify-content:flex-end}.map-controls button{min-width:42px;min-height:38px;padding:6px 9px;background:rgba(0,0,0,.88);font-size:10px}.map-breadcrumb{position:absolute;top:8px;left:8px;z-index:3;padding:5px 8px;border:1px solid var(--ui-grid);background:rgba(0,0,0,.82);font:10px monospace;color:var(--ui-dim);pointer-events:none}.selected-location-teams{border-top:1px solid var(--ui-grid);padding-top:8px}.selected-location-teams .team-card{margin-top:5px}.selected-location-teams .team-card.active{border-color:var(--ui-accent);box-shadow:inset 0 0 0 1px var(--ui-accent)}.location-row.active{border-color:var(--ui-accent)!important;box-shadow:0 0 8px rgba(57,255,128,.10)}.location-selected-badge{display:inline-block;border:1px solid var(--ui-accent);color:var(--ui-accent);font-size:8px;padding:2px 5px;margin-left:5px}.site-list{display:grid;gap:5px;margin-top:8px;max-height:190px;overflow:auto}.site-row{display:grid;grid-template-columns:1fr auto;gap:8px;padding:8px;border:1px solid var(--ui-grid);background:var(--ui-deep);cursor:pointer}.site-row.active{border-color:var(--ui-accent);box-shadow:0 0 8px rgba(57,255,128,.08)}.site-row b{font-size:11px}.site-meta{font-size:9px;color:var(--ui-dim);margin-top:2px}.site-tag{font-size:8px;border:1px solid var(--ui-grid);padding:3px 5px;color:var(--ui-dim);white-space:nowrap}.site-add-note{margin-top:7px;font-size:9px;color:var(--ui-dim);line-height:1.45}
 
 .telemetry-row{display:flex;justify-content:space-between;font-size:11px;margin-bottom:6px;background:rgba(255,255,255,0.02);padding:6px 10px;border:1px dotted var(--ui-grid)}
 .telemetry-val{color:var(--ui-accent);font-weight:bold}
@@ -657,6 +657,10 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
           
           <div class="dim" style="margin-top:4px; margin-bottom:2px;">QUICK SELECT SECTOR:</div>
           <div class="teams-submenu" id="ukTeamsSubMenu" style="max-height:90px;"></div>
+          <div id="selectedLocationTeamsPanel" class="selected-location-teams" style="margin-top:10px;">
+            <div class="dim">AVAILABLE TEAMS AT SELECTED LOCATION</div>
+            <div id="selectedLocationTeamsList" class="site-list" style="max-height:150px;"></div>
+          </div>
           <div id="cityRegionPanel" class="hidden" style="margin-top:8px;">
             <div class="dim">INVESTIGATION LOCATIONS <span id="siteCountLabel"></span></div>
             <div id="citySiteList" class="site-list"></div>
@@ -1426,10 +1430,39 @@ window.addEventListener("load",post);
   function renderLocationDatabase(){
     const list=$f("locationDatabaseList"), count=$f("locationCountLabel"); if(!list)return;
     if(count)count.textContent=ukFranchises.length;
-    list.innerHTML=ukFranchises.map((f,i)=>`<div class="location-row${i===selectedMapIndex?" active":""}"><div><b>${escapeHtml(locationDisplayName(f))}</b><div class="location-meta">${escapeHtml(f.region||"UK")} // ${escapeHtml(f.locationId||"")}</div></div><div><span class="location-status">${escapeHtml(f.source||"CANONICAL")}</span><br><span class="location-meta">${Number(f.lat).toFixed(4)}, ${Number(f.lon).toFixed(4)}</span></div><div class="location-meta">${escapeHtml(f.threat)}</div><div class="button-row" style="margin:0;gap:4px;"><button type="button" data-location-index="${i}">INSPECT</button><button type="button" data-edit-location="${i}">EDIT</button></div></div>`).join("");
-    list.querySelectorAll("[data-location-index]").forEach(btn=>btn.onclick=()=>{selectSector(+btn.dataset.locationIndex); document.querySelectorAll(".screen").forEach(sc=>sc.classList.toggle("active",sc.id==="ukmap"));});
+    list.innerHTML=ukFranchises.map((f,i)=>`<div class="location-row${i===selectedMapIndex?" active":""}"><div><b>${escapeHtml(locationDisplayName(f))}</b>${i===selectedMapIndex?'<span class="location-selected-badge">SELECTED</span>':''}<div class="location-meta">${escapeHtml(f.region||"UK")} // ${escapeHtml(f.locationId||"")}</div></div><div><span class="location-status">${escapeHtml(f.source||"CANONICAL")}</span><br><span class="location-meta">${Number(f.lat).toFixed(4)}, ${Number(f.lon).toFixed(4)}</span></div><div class="location-meta">${escapeHtml(f.threat)}</div><div class="button-row" style="margin:0;gap:4px;"><button type="button" data-location-index="${i}">INSPECT</button><button type="button" data-edit-location="${i}">EDIT</button></div></div>`).join("");
+    list.querySelectorAll("[data-location-index]").forEach(btn=>btn.onclick=()=>{selectSector(+btn.dataset.locationIndex);renderLocationDatabase();});
     list.querySelectorAll("[data-edit-location]").forEach(btn=>btn.onclick=()=>startLocationEdit(+btn.dataset.editLocation));
+    renderConfigurationSiteRegister(selectedMapIndex);
   }
+  function renderConfigurationSiteRegister(parentIndex){
+    const host=$f("locationDatabaseList");
+    if(!host)return;
+    const old=$f("configurationSiteRegister"); if(old)old.remove();
+    const f=ukFranchises[parentIndex]; if(!f)return;
+    ensureSiteDatabase(f);
+    const wrap=document.createElement("div");
+    wrap.id="configurationSiteRegister";
+    wrap.style.cssText="margin-top:10px;border-top:1px solid var(--ui-grid);padding-top:10px;";
+    wrap.innerHTML=`<div class="panel-title">INVESTIGATION SITES // ${escapeHtml(locationDisplayName(f).toUpperCase())} <span class="dim">[DELETE / MANAGE]</span></div>`+
+      (f.sites.length?f.sites.map((site,i)=>`<div class="location-row" style="margin-top:5px;grid-template-columns:1fr auto;"><div><b>${escapeHtml(site.name)}</b><div class="location-meta">${escapeHtml(site.siteId)} // ${escapeHtml(site.status)}</div></div><button type="button" data-config-delete-site="${i}" style="border-color:#ff5555;color:#ff5555;min-height:38px;">DELETE</button></div>`).join(""):'<div class="dim" style="margin-top:6px;">NO INVESTIGATION SITES REGISTERED FOR THIS LOCATION.</div>');
+    host.parentNode.appendChild(wrap);
+    wrap.querySelectorAll("[data-config-delete-site]").forEach(btn=>btn.onclick=()=>deleteInvestigationSiteFromConfig(parentIndex,+btn.dataset.configDeleteSite));
+  }
+
+  function deleteInvestigationSiteFromConfig(parentIndex,siteIndex){
+    const f=ukFranchises[parentIndex]; if(!f)return; ensureSiteDatabase(f);
+    const site=f.sites[siteIndex]; if(!site)return;
+    const siteName=site.name;
+    f.sites.splice(siteIndex,1);
+    if(selectedMapIndex===parentIndex){selectedSiteIndex=-1;}
+    saveLocationDatabase();
+    renderLocationDatabase();
+    renderSiteParentOptions();
+    if(selectedMapIndex===parentIndex){renderCitySites();updateMapDossier(parentIndex);}
+    log(`Investigation site deleted: ${siteName} // ${f.city}.`,"warn");
+  }
+
   function addFieldLocation(){
     const city=$f("locationCityInput"), code=$f("locationCodeInput"), region=$f("locationRegionInput"), lat=$f("locationLatInput"), lon=$f("locationLonInput"), source=$f("locationSourceInput"), lead=$f("locationLeadInput");
     if(!city||!lat||!lon||!city.value.trim()||lat.value===""||lon.value===""){log("LOCATION ERROR: CITY, LATITUDE AND LONGITUDE REQUIRED.","alert");return;}
@@ -1529,6 +1562,7 @@ window.addEventListener("load",post);
     mapViewMode = "uk";
     updateMapDossier(index);
     renderUKTeamsSubMenu();
+    renderSelectedLocationTeams(index);
     renderSiteParentOptions();
     renderTeamRosterModalDetails(index);
     renderPreflight();
@@ -1678,7 +1712,7 @@ window.addEventListener("load",post);
       let totalOps = getTotalStaffCount(f);
       let threatClassText = f.threat === 'CRITICAL' ? 'text-red' : (f.threat === 'MODERATE' ? 'text-amber' : 'text-green');
       dossier.innerHTML = `
-        <div class="text-blue"><strong>${escapeHtml(f.city.toUpperCase())}</strong> [${f.teams.length} Teams Active]</div>
+        <div class="text-blue"><strong>${escapeHtml(f.city.toUpperCase())}</strong> <span class="location-selected-badge">LOCATION SELECTED</span> [${f.teams.length} Teams Active]</div>
         <div>Lead Commander: ${escapeHtml(f.lead)}</div>
         <div>Total Regional Staff: ${totalOps} Operatives (${f.teams.length} Teams)</div>
         <div>Detected Entity: <span style="color:var(--text-bright)">${escapeHtml(f.ghost)}</span></div>
@@ -1869,6 +1903,19 @@ window.addEventListener("load",post);
     }, 12000);
   }
 
+  function renderSelectedLocationTeams(index){
+    const list=$f("selectedLocationTeamsList");
+    if(!list)return;
+    const f=ukFranchises[index];
+    if(!f){list.innerHTML='<div class="dim">NO LOCATION SELECTED</div>';return;}
+    const teams=Array.isArray(f.teams)?f.teams:[];
+    list.innerHTML=teams.length?teams.map((t,i)=>`<div class="team-card${i===activeSubTeamIndex?" active":""}" data-location-team="${i}">
+      <div class="team-card-header"><b>${escapeHtml(t.teamName||`TEAM ${i+1}`)}</b><span style="font-size:9px;">${t.members?.length||0} ops</span></div>
+      <div style="font-size:9px;color:var(--ui-dim);">${escapeHtml((t.members||[]).map(m=>m.name).join(" // ")||"NO OPERATIVES ASSIGNED")}</div>
+    </div>`).join(""):'<div class="dim">NO TEAMS CURRENTLY ASSIGNED TO THIS LOCATION</div>';
+    list.querySelectorAll("[data-location-team]").forEach(card=>card.onclick=()=>{activeSubTeamIndex=+card.dataset.locationTeam;renderSelectedLocationTeams(index);renderTeamRosterModalDetails(index);renderPreflight();updateReadiness();});
+  }
+
   function renderUKTeamsSubMenu(){
     const menu=$f("ukTeamsSubMenu"); if(!menu) return;
     menu.innerHTML="";
@@ -1892,6 +1939,7 @@ window.addEventListener("load",post);
       `;
       menu.appendChild(card);
     });
+    renderSelectedLocationTeams(selectedMapIndex);
   }
 
   function renderTeamRosterModalDetails(index){
