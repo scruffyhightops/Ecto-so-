@@ -84,9 +84,9 @@ header{height:58px;border-bottom:1px solid var(--ui-border);display:flex;justify
 .spectre-print-report{display:none}
 @media print{
   html,body{background:#fff!important;color:#000!important;overflow:visible!important}
-  body>*{display:none!important}
-  #spectrePrintReport{display:block!important;width:180mm;margin:0 auto;background:#fff;color:#000;font-family:monospace;font-size:10pt;line-height:1.45;padding:8mm;box-sizing:border-box}
-  #spectrePrintReport *{color:#000!important;background:#fff!important;border-color:#000!important;box-shadow:none!important}
+  body.spectre-printing>*:not(#spectrePrintReport){display:none!important}
+  body.spectre-printing #spectrePrintReport{display:block!important;width:180mm;margin:0 auto;background:#fff;color:#000;font-family:monospace;font-size:10pt;line-height:1.45;padding:8mm;box-sizing:border-box}
+  body.spectre-printing #spectrePrintReport *{color:#000!important;background:#fff!important;border-color:#000!important;box-shadow:none!important}
   .spectre-print-rule{border-top:1px solid #000;margin:8px 0}
 }
 
@@ -442,7 +442,7 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
 @media print{
   @page{size:80mm auto;margin:4mm}
   html,body{width:80mm;height:auto;min-height:0;background:#fff!important;color:#000!important;overflow:visible!important;font-family:monospace}
-  body>*{display:none!important}
+  body.spectre-printing>*:not(#spectrePrintReport){display:none!important}
   #thermalPrintReport{display:block!important;width:72mm;background:#fff;color:#000;font-size:10pt;line-height:1.35;padding:0;margin:0}
   #thermalPrintReport *{color:#000!important;background:#fff!important;border-color:#000!important;box-shadow:none!important}
   .thermal-rule{border-top:1px dashed #000;margin:7px 0}
@@ -916,8 +916,7 @@ textarea{
         </div>
         <div class="button-row" style="margin-top:10px;">
           <button id="scanSpectresBtn">SCAN SPECTRAL DATABASE</button>
-          <button type="button" id="openNewSpectreBtn">+ NEW CASE FILE</button>
-        </div>
+                  </div>
       </div>
 
       <div id="spectreNewEntryPane" class="hidden">
@@ -2955,11 +2954,17 @@ window.addEventListener("load",post);
     const box=$f("spectrePrintReport"); if(!box||!ent)return;
     const ci=getSpectreClassIndex(ent), band=ci>=0?pkeBands[ci]:null;
     box.innerHTML=`<div style="text-align:center;font-size:15pt;font-weight:bold;">ECTO OS // SPECTRE DATABASE</div><div style="text-align:center;">FIELD CASE FILE</div><div class="spectre-print-rule"></div><div><b>SPECIMEN DESIGNATION:</b> ${escapeHtml(ent.name)}</div><div><b>DATABASE CLASS:</b> ${escapeHtml(ent.class||"UNASSIGNED")}</div><div><b>THREAT:</b> ${ci>=0?escapeHtml(classThreatLabel(ci)):"UNASSIGNED"}</div><div><b>PKE SIGNATURE:</b> ${escapeHtml(ent.pke||"UNRECORDED")}</div><div><b>CLASS PKE BAND:</b> ${band?`${band.min}–${band.max} PKE`:"UNASSIGNED"}</div><div><b>STATUS:</b> ${escapeHtml(ent.status||"UNRECORDED")}</div><div><b>DATE ENTERED:</b> ${ent.dateAdded?new Date(ent.dateAdded).toLocaleDateString("en-GB"):"LEGACY RECORD"}</div><div class="spectre-print-rule"></div><div><b>BEHAVIOURAL DOSSIER</b></div><div style="white-space:pre-wrap;">${escapeHtml(ent.desc||"No behavioural description recorded.")}</div><div class="spectre-print-rule"></div><div><b>INITIAL FIELD LOG</b></div><div style="white-space:pre-wrap;">${escapeHtml(ent.initialLog||"NO INITIAL FIELD LOG RECORDED.")}</div><div class="spectre-print-rule"></div><div style="text-align:center;">ECTO FIELD OPERATIONS DIVISION<br>END OF CASE FILE</div>`;
+    document.body.classList.add("spectre-printing");
+    box.setAttribute("aria-hidden","false");
+    let cleaned=false;
+    const cleanup=()=>{if(cleaned)return;cleaned=true;document.body.classList.remove("spectre-printing");box.setAttribute("aria-hidden","true");};
+    window.addEventListener("afterprint",cleanup,{once:true});
+    void box.offsetHeight;
     window.print();
   }
 
   function setupSpectreCaseFileControls(){
-    const dbBtn=$f("spectreDatabaseModeBtn"),newBtn=$f("spectreNewEntryModeBtn"),dbPane=$f("spectreDatabasePane"),newPane=$f("spectreNewEntryPane"),openBtn=$f("openNewSpectreBtn"),cancelBtn=$f("cancelNewSpectreBtn"),saveBtn=$f("saveNewSpectreBtn"),pke=$f("newSpectrePke");
+    const dbBtn=$f("spectreDatabaseModeBtn"),newBtn=$f("spectreNewEntryModeBtn"),dbPane=$f("spectreDatabasePane"),newPane=$f("spectreNewEntryPane"),cancelBtn=$f("cancelNewSpectreBtn"),saveBtn=$f("saveNewSpectreBtn"),pke=$f("newSpectrePke");
     const show=(mode)=>{
       const isNew=mode==="new";
       if(dbPane)dbPane.classList.toggle("hidden",isNew);
@@ -2970,7 +2975,6 @@ window.addEventListener("load",post);
     };
     if(dbBtn)dbBtn.onclick=()=>show("db");
     if(newBtn)newBtn.onclick=()=>show("new");
-    if(openBtn)openBtn.onclick=()=>show("new");
     if(cancelBtn)cancelBtn.onclick=()=>show("db");
     if(saveBtn)saveBtn.onclick=()=>{
       const name=$f("newSpectreName")?.value.trim(); if(!name)return;
