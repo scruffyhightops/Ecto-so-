@@ -482,6 +482,19 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
 .ecto-boot-status{border-top:1px solid var(--ui-grid);padding-top:12px;text-align:center;letter-spacing:1.5px;font-size:10px;}
 .ecto-boot-ready{font-size:17px;font-weight:bold;letter-spacing:3px;margin-top:7px;}
 @media(max-width:800px){#boot{align-items:stretch;} .ecto-boot-frame{width:100vw;height:100dvh;border:0;padding:12px;} .ecto-boot-content{grid-template-columns:1fr;overflow:auto;} .ecto-boot-panel{overflow:visible;} .ecto-boot-logo-space{height:100px;} .ecto-boot-top{align-items:flex-start;gap:8px;flex-direction:column;} .ecto-boot-title{font-size:19px;}}
+
+/* ECTO UI // Phase 6.3 CUSTOM SELECTORS */
+.ecto-select-native{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important;margin:0!important;padding:0!important}
+.ecto-select-wrap{position:relative;width:100%}
+.ecto-select-button{width:100%;min-height:40px;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:10px;font:inherit;letter-spacing:.4px;cursor:pointer}
+.ecto-select-button::after{content:'▼';font-size:9px;color:var(--ui-dim);margin-left:auto}
+.ecto-select-button.open::after{content:'▲'}
+.ecto-select-button .ecto-select-value{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ecto-select-menu{position:fixed;z-index:4200;max-height:min(48dvh,360px);overflow:auto;-webkit-overflow-scrolling:touch;background:#030c03;border:1px solid var(--ui-accent);box-shadow:0 0 24px rgba(115,255,128,.18);padding:4px}
+.ecto-select-option{display:block;width:100%;min-height:42px;padding:9px 10px;text-align:left;background:transparent;border:1px solid transparent;color:var(--ui-text);font:inherit;cursor:pointer}
+.ecto-select-option:hover,.ecto-select-option:focus{border-color:var(--ui-grid);background:var(--ui-deep);outline:none}
+.ecto-select-option.selected{border-color:var(--ui-accent);color:var(--ui-accent);background:var(--ui-deep)}
+.ecto-select-option:disabled{opacity:.45;cursor:default}
 </style><link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#73ff80">
 <meta name="mobile-web-app-capable" content="yes">
@@ -1239,6 +1252,53 @@ window.addEventListener("load",post);
     overlay.addEventListener("click",e=>{if(e.target===overlay && !overlay.dataset.locked)closeEctoDialog(false);});
     document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!overlay.classList.contains("hidden"))closeEctoDialog(false);});
   })();
+
+
+  // ECTO CUSTOM SELECTOR SYSTEM // Phase 6.3
+  let ectoOpenSelect=null;
+  function ectoCloseSelect(){
+    if(!ectoOpenSelect)return;
+    const {button,menu}=ectoOpenSelect;
+    menu.remove();
+    button.classList.remove("open");
+    ectoOpenSelect=null;
+  }
+  function ectoPositionSelect(button,menu){
+    const r=button.getBoundingClientRect();
+    const gap=4, maxH=Math.min(window.innerHeight*.48,360);
+    let top=r.bottom+gap;
+    if(top+maxH>window.innerHeight-8) top=Math.max(8,r.top-maxH-gap);
+    let left=Math.max(8,r.left), width=Math.min(r.width,window.innerWidth-16);
+    if(left+width>window.innerWidth-8) left=Math.max(8,window.innerWidth-8-width);
+    menu.style.left=left+"px";menu.style.top=top+"px";menu.style.width=width+"px";menu.style.maxHeight=maxH+"px";
+  }
+  function ectoTransformSelect(select){
+    if(!select || select.dataset.ectoSelectReady==="1")return;
+    const wrap=document.createElement("div"); wrap.className="ecto-select-wrap";
+    select.parentNode.insertBefore(wrap,select); wrap.appendChild(select);
+    select.classList.add("ecto-select-native"); select.dataset.ectoSelectReady="1";
+    const button=document.createElement("button"); button.type="button"; button.className="ecto-select-button"; button.setAttribute("aria-haspopup","listbox"); button.setAttribute("aria-expanded","false");
+    const value=document.createElement("span"); value.className="ecto-select-value"; button.appendChild(value);
+    wrap.appendChild(button);
+    const sync=()=>{const opt=select.options[select.selectedIndex];value.textContent=opt?opt.textContent:"SELECT";button.disabled=select.disabled;};
+    sync();
+    button.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();if(button.disabled)return;if(ectoOpenSelect&&ectoOpenSelect.button===button){ectoCloseSelect();return;}ectoCloseSelect();
+      const menu=document.createElement("div");menu.className="ecto-select-menu";menu.setAttribute("role","listbox");
+      Array.from(select.options).forEach((opt,i)=>{const b=document.createElement("button");b.type="button";b.className="ecto-select-option"+(i===select.selectedIndex?" selected":"");b.textContent=opt.textContent;b.disabled=opt.disabled;b.setAttribute("role","option");b.setAttribute("aria-selected",i===select.selectedIndex?"true":"false");b.onclick=()=>{select.selectedIndex=i;select.dispatchEvent(new Event("change",{bubbles:true}));sync();ectoCloseSelect();button.focus({preventScroll:true});};menu.appendChild(b);});
+      document.body.appendChild(menu);button.classList.add("open");button.setAttribute("aria-expanded","true");ectoOpenSelect={button,menu};ectoPositionSelect(button,menu);
+    });
+    select.addEventListener("change",sync);
+  }
+  function initEctoSelectSystem(){
+    document.querySelectorAll("select").forEach(ectoTransformSelect);
+    const observer=new MutationObserver(mutations=>{for(const m of mutations){for(const node of m.addedNodes){if(node.nodeType!==1)continue;if(node.matches?.("select"))ectoTransformSelect(node);node.querySelectorAll?.("select").forEach(ectoTransformSelect);}}});
+    observer.observe(document.body,{childList:true,subtree:true});
+    document.addEventListener("click",e=>{if(ectoOpenSelect&&!e.target.closest(".ecto-select-button")&&!e.target.closest(".ecto-select-menu"))ectoCloseSelect();});
+    window.addEventListener("resize",()=>{if(ectoOpenSelect)ectoPositionSelect(ectoOpenSelect.button,ectoOpenSelect.menu);});
+    window.addEventListener("scroll",()=>{if(ectoOpenSelect)ectoPositionSelect(ectoOpenSelect.button,ectoOpenSelect.menu);},true);
+    document.addEventListener("keydown",e=>{if(e.key==="Escape"&&ectoOpenSelect)ectoCloseSelect();});
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",initEctoSelectSystem,{once:true});else initEctoSelectSystem();
 
   const coreEquipment=["Proton Pack","PKE Meter","Ghost Trap","Ecto Goggles"];
   const optionalEquipment="Giga-Metre";
