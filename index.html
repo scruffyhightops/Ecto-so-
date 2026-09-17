@@ -81,6 +81,14 @@ header{height:58px;border-bottom:1px solid var(--ui-border);display:flex;justify
 .config-details{grid-column:span 2;border:1px solid var(--ui-border);background:var(--ui-panel)}.config-details>summary{list-style:none;cursor:pointer;padding:13px 15px;font-size:13px;letter-spacing:1px;color:var(--ui-accent);background:var(--ui-deep);min-height:48px;display:flex;align-items:center;justify-content:space-between}.config-details>summary::-webkit-details-marker{display:none}.config-details>summary:after{content:"[ OPEN ]";font-size:9px;color:var(--ui-dim)}.config-details[open]>summary:after{content:"[ CLOSE ]"}.config-details-body{padding:15px;border-top:1px solid var(--ui-border)}.fullscreen-config-row{display:flex;gap:8px;flex-wrap:wrap}.fullscreen-config-row button{min-height:46px}.config-note{font-size:10px;color:var(--ui-dim);line-height:1.5;margin-top:8px}
 @media(max-width:820px){.location-db-grid{grid-template-columns:1fr}.location-row{grid-template-columns:1.2fr .8fr auto}.location-row .location-meta:nth-child(3){display:none}}
 .spectre-pke-warning{color:#ffb000}.spectre-edit-shell{background:var(--ui-deep);border:1px solid var(--ui-border);padding:14px;box-shadow:inset 0 0 18px rgba(0,0,0,.22)}.spectre-edit-grid{display:grid;grid-template-columns:1.25fr .75fr;gap:10px;margin-top:12px}.spectre-edit-field{display:flex;flex-direction:column;gap:5px;min-width:0}.spectre-edit-field label{font-size:9px;letter-spacing:1.2px;color:var(--ui-dim)}.spectre-edit-field input,.spectre-edit-field select,.spectre-edit-field textarea{box-sizing:border-box;width:100%;min-width:0;min-height:44px;padding:9px 10px;background:var(--ui-panel);border:1px solid var(--ui-grid);border-radius:0;color:var(--ui-accent);font:inherit;font-size:11px;caret-color:var(--ui-accent)}.spectre-edit-field textarea{min-height:110px;resize:vertical;line-height:1.45}.spectre-edit-field select{appearance:auto}.spectre-edit-field input:focus,.spectre-edit-field select:focus,.spectre-edit-field textarea:focus{outline:1px solid var(--ui-accent);border-color:var(--ui-accent);box-shadow:0 0 8px rgba(115,255,128,.12)}.spectre-edit-band{margin-top:10px;padding:7px 9px;border-left:2px solid var(--ui-accent);background:var(--ui-panel)}.spectre-edit-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:12px}@media(max-width:700px){.spectre-class-selector{grid-template-columns:repeat(4,minmax(0,1fr))}.spectre-edit-grid{grid-template-columns:1fr}}
+.spectre-print-report{display:none}
+@media print{
+  html,body{background:#fff!important;color:#000!important;overflow:visible!important}
+  body>*{display:none!important}
+  #spectrePrintReport{display:block!important;width:180mm;margin:0 auto;background:#fff;color:#000;font-family:monospace;font-size:10pt;line-height:1.45;padding:8mm;box-sizing:border-box}
+  #spectrePrintReport *{color:#000!important;background:#fff!important;border-color:#000!important;box-shadow:none!important}
+  .spectre-print-rule{border-top:1px solid #000;margin:8px 0}
+}
 
 
 /* ECTO UI DIALOGUE SYSTEM // PHASE 6.2 */
@@ -889,22 +897,45 @@ textarea{
 </section>
 
 <section id="faults" class="screen">
-  <h1>SPECTRE DATABASE // PARANORMAL ENTITY CATALOG <span class="dim" style="font-size:9px;">[CASE FILE ENTRY TEST // V2.2.21]</span></h1>
+  <h1>SPECTRE DATABASE // PARANORMAL ENTITY CATALOG</h1>
   <div class="grid">
     <div class="panel" style="grid-column: span 2;">
-      <div class="panel-title">CONTAINED & ACTIVE SPECTRE SECTORS <span class="dim">[TAP SPECIMEN TO INSPECT DOSSIER]</span></div>
-      
-      <div class="teams-submenu" id="spectreSubMenu"></div>
-
-      <div class="panel-title" style="margin-top:15px;">SPECIMEN DOSSIER & LOG <span class="dim">[REGISTER NEW RECORD OR VIEW DETAILS]</span></div>
-      
-      <div class="team-roster" style="margin-top:0;">
-        <div class="metric"><span>SELECTED SECTOR FOCUS</span><b id="spectreStatusText">SELECT A SPECTRE CATEGORY ABOVE TO INSPECT RECORDS</b></div>
-        <div id="spectreDetailsView" style="margin-top:8px;">AWAITING SPECIMEN SELECTION...</div>
+      <div class="button-row" style="margin-bottom:10px;">
+        <button type="button" id="spectreDatabaseModeBtn" class="active">DATABASE</button>
+        <button type="button" id="spectreNewEntryModeBtn">NEW CASE FILE</button>
       </div>
 
-      <div class="button-row" style="margin-top:10px;">
-        <button id="scanSpectresBtn">SCAN SPECTRAL DATABASE</button>
+      <div id="spectreDatabasePane">
+        <div class="panel-title">SPECTRE DATABASE <span class="dim">[SELECT CLASS TO INSPECT REGISTERED RECORDS]</span></div>
+        <div class="teams-submenu" id="spectreSubMenu"></div>
+
+        <div class="panel-title" style="margin-top:15px;">SPECIMEN DOSSIER & LOG <span class="dim">[SELECT A RECORDED ENTITY]</span></div>
+        <div class="team-roster" style="margin-top:0;">
+          <div class="metric"><span>SELECTED CLASS</span><b id="spectreStatusText">SELECT A SPECTRE CATEGORY ABOVE TO INSPECT RECORDS</b></div>
+          <div id="spectreDetailsView" style="margin-top:8px;">AWAITING SPECIMEN SELECTION...</div>
+        </div>
+        <div class="button-row" style="margin-top:10px;">
+          <button id="scanSpectresBtn">SCAN SPECTRAL DATABASE</button>
+          <button type="button" id="openNewSpectreBtn">+ NEW CASE FILE</button>
+        </div>
+      </div>
+
+      <div id="spectreNewEntryPane" class="hidden">
+        <div class="panel-title">NEW SPECTRE CASE FILE <span class="dim">[NEW DATABASE ENTRY // CLASS SELECTION IS LOCAL TO THIS FORM]</span></div>
+        <div class="spectre-edit-shell" style="margin-top:10px;">
+          <div class="spectre-edit-grid">
+            <div class="spectre-edit-field" style="grid-column:1/-1;"><label for="newSpectreName">SPECIMEN DESIGNATION</label><input type="text" id="newSpectreName" placeholder="SPECIMEN NAME"></div>
+            <div class="spectre-edit-field"><label for="newSpectrePke">PKE SIGNATURE</label><input type="number" id="newSpectrePke" min="250" max="999" placeholder="PKE AUTO-FILLED FROM CLASS"></div>
+            <div class="spectre-edit-field"><label>CURRENT STATUS</label><input type="text" id="newSpectreStatus" value="CONTAINED" placeholder="STATUS"></div>
+            <div class="spectre-edit-field" style="grid-column:1/-1;"><label>CLASSIFICATION</label><div class="spectre-class-selector" id="newSpectreClassSelector"></div><div id="newSpectrePkeBand" class="spectre-pke-band"></div></div>
+            <div class="spectre-edit-field" style="grid-column:1/-1;"><label for="newSpectreDesc">BEHAVIOURAL DOSSIER</label><textarea id="newSpectreDesc" placeholder="Describe appearance, behaviour, characteristics and known manifestations..."></textarea></div>
+            <div class="spectre-edit-field" style="grid-column:1/-1;"><label for="newSpectreLog">INITIAL FIELD LOG</label><textarea id="newSpectreLog" placeholder="Record the initial observation or investigation notes..."></textarea></div>
+          </div>
+          <div class="spectre-edit-actions">
+            <button type="button" id="cancelNewSpectreBtn">CANCEL / RETURN</button>
+            <button type="button" id="saveNewSpectreBtn">SAVE CASE FILE</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1041,6 +1072,8 @@ textarea{
     <div id="sectorActionHistory" class="action-history"></div>
   </div>
 </div>
+
+<div id="spectrePrintReport" class="spectre-print-report" aria-hidden="true"></div>
 
 <!-- NATIONAL TEAM ROSTER POPUP MODAL -->
 <div id="spectreClassInfoModal" class="modal-overlay hidden">
@@ -1619,6 +1652,7 @@ window.addEventListener("load",post);
   let selectedSiteIndex = -1;
   let currentSelectedClassIndex = 0;
   let selectedSpectreCategoryIndex = 0;
+  let newSpectreClassIndex = 0;
 
   let pkeScanProgress = -1;
   let ectoScanProgress = -1;
@@ -2837,7 +2871,6 @@ window.addEventListener("load",post);
       btn.title=spectreClasses[idx];
       btn.onclick=()=>{
         selectedSpectreCategoryIndex=idx;
-        currentSelectedClassIndex=idx;
         renderSpectreRegistry();
         updateSpectreDetails(spectreCategories[idx]);
       };
@@ -2845,204 +2878,117 @@ window.addEventListener("load",post);
     });
   }
 
-  function updateSpectreDetails(cat){
-    const statusText = $f("spectreStatusText");
-    const detailsBox = $f("spectreDetailsView");
-    if(!statusText || !detailsBox) return;
-
-    const catIdx=spectreCategories.indexOf(cat);
-    statusText.innerHTML=`CATEGORY: <b>CLASS ${classRoman[catIdx]}</b> // ${escapeHtml(spectreClasses[catIdx])} // THREAT: <span style="color:${cat.color}">${cat.level}</span>`;
-    let html = `<div style="display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:8px;"><div class="dim">RECORDED ENTITIES // TAP A SPECIMEN TO INSPECT DOSSIER</div><button type="button" id="spectreClassInfoBtn">CLASS DESCRIPTION</button></div><div class="spectre-db-list">`;
-    cat.entities.forEach((ent, eIdx)=>{
-      const clsIdx=getSpectreClassIndex(ent);
-      const entClass = ent.class || (clsIdx>=0 ? spectreClasses[clsIdx] : (cat.name.match(/CLASS (I|II|III|IV|V|VI|VII)/)?.[1] ? `Class ${cat.name.match(/CLASS (I|II|III|IV|V|VI|VII)/)[1]}` : "UNASSIGNED"));
-      const pke=pkeNumber(ent.pke);
-      const band=clsIdx>=0?pkeBands[clsIdx]:null;
-      const mismatch=band && Number.isFinite(pke) && (pke<band.min || pke>band.max);
-      html += `<div class="member-row inspect-specimen-row" data-cat="${spectreCategories.indexOf(cat)}" data-entity="${eIdx}" style="cursor:pointer;"><span>&bull; <b>${escapeHtml(ent.name)}</b> &mdash; <span style="color:var(--ui-accent)">${escapeHtml(entClass)}</span> &mdash; PKE: ${escapeHtml(ent.pke)} ${mismatch?'<span class="spectre-pke-warning">[PKE/CLASS MISMATCH]</span>':''} [${escapeHtml(ent.status)}] <span class="dim">${ent.dateAdded ? "// "+new Date(ent.dateAdded).toLocaleDateString() : "// LEGACY"}</span></span><button type="button">INSPECT</button></div>`;
-    });
-    html += `</div>`;
-
-    html += `<div class="spectre-case-shell">
-      <div class="spectre-case-header">
-        <div><b>NEW SPECTRE CASE FILE</b><div class="spectre-case-kicker">FIELD RECORD // NEW DATABASE ENTRY</div></div>
-        <div class="dim">ENTRY DATE: ${new Date().toLocaleDateString("en-GB")}</div>
-      </div>
-      <div class="spectre-case-section">
-        <div class="spectre-case-section-title">IDENTIFICATION</div>
-        <div class="spectre-case-grid">
-          <div class="spectre-case-field full"><label for="newSpectreName">SPECTRE DESIGNATION</label><input type="text" id="newSpectreName" placeholder="SPECIMEN NAME"></div>
-          <div class="spectre-case-field"><label>CLASSIFICATION</label><div class="spectre-class-selector" id="spectreClassSelector">${spectreClasses.map((cls, idx)=>`<button type="button" class="spectre-class-btn${idx===currentSelectedClassIndex?' active':''}" data-class-index="${idx}"><span>CLASS ${classRoman[idx]}</span><span class="class-threat">${classThreatLabel(idx)}</span></button>`).join("")}</div></div>
-          <div class="spectre-case-field"><label>THREAT / CLASS PKe BAND</label><div class="spectre-case-readout" id="newSpectreThreatReadout">${classThreatLabel(currentSelectedClassIndex)} // ${classBandText(currentSelectedClassIndex)}</div></div>
-          <div class="spectre-case-field"><label for="newSpectrePke">PKe SIGNATURE</label><input type="number" id="newSpectrePke" min="250" max="999" placeholder="PKe AUTO-FILLED FROM CLASS"></div>
-          <div class="spectre-case-field"><label for="newSpectreStatus">CURRENT STATUS</label><input type="text" id="newSpectreStatus" value="CONTAINED" placeholder="STATUS"></div>
-        </div>
-      </div>
-      <div class="spectre-case-section">
-        <div class="spectre-case-section-title">DOSSIER</div>
-        <div class="spectre-case-field"><label for="newSpectreDesc">BEHAVIOURAL DESCRIPTION</label><textarea id="newSpectreDesc" placeholder="Describe appearance, behaviour, characteristics and known manifestations..."></textarea></div>
-      </div>
-      <div class="spectre-case-section">
-        <div class="spectre-case-section-title">INITIAL FIELD LOG</div>
-        <div class="spectre-case-field"><label for="newSpectreLog">FIRST OBSERVATION / INVESTIGATION NOTES</label><textarea id="newSpectreLog" placeholder="Record the initial observation, readings or investigation notes..."></textarea></div>
-      </div>
-      <div class="spectre-case-actions"><button type="button" id="cancelAddSpectreBtn">CANCEL / RETURN</button><button id="addSpectreBtn" type="button">SAVE CASE FILE</button></div>
-    </div>`;
-
-    detailsBox.innerHTML = html;
-    const classInfoBtn=detailsBox.querySelector("#spectreClassInfoBtn");
-    if(classInfoBtn) classInfoBtn.onclick=()=>{
-      const modal=$f("spectreClassInfoModal"), title=$f("spectreClassInfoTitle"), body=$f("spectreClassInfoBody"), band=$f("spectreClassInfoBand");
-      if(title) title.textContent=`CLASS ${classRoman[catIdx]} // CLASSIFICATION DOSSIER`;
-      if(body) body.textContent=spectreClassDescriptions[catIdx] || "No classification description available.";
-      if(band) band.textContent=classBandText(catIdx);
-      if(modal) modal.classList.remove("hidden");
-    };
-
-    const pkeInput=detailsBox.querySelector("#newSpectrePke");
-    const refreshNewPkeBand=()=>{
-      const idx=currentSelectedClassIndex, b=pkeBands[idx];
-      const threatReadout=detailsBox.querySelector("#newSpectreThreatReadout");
-      if(threatReadout) threatReadout.textContent=`${classThreatLabel(idx)} // ${classBandText(idx)}`;
-      if(pkeInput && !pkeInput.dataset.userEdited) pkeInput.value=formatPke(normalizePkeForClass("",idx));
+  function renderNewSpectreEntry(){
+    const selector=$f("newSpectreClassSelector"), pkeInput=$f("newSpectrePke"), bandBox=$f("newSpectrePkeBand");
+    if(!selector)return;
+    selector.innerHTML=spectreClasses.map((cls,idx)=>`<button type="button" class="spectre-class-btn${idx===newSpectreClassIndex?' active':''}" data-new-class-index="${idx}"><span>CLASS ${classRoman[idx]}</span><span class="class-threat">${classThreatLabel(idx)}</span></button>`).join("");
+    const sync=()=>{
+      const b=pkeBands[newSpectreClassIndex];
+      if(bandBox)bandBox.textContent=classBandText(newSpectreClassIndex);
+      if(pkeInput && !pkeInput.dataset.userEdited)pkeInput.value=normalizePkeForClass("",newSpectreClassIndex);
       if(pkeInput && pkeInput.value){
         const n=pkeNumber(pkeInput.value);
-        if(Number.isFinite(n) && b && (n<b.min || n>b.max)) pkeInput.value=formatPke(normalizePkeForClass(n,idx));
+        if(Number.isFinite(n)&&b&&(n<b.min||n>b.max))pkeInput.value=normalizePkeForClass(n,newSpectreClassIndex);
       }
+      selector.querySelectorAll("[data-new-class-index]").forEach(b=>b.classList.toggle("active",parseInt(b.dataset.newClassIndex)===newSpectreClassIndex));
     };
-    if(pkeInput){
-      pkeInput.value=formatPke(normalizePkeForClass("",currentSelectedClassIndex));
-      pkeInput.oninput=()=>{pkeInput.dataset.userEdited="1";};
-    }
-    detailsBox.querySelectorAll(".spectre-class-btn").forEach(btn=>{
-      btn.onclick = () => {
-        currentSelectedClassIndex = parseInt(btn.dataset.classIndex);
-        detailsBox.querySelectorAll(".spectre-class-btn").forEach(b=>b.classList.remove("active"));
-        btn.classList.add("active");
-        if(pkeInput){delete pkeInput.dataset.userEdited;}
-        refreshNewPkeBand();
-      };
+    selector.querySelectorAll("[data-new-class-index]").forEach(btn=>btn.onclick=()=>{
+      newSpectreClassIndex=parseInt(btn.dataset.newClassIndex);
+      if(pkeInput)delete pkeInput.dataset.userEdited;
+      sync();
     });
+    if(pkeInput)pkeInput.oninput=()=>{pkeInput.dataset.userEdited="1";};
+    sync();
+  }
 
+  function updateSpectreDetails(cat){
+    const statusText=$f("spectreStatusText"), detailsBox=$f("spectreDetailsView");
+    if(!statusText||!detailsBox)return;
+    const catIdx=spectreCategories.indexOf(cat);
+    statusText.innerHTML=`CLASS ${classRoman[catIdx]} // ${escapeHtml(spectreClasses[catIdx])} // THREAT: <span style="color:${cat.color}">${cat.level}</span>`;
+    let html=`<div style="display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:8px;"><div class="dim">REGISTERED ENTITIES // TAP A SPECIMEN TO INSPECT DOSSIER</div><button type="button" id="spectreClassInfoBtn">CLASS DESCRIPTION</button></div><div class="spectre-db-list">`;
+    cat.entities.forEach((ent,eIdx)=>{
+      const clsIdx=getSpectreClassIndex(ent), entClass=ent.class||(clsIdx>=0?spectreClasses[clsIdx]:"UNASSIGNED"), pke=pkeNumber(ent.pke), band=clsIdx>=0?pkeBands[clsIdx]:null, mismatch=band&&Number.isFinite(pke)&&(pke<band.min||pke>band.max);
+      html+=`<div class="member-row inspect-specimen-row" data-cat="${catIdx}" data-entity="${eIdx}" style="cursor:pointer;"><span>&bull; <b>${escapeHtml(ent.name)}</b> &mdash; <span style="color:var(--ui-accent)">${escapeHtml(entClass)}</span> &mdash; PKE: ${escapeHtml(ent.pke)} ${mismatch?'<span class="spectre-pke-warning">[PKE/CLASS MISMATCH]</span>':''} [${escapeHtml(ent.status)}] <span class="dim">${ent.dateAdded?"// "+new Date(ent.dateAdded).toLocaleDateString():"// LEGACY"}</span></span><button type="button">INSPECT</button></div>`;
+    });
+    html+=`</div>`;
+    detailsBox.innerHTML=html;
+    const classInfoBtn=detailsBox.querySelector("#spectreClassInfoBtn");
+    if(classInfoBtn)classInfoBtn.onclick=()=>{
+      const modal=$f("spectreClassInfoModal"),title=$f("spectreClassInfoTitle"),body=$f("spectreClassInfoBody"),band=$f("spectreClassInfoBand");
+      if(title)title.textContent=`CLASS ${classRoman[catIdx]} // CLASSIFICATION DOSSIER`;
+      if(body)body.textContent=spectreClassDescriptions[catIdx]||"No classification description available.";
+      if(band)band.textContent=classBandText(catIdx);
+      if(modal)modal.classList.remove("hidden");
+    };
     detailsBox.querySelectorAll(".inspect-specimen-row").forEach(row=>{
       row.onclick=(e)=>{
-        if(e.target.closest("button")) e.stopPropagation();
-        const cIdx = parseInt(row.dataset.cat);
-        const eIdx = parseInt(row.dataset.entity);
-        const ent = spectreCategories[cIdx].entities[eIdx];
-        const entClassIdx=getSpectreClassIndex(ent);
-        const band=entClassIdx>=0?pkeBands[entClassIdx]:null;
-        const pke=pkeNumber(ent.pke);
-        const mismatch=band && Number.isFinite(pke) && (pke<band.min || pke>band.max);
-        detailsBox.innerHTML = `
-          <div style="background:var(--ui-deep); border:1px solid var(--ui-border); padding:12px;">
-            <div style="border-bottom:1px solid var(--ui-border); padding-bottom:5px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; gap:8px;">
-              <b>DOSSIER: ${escapeHtml(ent.name).toUpperCase()}</b>
-              <span class="role-badge">${escapeHtml(ent.status)}</span>
-            </div>
-            <div class="metric"><span>SPECTRE CLASS</span><b>${escapeHtml(ent.class || "UNASSIGNED")}</b></div>
-            <div class="metric"><span>PKE SIGNATURE</span><b>${escapeHtml(ent.pke)}</b></div>
-            <div class="metric"><span>CLASS PKE BAND</span><b>${band ? `${band.min}–${band.max} PKE` : "UNASSIGNED"}</b></div>
-            <div class="metric"><span>DATABASE ENTRY</span><b>${ent.dateAdded ? new Date(ent.dateAdded).toLocaleDateString() : "LEGACY RECORD"}</b></div>
-            ${mismatch?`<div class="spectre-pke-warning" style="margin-top:8px;">WARNING // PKE SIGNATURE OUTSIDE CLASS ${classRoman[entClassIdx]} BAND // EDIT ENTRY TO NORMALIZE.</div>`:""}
-            <div style="margin-top:8px; font-size:11px; color:var(--ui-accent); line-height:1.5;">
-              <b>BEHAVIORAL DESCRIPTION:</b><br>${escapeHtml(ent.desc)}
-            </div>
-            <div style="margin-top:12px; font-size:11px; color:var(--ui-accent); line-height:1.5;">
-              <b>INITIAL FIELD LOG:</b><br>${escapeHtml(ent.fieldLog || "No initial field log recorded.")}
-            </div>
-            <div style="margin-top:12px; display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap;">
-              <button type="button" id="editSpectreBtn">EDIT ENTRY</button>
-              <button type="button" id="backToCatListBtn">&lt;&lt; BACK TO LIST</button>
-            </div>
-          </div>
-        `;
-        const backBtn = detailsBox.querySelector("#backToCatListBtn");
-        if(backBtn) backBtn.onclick = () => updateSpectreDetails(cat);
+        if(e.target.closest("button"))e.stopPropagation();
+        const cIdx=parseInt(row.dataset.cat),eIdx=parseInt(row.dataset.entity),ent=spectreCategories[cIdx].entities[eIdx],entClassIdx=getSpectreClassIndex(ent),band=entClassIdx>=0?pkeBands[entClassIdx]:null,pke=pkeNumber(ent.pke),mismatch=band&&Number.isFinite(pke)&&(pke<band.min||pke>band.max);
+        detailsBox.innerHTML=`<div style="background:var(--ui-deep);border:1px solid var(--ui-border);padding:12px;"><div style="border-bottom:1px solid var(--ui-border);padding-bottom:5px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;"><b>DOSSIER: ${escapeHtml(ent.name).toUpperCase()}</b><span class="role-badge">${escapeHtml(ent.status)}</span></div><div class="metric"><span>SPECTRE CLASS</span><b>${escapeHtml(ent.class||"UNASSIGNED")}</b></div><div class="metric"><span>PKE SIGNATURE</span><b>${escapeHtml(ent.pke)}</b></div><div class="metric"><span>CLASS PKE BAND</span><b>${band?`${band.min}–${band.max} PKE`:"UNASSIGNED"}</b></div><div class="metric"><span>DATABASE ENTRY</span><b>${ent.dateAdded?new Date(ent.dateAdded).toLocaleDateString():"LEGACY RECORD"}</b></div>${mismatch?`<div class="spectre-pke-warning" style="margin-top:8px;">WARNING // PKE SIGNATURE OUTSIDE CLASS ${classRoman[entClassIdx]} BAND // EDIT ENTRY TO NORMALIZE.</div>`:""}<div style="margin-top:8px;font-size:11px;color:var(--ui-accent);line-height:1.5;"><b>BEHAVIOURAL DESCRIPTION:</b><br>${escapeHtml(ent.desc||"No behavioural description recorded.")}</div>${ent.initialLog?`<div style="margin-top:12px;font-size:11px;color:var(--ui-accent);line-height:1.5;"><b>INITIAL FIELD LOG:</b><br>${escapeHtml(ent.initialLog)}</div>`:""}<div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;"><button type="button" id="printSpectreBtn">PRINT CASE FILE</button><button type="button" id="editSpectreBtn">EDIT ENTRY</button><button type="button" id="backToCatListBtn">&lt;&lt; BACK TO LIST</button></div></div>`;
+        const backBtn=detailsBox.querySelector("#backToCatListBtn"); if(backBtn)backBtn.onclick=()=>updateSpectreDetails(cat);
+        const printBtn=detailsBox.querySelector("#printSpectreBtn"); if(printBtn)printBtn.onclick=()=>printSpectreCaseFile(ent);
         const editBtn=detailsBox.querySelector("#editSpectreBtn");
-        if(editBtn) editBtn.onclick=()=>{
-          const idx=entClassIdx>=0?entClassIdx:currentSelectedClassIndex;
-          detailsBox.innerHTML=`
-            <div class="spectre-edit-shell">
-              <div class="panel-title">EDIT SPECTRE ENTRY <span class="dim">[CLASS-LINKED PKE]</span></div>
-              <div class="spectre-edit-grid">
-                <div class="spectre-edit-field"><label for="editSpectreName">SPECIMEN DESIGNATION</label><input id="editSpectreName" type="text" value="${escapeHtml(ent.name)}" placeholder="SPECIMEN NAME"></div>
-                <div class="spectre-edit-field"><label for="editSpectrePke">PKE SIGNATURE</label><input id="editSpectrePke" type="number" min="250" max="999" value="${pkeNumber(ent.pke)||normalizePkeForClass("",idx)}" placeholder="PKE"></div>
-                <div class="spectre-edit-field"><label for="editSpectreStatus">CURRENT STATUS</label><input id="editSpectreStatus" type="text" value="${escapeHtml(ent.status)}" placeholder="STATUS"></div>
-                <div class="spectre-edit-field"><label for="editSpectreClass">SPECTRE CLASS</label><select id="editSpectreClass">${spectreClasses.map((cls,i)=>`<option value="${i}" ${i===idx?'selected':''}>CLASS ${classRoman[i]} // ${classThreatLabel(i)}</option>`).join("")}</select></div>
-                <div class="spectre-edit-field" style="grid-column:1/-1;"><label for="editSpectreDesc">BEHAVIOURAL DOSSIER</label><textarea id="editSpectreDesc" placeholder="ENTITY DOSSIER DESCRIPTION">${escapeHtml(ent.desc)}</textarea></div>
-                <div class="spectre-edit-field" style="grid-column:1/-1;"><label for="editSpectreLog">INITIAL FIELD LOG</label><textarea id="editSpectreLog" placeholder="INITIAL FIELD OBSERVATION / INVESTIGATION NOTES">${escapeHtml(ent.fieldLog || "")}</textarea></div>
-              </div>
-              <div id="editSpectreBand" class="spectre-pke-band spectre-edit-band">${classBandText(idx)}</div>
-              <div class="spectre-edit-actions">
-                <button type="button" id="cancelSpectreEditBtn">CANCEL</button>
-                <button type="button" id="saveSpectreEditBtn">SAVE ENTRY</button>
-              </div>
-            </div>`;
-          const classSel=detailsBox.querySelector("#editSpectreClass"), editPke=detailsBox.querySelector("#editSpectrePke"), bandBox=detailsBox.querySelector("#editSpectreBand");
-          const syncEditBand=()=>{
-            const ci=parseInt(classSel.value), band=pkeBands[ci];
-            bandBox.textContent=classBandText(ci);
-            const n=parseInt(editPke.value,10);
-            if(Number.isFinite(n) && band && (n<band.min || n>band.max)) editPke.value=normalizePkeForClass(n,ci);
-          };
-          classSel.onchange=syncEditBand;
-          editPke.onchange=syncEditBand;
+        if(editBtn)editBtn.onclick=()=>{
+          const idx=entClassIdx>=0?entClassIdx:catIdx;
+          detailsBox.innerHTML=`<div class="spectre-edit-shell"><div class="panel-title">EDIT SPECTRE ENTRY <span class="dim">[CLASS-LINKED PKE]</span></div><div class="spectre-edit-grid"><div class="spectre-edit-field"><label for="editSpectreName">SPECIMEN DESIGNATION</label><input id="editSpectreName" type="text" value="${escapeHtml(ent.name)}" placeholder="SPECIMEN NAME"></div><div class="spectre-edit-field"><label for="editSpectrePke">PKE SIGNATURE</label><input id="editSpectrePke" type="number" min="250" max="999" value="${pkeNumber(ent.pke)||normalizePkeForClass("",idx)}" placeholder="PKE"></div><div class="spectre-edit-field"><label for="editSpectreStatus">CURRENT STATUS</label><input id="editSpectreStatus" type="text" value="${escapeHtml(ent.status)}" placeholder="STATUS"></div><div class="spectre-edit-field"><label for="editSpectreClass">SPECTRE CLASS</label><select id="editSpectreClass">${spectreClasses.map((cls,i)=>`<option value="${i}" ${i===idx?'selected':''}>CLASS ${classRoman[i]} // ${classThreatLabel(i)}</option>`).join("")}</select></div><div class="spectre-edit-field" style="grid-column:1/-1;"><label for="editSpectreDesc">BEHAVIOURAL DOSSIER</label><textarea id="editSpectreDesc" placeholder="ENTITY DOSSIER DESCRIPTION">${escapeHtml(ent.desc||"")}</textarea></div><div class="spectre-edit-field" style="grid-column:1/-1;"><label for="editSpectreLog">INITIAL FIELD LOG</label><textarea id="editSpectreLog" placeholder="INITIAL FIELD LOG">${escapeHtml(ent.initialLog||"")}</textarea></div></div><div id="editSpectreBand" class="spectre-pke-band spectre-edit-band">${classBandText(idx)}</div><div class="spectre-edit-actions"><button type="button" id="cancelSpectreEditBtn">CANCEL</button><button type="button" id="saveSpectreEditBtn">SAVE ENTRY</button></div></div>`;
+          const classSel=detailsBox.querySelector("#editSpectreClass"),editPke=detailsBox.querySelector("#editSpectrePke"),bandBox=detailsBox.querySelector("#editSpectreBand");
+          const syncEditBand=()=>{const ci=parseInt(classSel.value),band=pkeBands[ci];bandBox.textContent=classBandText(ci);const n=parseInt(editPke.value,10);if(Number.isFinite(n)&&band&&(n<band.min||n>band.max))editPke.value=normalizePkeForClass(n,ci);};
+          classSel.onchange=syncEditBand; editPke.onchange=syncEditBand;
           detailsBox.querySelector("#cancelSpectreEditBtn").onclick=()=>updateSpectreDetails(cat);
           detailsBox.querySelector("#saveSpectreEditBtn").onclick=()=>{
-            const newName=detailsBox.querySelector("#editSpectreName").value.trim();
-            const ci=parseInt(classSel.value), newPke=normalizePkeForClass(editPke.value,ci);
-            const newStatus=detailsBox.querySelector("#editSpectreStatus").value.trim() || "MONITORED";
-            const newDesc=detailsBox.querySelector("#editSpectreDesc").value.trim() || "No behavioural description recorded.";
-            const newLog=detailsBox.querySelector("#editSpectreLog").value.trim() || "Initial field observation not recorded.";
-            if(!newName) return;
-            ent.name=newName; ent.class=spectreClasses[ci]; ent.pke=formatPke(newPke); ent.status=newStatus.toUpperCase(); ent.desc=newDesc; ent.fieldLog=newLog;
-            if(!ent.dateAdded) ent.dateAdded=new Date().toISOString();
-            if(ci !== catIdx){
-              const sourceIndex=cat.entities.indexOf(ent);
-              if(sourceIndex>=0) cat.entities.splice(sourceIndex,1);
-              spectreCategories[ci].entities.push(ent);
-              selectedSpectreCategoryIndex=ci;
-              currentSelectedClassIndex=ci;
-              renderSpectreRegistry();
-              updateSpectreDetails(spectreCategories[ci]);
-            }else{
-              updateSpectreDetails(cat);
-              renderSpectreRegistry();
-            }
-            log(`Spectre Database: Updated specimen '${newName}' // CLASS ${classRoman[ci]} // ${ent.pke}.`, "info");
+            const newName=detailsBox.querySelector("#editSpectreName").value.trim(),ci=parseInt(classSel.value),newPke=normalizePkeForClass(editPke.value,ci),newStatus=detailsBox.querySelector("#editSpectreStatus").value.trim()||"MONITORED",newDesc=detailsBox.querySelector("#editSpectreDesc").value.trim()||"No behavioural description recorded.",newLog=detailsBox.querySelector("#editSpectreLog").value.trim();
+            if(!newName)return;
+            ent.name=newName;ent.class=spectreClasses[ci];ent.pke=formatPke(newPke);ent.status=newStatus.toUpperCase();ent.desc=newDesc;ent.initialLog=newLog;
+            if(!ent.dateAdded)ent.dateAdded=new Date().toISOString();
+            if(ci!==catIdx){const sourceIndex=cat.entities.indexOf(ent);if(sourceIndex>=0)cat.entities.splice(sourceIndex,1);spectreCategories[ci].entities.push(ent);selectedSpectreCategoryIndex=ci;renderSpectreRegistry();updateSpectreDetails(spectreCategories[ci]);}else{updateSpectreDetails(cat);renderSpectreRegistry();}
+            log(`Spectre Database: Updated specimen '${newName}' // CLASS ${classRoman[ci]} // ${ent.pke}.`,"info");
           };
         };
-        log(`Accessed spectral dossier for specimen '${ent.name}'.`, "info");
+        log(`Accessed spectral dossier for specimen '${ent.name}'.`,"info");
       };
-      const inspectBtn=row.querySelector("button");
-      if(inspectBtn) inspectBtn.onclick=(e)=>{ e.stopPropagation(); row.click(); };
+      const inspectBtn=row.querySelector("button"); if(inspectBtn)inspectBtn.onclick=(e)=>{e.stopPropagation();row.click();};
     });
+  }
 
-    const cancelAddBtn = detailsBox.querySelector("#cancelAddSpectreBtn");
-    if(cancelAddBtn) cancelAddBtn.onclick=()=>updateSpectreDetails(cat);
+  function printSpectreCaseFile(ent){
+    const box=$f("spectrePrintReport"); if(!box||!ent)return;
+    const ci=getSpectreClassIndex(ent), band=ci>=0?pkeBands[ci]:null;
+    box.innerHTML=`<div style="text-align:center;font-size:15pt;font-weight:bold;">ECTO OS // SPECTRE DATABASE</div><div style="text-align:center;">FIELD CASE FILE</div><div class="spectre-print-rule"></div><div><b>SPECIMEN DESIGNATION:</b> ${escapeHtml(ent.name)}</div><div><b>DATABASE CLASS:</b> ${escapeHtml(ent.class||"UNASSIGNED")}</div><div><b>THREAT:</b> ${ci>=0?escapeHtml(classThreatLabel(ci)):"UNASSIGNED"}</div><div><b>PKE SIGNATURE:</b> ${escapeHtml(ent.pke||"UNRECORDED")}</div><div><b>CLASS PKE BAND:</b> ${band?`${band.min}–${band.max} PKE`:"UNASSIGNED"}</div><div><b>STATUS:</b> ${escapeHtml(ent.status||"UNRECORDED")}</div><div><b>DATE ENTERED:</b> ${ent.dateAdded?new Date(ent.dateAdded).toLocaleDateString("en-GB"):"LEGACY RECORD"}</div><div class="spectre-print-rule"></div><div><b>BEHAVIOURAL DOSSIER</b></div><div style="white-space:pre-wrap;">${escapeHtml(ent.desc||"No behavioural description recorded.")}</div><div class="spectre-print-rule"></div><div><b>INITIAL FIELD LOG</b></div><div style="white-space:pre-wrap;">${escapeHtml(ent.initialLog||"NO INITIAL FIELD LOG RECORDED.")}</div><div class="spectre-print-rule"></div><div style="text-align:center;">ECTO FIELD OPERATIONS DIVISION<br>END OF CASE FILE</div>`;
+    window.print();
+  }
 
-    const addBtn = detailsBox.querySelector("#addSpectreBtn");
-    if(addBtn){
-      addBtn.onclick=()=>{
-        const nameInput = detailsBox.querySelector("#newSpectreName");
-        const descInput = detailsBox.querySelector("#newSpectreDesc");
-        const logInput = detailsBox.querySelector("#newSpectreLog");
-        const statusInput = detailsBox.querySelector("#newSpectreStatus");
-        const pkeInput = detailsBox.querySelector("#newSpectrePke");
-        if(!nameInput || !nameInput.value.trim()) return;
-        const nameVal = nameInput.value.trim();
-        const assignedClass = spectreClasses[currentSelectedClassIndex];
-        const pkeVal = formatPke(normalizePkeForClass(pkeInput && pkeInput.value ? pkeInput.value : "", currentSelectedClassIndex));
-        const descVal = descInput && descInput.value.trim() ? descInput.value.trim() : "Newly logged field apparition with variable psychokinetic attributes.";
-        const logVal = logInput && logInput.value.trim() ? logInput.value.trim() : "Initial field observation not recorded.";
-        const statusVal = statusInput && statusInput.value.trim() ? statusInput.value.trim().toUpperCase() : "CONTAINED";
-        const entryDate = new Date().toISOString();
-        cat.entities.push({name:nameVal,pke:pkeVal,class:assignedClass,status:statusVal,desc:descVal,fieldLog:logVal,dateAdded:entryDate});
-        updateSpectreDetails(cat); renderSpectreRegistry();
-        log(`Spectre Database: Logged new specimen '${nameVal}' [${pkeVal}] under ${assignedClass}.`, "info");
-      };
-    }
+  function setupSpectreCaseFileControls(){
+    const dbBtn=$f("spectreDatabaseModeBtn"),newBtn=$f("spectreNewEntryModeBtn"),dbPane=$f("spectreDatabasePane"),newPane=$f("spectreNewEntryPane"),openBtn=$f("openNewSpectreBtn"),cancelBtn=$f("cancelNewSpectreBtn"),saveBtn=$f("saveNewSpectreBtn"),pke=$f("newSpectrePke");
+    const show=(mode)=>{
+      const isNew=mode==="new";
+      if(dbPane)dbPane.classList.toggle("hidden",isNew);
+      if(newPane)newPane.classList.toggle("hidden",!isNew);
+      if(dbBtn)dbBtn.classList.toggle("active",!isNew);
+      if(newBtn)newBtn.classList.toggle("active",isNew);
+      if(isNew)renderNewSpectreEntry();
+    };
+    if(dbBtn)dbBtn.onclick=()=>show("db");
+    if(newBtn)newBtn.onclick=()=>show("new");
+    if(openBtn)openBtn.onclick=()=>show("new");
+    if(cancelBtn)cancelBtn.onclick=()=>show("db");
+    if(saveBtn)saveBtn.onclick=()=>{
+      const name=$f("newSpectreName")?.value.trim(); if(!name)return;
+      const pkeVal=formatPke(normalizePkeForClass(pke?.value||"",newSpectreClassIndex));
+      const status=($f("newSpectreStatus")?.value.trim()||"CONTAINED").toUpperCase();
+      const desc=$f("newSpectreDesc")?.value.trim()||"No behavioural description recorded.";
+      const initialLog=$f("newSpectreLog")?.value.trim()||"";
+      const entry={name,pke:pkeVal,class:spectreClasses[newSpectreClassIndex],status,desc,dateAdded:new Date().toISOString(),initialLog};
+      spectreCategories[newSpectreClassIndex].entities.push(entry);
+      selectedSpectreCategoryIndex=newSpectreClassIndex;
+      renderSpectreRegistry();
+      updateSpectreDetails(spectreCategories[newSpectreClassIndex]);
+      log(`Spectre Database: Logged new case file '${name}' [${pkeVal}] under Class ${classRoman[newSpectreClassIndex]}.`,"info");
+      $f("newSpectreName").value=""; $f("newSpectrePke").value=""; $f("newSpectreStatus").value="CONTAINED"; $f("newSpectreDesc").value=""; $f("newSpectreLog").value=""; delete pke?.dataset.userEdited;
+      newSpectreClassIndex=selectedSpectreCategoryIndex; show("db");
+    };
+    if(pke)pke.oninput=()=>{pke.dataset.userEdited="1";};
+    renderNewSpectreEntry();
   }
 
   function setupWave(id, kind){
@@ -3857,6 +3803,7 @@ window.addEventListener("load",post);
     updateReadiness();
     renderSpectreRegistry();
     updateSpectreDetails(spectreCategories[0]);
+    setupSpectreCaseFileControls();
 
     const spectreClassInfoModal=$f("spectreClassInfoModal");
     const closeSpectreClassInfoBtn=$f("closeSpectreClassInfoBtn");
