@@ -889,7 +889,7 @@ textarea{
 </section>
 
 <section id="faults" class="screen">
-  <h1>SPECTRE DATABASE // PARANORMAL ENTITY CATALOG</h1>
+  <h1>SPECTRE DATABASE // PARANORMAL ENTITY CATALOG <span class="dim" style="font-size:9px;">[CASE FILE ENTRY TEST // V2.2.21]</span></h1>
   <div class="grid">
     <div class="panel" style="grid-column: span 2;">
       <div class="panel-title">CONTAINED & ACTIVE SPECTRE SECTORS <span class="dim">[TAP SPECIMEN TO INSPECT DOSSIER]</span></div>
@@ -2863,18 +2863,30 @@ window.addEventListener("load",post);
     });
     html += `</div>`;
 
-    html += `<div class="add-member-form">
-      <input type="text" id="newSpectreName" placeholder="SPECIMEN NAME">
-      <input type="text" id="newSpectrePke" placeholder="PKE AUTO-FILLED FROM CLASS">
-      <input type="text" id="newSpectreDesc" placeholder="ENTITY DOSSIER DESCRIPTION">
-      <div style="width:100%;">
-        <div class="dim" style="margin-bottom:4px;">CLASS // SELECT I–VII</div>
-        <div class="spectre-class-selector" id="spectreClassSelector">
-          ${spectreClasses.map((cls, idx)=>`<button type="button" class="spectre-class-btn${idx===currentSelectedClassIndex?' active':''}" data-class-index="${idx}"><span>CLASS ${classRoman[idx]}</span><span class="class-threat">${classThreatLabel(idx)}</span></button>`).join("")}
-        </div>
-        <div id="newSpectrePkeBand" class="spectre-pke-band">${classBandText(currentSelectedClassIndex)}<br>PKE is constrained to the selected class band.</div>
+    html += `<div class="spectre-case-shell">
+      <div class="spectre-case-header">
+        <div><b>NEW SPECTRE CASE FILE</b><div class="spectre-case-kicker">FIELD RECORD // NEW DATABASE ENTRY</div></div>
+        <div class="dim">ENTRY DATE: ${new Date().toLocaleDateString("en-GB")}</div>
       </div>
-      <button id="addSpectreBtn" type="button">LOG</button>
+      <div class="spectre-case-section">
+        <div class="spectre-case-section-title">IDENTIFICATION</div>
+        <div class="spectre-case-grid">
+          <div class="spectre-case-field full"><label for="newSpectreName">SPECTRE DESIGNATION</label><input type="text" id="newSpectreName" placeholder="SPECIMEN NAME"></div>
+          <div class="spectre-case-field"><label>CLASSIFICATION</label><div class="spectre-class-selector" id="spectreClassSelector">${spectreClasses.map((cls, idx)=>`<button type="button" class="spectre-class-btn${idx===currentSelectedClassIndex?' active':''}" data-class-index="${idx}"><span>CLASS ${classRoman[idx]}</span><span class="class-threat">${classThreatLabel(idx)}</span></button>`).join("")}</div></div>
+          <div class="spectre-case-field"><label>THREAT / CLASS PKe BAND</label><div class="spectre-case-readout" id="newSpectreThreatReadout">${classThreatLabel(currentSelectedClassIndex)} // ${classBandText(currentSelectedClassIndex)}</div></div>
+          <div class="spectre-case-field"><label for="newSpectrePke">PKe SIGNATURE</label><input type="number" id="newSpectrePke" min="250" max="999" placeholder="PKe AUTO-FILLED FROM CLASS"></div>
+          <div class="spectre-case-field"><label for="newSpectreStatus">CURRENT STATUS</label><input type="text" id="newSpectreStatus" value="CONTAINED" placeholder="STATUS"></div>
+        </div>
+      </div>
+      <div class="spectre-case-section">
+        <div class="spectre-case-section-title">DOSSIER</div>
+        <div class="spectre-case-field"><label for="newSpectreDesc">BEHAVIOURAL DESCRIPTION</label><textarea id="newSpectreDesc" placeholder="Describe appearance, behaviour, characteristics and known manifestations..."></textarea></div>
+      </div>
+      <div class="spectre-case-section">
+        <div class="spectre-case-section-title">INITIAL FIELD LOG</div>
+        <div class="spectre-case-field"><label for="newSpectreLog">FIRST OBSERVATION / INVESTIGATION NOTES</label><textarea id="newSpectreLog" placeholder="Record the initial observation, readings or investigation notes..."></textarea></div>
+      </div>
+      <div class="spectre-case-actions"><button type="button" id="cancelAddSpectreBtn">CANCEL / RETURN</button><button id="addSpectreBtn" type="button">SAVE CASE FILE</button></div>
     </div>`;
 
     detailsBox.innerHTML = html;
@@ -2888,10 +2900,10 @@ window.addEventListener("load",post);
     };
 
     const pkeInput=detailsBox.querySelector("#newSpectrePke");
-    const pkeBand=detailsBox.querySelector("#newSpectrePkeBand");
     const refreshNewPkeBand=()=>{
       const idx=currentSelectedClassIndex, b=pkeBands[idx];
-      if(pkeBand) pkeBand.innerHTML=`${classBandText(idx)}<br>PKE is constrained to the selected class band.`;
+      const threatReadout=detailsBox.querySelector("#newSpectreThreatReadout");
+      if(threatReadout) threatReadout.textContent=`${classThreatLabel(idx)} // ${classBandText(idx)}`;
       if(pkeInput && !pkeInput.dataset.userEdited) pkeInput.value=formatPke(normalizePkeForClass("",idx));
       if(pkeInput && pkeInput.value){
         const n=pkeNumber(pkeInput.value);
@@ -2936,6 +2948,9 @@ window.addEventListener("load",post);
             <div style="margin-top:8px; font-size:11px; color:var(--ui-accent); line-height:1.5;">
               <b>BEHAVIORAL DESCRIPTION:</b><br>${escapeHtml(ent.desc)}
             </div>
+            <div style="margin-top:12px; font-size:11px; color:var(--ui-accent); line-height:1.5;">
+              <b>INITIAL FIELD LOG:</b><br>${escapeHtml(ent.fieldLog || "No initial field log recorded.")}
+            </div>
             <div style="margin-top:12px; display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap;">
               <button type="button" id="editSpectreBtn">EDIT ENTRY</button>
               <button type="button" id="backToCatListBtn">&lt;&lt; BACK TO LIST</button>
@@ -2956,6 +2971,7 @@ window.addEventListener("load",post);
                 <div class="spectre-edit-field"><label for="editSpectreStatus">CURRENT STATUS</label><input id="editSpectreStatus" type="text" value="${escapeHtml(ent.status)}" placeholder="STATUS"></div>
                 <div class="spectre-edit-field"><label for="editSpectreClass">SPECTRE CLASS</label><select id="editSpectreClass">${spectreClasses.map((cls,i)=>`<option value="${i}" ${i===idx?'selected':''}>CLASS ${classRoman[i]} // ${classThreatLabel(i)}</option>`).join("")}</select></div>
                 <div class="spectre-edit-field" style="grid-column:1/-1;"><label for="editSpectreDesc">BEHAVIOURAL DOSSIER</label><textarea id="editSpectreDesc" placeholder="ENTITY DOSSIER DESCRIPTION">${escapeHtml(ent.desc)}</textarea></div>
+                <div class="spectre-edit-field" style="grid-column:1/-1;"><label for="editSpectreLog">INITIAL FIELD LOG</label><textarea id="editSpectreLog" placeholder="INITIAL FIELD OBSERVATION / INVESTIGATION NOTES">${escapeHtml(ent.fieldLog || "")}</textarea></div>
               </div>
               <div id="editSpectreBand" class="spectre-pke-band spectre-edit-band">${classBandText(idx)}</div>
               <div class="spectre-edit-actions">
@@ -2978,8 +2994,9 @@ window.addEventListener("load",post);
             const ci=parseInt(classSel.value), newPke=normalizePkeForClass(editPke.value,ci);
             const newStatus=detailsBox.querySelector("#editSpectreStatus").value.trim() || "MONITORED";
             const newDesc=detailsBox.querySelector("#editSpectreDesc").value.trim() || "No behavioural description recorded.";
+            const newLog=detailsBox.querySelector("#editSpectreLog").value.trim() || "Initial field observation not recorded.";
             if(!newName) return;
-            ent.name=newName; ent.class=spectreClasses[ci]; ent.pke=formatPke(newPke); ent.status=newStatus.toUpperCase(); ent.desc=newDesc;
+            ent.name=newName; ent.class=spectreClasses[ci]; ent.pke=formatPke(newPke); ent.status=newStatus.toUpperCase(); ent.desc=newDesc; ent.fieldLog=newLog;
             if(!ent.dateAdded) ent.dateAdded=new Date().toISOString();
             if(ci !== catIdx){
               const sourceIndex=cat.entities.indexOf(ent);
@@ -3002,19 +3019,26 @@ window.addEventListener("load",post);
       if(inspectBtn) inspectBtn.onclick=(e)=>{ e.stopPropagation(); row.click(); };
     });
 
+    const cancelAddBtn = detailsBox.querySelector("#cancelAddSpectreBtn");
+    if(cancelAddBtn) cancelAddBtn.onclick=()=>updateSpectreDetails(cat);
+
     const addBtn = detailsBox.querySelector("#addSpectreBtn");
     if(addBtn){
       addBtn.onclick=()=>{
         const nameInput = detailsBox.querySelector("#newSpectreName");
         const descInput = detailsBox.querySelector("#newSpectreDesc");
+        const logInput = detailsBox.querySelector("#newSpectreLog");
+        const statusInput = detailsBox.querySelector("#newSpectreStatus");
         const pkeInput = detailsBox.querySelector("#newSpectrePke");
         if(!nameInput || !nameInput.value.trim()) return;
         const nameVal = nameInput.value.trim();
         const assignedClass = spectreClasses[currentSelectedClassIndex];
         const pkeVal = formatPke(normalizePkeForClass(pkeInput && pkeInput.value ? pkeInput.value : "", currentSelectedClassIndex));
         const descVal = descInput && descInput.value.trim() ? descInput.value.trim() : "Newly logged field apparition with variable psychokinetic attributes.";
+        const logVal = logInput && logInput.value.trim() ? logInput.value.trim() : "Initial field observation not recorded.";
+        const statusVal = statusInput && statusInput.value.trim() ? statusInput.value.trim().toUpperCase() : "CONTAINED";
         const entryDate = new Date().toISOString();
-        cat.entities.push({name:nameVal,pke:pkeVal,class:assignedClass,status:"CONTAINED",desc:descVal,dateAdded:entryDate});
+        cat.entities.push({name:nameVal,pke:pkeVal,class:assignedClass,status:statusVal,desc:descVal,fieldLog:logVal,dateAdded:entryDate});
         updateSpectreDetails(cat); renderSpectreRegistry();
         log(`Spectre Database: Logged new specimen '${nameVal}' [${pkeVal}] under ${assignedClass}.`, "info");
       };
