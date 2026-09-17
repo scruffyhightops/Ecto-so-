@@ -301,6 +301,16 @@ main{
 @media(hover:none){button:hover,.team-card:hover{background:inherit;border-color:var(--ui-grid);}button:active{border-color:var(--ui-accent);} }
 
 
+/* THREAT MAP VIEWPORT LOCK // keep the operational map inside the app viewport */
+.screen#ukmap{height:100%;min-height:0;overflow:hidden;}
+.screen#ukmap>.grid{height:100%;min-height:0;}
+.screen#ukmap>.grid>.panel{height:100%;min-height:0;overflow:hidden;}
+.screen#ukmap .tactical-map-wrapper{height:100%;min-height:0;overflow:hidden;}
+.screen#ukmap .tactical-panel{min-height:0;overflow:hidden;}
+@media(max-width:900px){
+  .screen#ukmap .tactical-map-wrapper{height:100%;}
+}
+
 /* THREAT MAP COMPACT VIEW // reduce unnecessary page scrolling on iPad */
 .screen#ukmap .tactical-map-wrapper{min-height:0;}
 .screen#ukmap .tactical-panel{min-height:0;}
@@ -2882,15 +2892,9 @@ window.addEventListener("load",post);
     ukFranchises.forEach(ensureSectorState);
     ukFranchises.forEach(hydrateLocationRecord);
     const addLocationBtn=$f("addLocationBtn"); if(addLocationBtn) addLocationBtn.onclick=saveOrAddFieldLocation;
-    const locationManagementDetails=$f("locationManagementDetails");
-    const locationManagementSummary=$f("locationManagementSummary");
-    if(locationManagementDetails&&locationManagementSummary){
-      locationManagementSummary.addEventListener("click",e=>{
-        e.preventDefault();
-        locationManagementDetails.open=!locationManagementDetails.open;
-        if(locationManagementDetails.open){setTimeout(()=>{try{locationManagementDetails.scrollIntoView({behavior:"smooth",block:"nearest"});}catch(err){}},20);}
-      });
-    }
+    // Native <details>/<summary> behaviour is intentionally retained here.
+    // Safari/iPad handles the open/close state natively; manually toggling it
+    // from the summary click caused a double-toggle and left the editor closed.
     function initEctoSelect(id){
       const sel=$f(id); if(!sel||sel.dataset.ectoEnhanced)return;
       sel.dataset.ectoEnhanced="1"; sel.classList.add("ecto-select-native");
