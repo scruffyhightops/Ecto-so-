@@ -135,7 +135,7 @@ header{height:58px;border-bottom:1px solid var(--ui-border);display:flex;justify
 .action-history .history-line{margin-bottom:5px;border-bottom:1px dotted var(--ui-grid);padding-bottom:4px}
 .action-history .history-line.warn{color:#ffb000}.action-history .history-line.alert{color:#ff5555}
 .incident-db-toolbar{display:grid;grid-template-columns:2fr 1fr;gap:7px;margin:8px 0}.incident-db-toolbar input,.incident-db-toolbar select{background:var(--ui-deep);color:var(--ui-accent);border:1px solid var(--ui-border);padding:9px;font-family:monospace;font-size:10px;min-width:0}.incident-db-list{max-height:245px;overflow:auto;background:var(--ui-deep);border:1px solid var(--ui-grid);padding:6px}.incident-db-row{display:grid;grid-template-columns:1.1fr 1.1fr 1.4fr 1fr auto;gap:7px;align-items:center;border-bottom:1px dotted var(--ui-grid);padding:8px 5px;font-size:10px;cursor:pointer}.incident-db-row:last-child{border-bottom:0}.incident-db-row:hover,.incident-db-row.active{background:#071a07;border-color:var(--ui-accent)}.incident-db-row b{letter-spacing:.5px}.incident-db-status{font-weight:bold}.incident-db-status.open{color:#ffb000}.incident-db-status.closed{color:var(--ui-accent)}.incident-db-dossier{margin-top:8px;background:var(--ui-deep);border:1px solid var(--ui-grid);padding:10px;font-size:10px;line-height:1.55;max-height:280px;overflow:auto}.incident-db-dossier .db-head{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--ui-border);padding-bottom:6px;margin-bottom:7px}.incident-db-dossier .db-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px 14px}.incident-db-dossier .db-actions{margin-top:8px;border-top:1px dotted var(--ui-grid);padding-top:7px}.incident-db-dossier .db-action{margin-bottom:3px}.incident-db-empty{padding:16px;text-align:center;color:var(--ui-dim)}
-@media(max-width:650px){.incident-db-toolbar{grid-template-columns:1fr}.incident-db-row{grid-template-columns:1fr 1fr}.incident-db-row .db-hide-small{display:none}.incident-db-dossier .db-grid{grid-template-columns:1fr}}
+@media(max-width:650px){.incident-case-grid{grid-template-columns:1fr}.incident-db-toolbar{grid-template-columns:1fr}.incident-db-row{grid-template-columns:1fr 1fr}.incident-db-row .db-hide-small{display:none}.incident-db-dossier .db-grid{grid-template-columns:1fr}}
 @media(max-width:560px){.action-grid{grid-template-columns:1fr}.action-option{min-height:64px}}
 
 
@@ -1133,18 +1133,52 @@ textarea{
   <h1>INCIDENT REPORT DATABASE // LOCAL FIELD ARCHIVE</h1>
   <div class="grid">
     <div class="panel" style="grid-column: span 2;">
-      <div class="panel-title">INCIDENT REPORT DATABASE <span class="dim">[LOCAL FIELD ARCHIVE]</span></div>
-      <div class="incident-db-toolbar">
-        <input type="search" id="incidentSearchInput" placeholder="SEARCH INCIDENT / SECTOR / LEAD / ENTITY">
-        <select id="incidentStatusFilter"><option value="ALL">ALL STATUS</option><option value="OPEN">OPEN / ACTIVE</option><option value="CLOSED">CLOSED / RESOLVED</option></select>
+      <div class="panel-title">INCIDENT ARCHIVE CONTROL <span class="dim">[FIELD REPORT SYSTEM]</span></div>
+      <div class="button-row" style="margin-bottom:10px;">
+        <button type="button" id="incidentDatabaseModeBtn" class="active">DATABASE</button>
+        <button type="button" id="incidentNewEntryModeBtn">NEW INCIDENT</button>
       </div>
-      <div id="incidentDatabaseList" class="incident-db-list"></div>
-      <div id="incidentDatabaseDossier" class="incident-db-dossier"><div class="dim">SELECT AN INCIDENT TO VIEW THE STORED DOSSIER.</div></div>
-      <div class="button-row">
-        <button id="printStoredIncidentBtn" type="button" disabled>PRINT STORED REPORT</button>
-        <button id="exportIncidentDbBtn" type="button">EXPORT INCIDENT DATABASE</button>
-        <button id="importIncidentDbBtn" type="button">IMPORT INCIDENT DATABASE</button>
-        <input type="file" id="importIncidentDbFile" accept=".json" class="hidden">
+
+      <div id="incidentDatabasePane">
+        <div class="incident-db-toolbar">
+          <input type="search" id="incidentSearchInput" placeholder="SEARCH INCIDENT / LOCATION / LEAD / ENTITY">
+          <div id="incidentStatusFilterPanel" class="ecto-choice-panel ecto-choice-inline" aria-label="Incident status filter"></div>
+        </div>
+        <div id="incidentDatabaseList" class="incident-db-list"></div>
+        <div id="incidentDatabaseDossier" class="incident-db-dossier"><div class="dim">SELECT AN INCIDENT TO VIEW THE STORED CASE FILE.</div></div>
+        <div class="button-row">
+          <button id="printStoredIncidentBtn" type="button" disabled>PRINT STORED REPORT</button>
+          <button id="editStoredIncidentBtn" type="button" disabled>EDIT INCIDENT</button>
+          <button id="exportIncidentDbBtn" type="button">EXPORT INCIDENT DATABASE</button>
+          <button id="importIncidentDbBtn" type="button">IMPORT INCIDENT DATABASE</button>
+          <input type="file" id="importIncidentDbFile" accept=".json" class="hidden">
+        </div>
+      </div>
+
+      <div id="incidentNewEntryPane" class="hidden">
+        <div class="panel-title">NEW FIELD INCIDENT CASE FILE <span class="dim">[MANUAL ENTRY]</span></div>
+        <div class="incident-case-grid">
+          <label>INCIDENT ID<input id="newIncidentId" type="text" readonly></label>
+          <label>DATE<input id="newIncidentDate" type="text" placeholder="DD/MM/YYYY"></label>
+          <label>TIME<input id="newIncidentTime" type="text" placeholder="HH:MM"></label>
+          <label>LOCATION<input id="newIncidentLocation" type="text" placeholder="FIELD LOCATION / CITY"></label>
+          <label>ECTO VECTOR / GRID<input id="newIncidentGrid" type="text" placeholder="C3-B2-08-EV03"></label>
+          <label>LEAD COMMANDER<input id="newIncidentLead" type="text" placeholder="OPERATIVE / COMMANDER"></label>
+          <label>SPECTRE / ENTITY<input id="newIncidentGhost" type="text" placeholder="ENTITY DESIGNATION"></label>
+          <label>PKE READING<input id="newIncidentPke" type="text" inputmode="numeric" placeholder="NO READING"></label>
+        </div>
+        <div class="incident-case-block"><div class="field-label">ASSIGNED TEAM</div><div id="newIncidentTeamPanel" class="ecto-choice-panel"></div></div>
+        <div class="incident-case-block"><div class="field-label">THREAT LEVEL</div><div id="newIncidentThreatPanel" class="ecto-choice-panel"></div></div>
+        <div class="incident-case-block"><div class="field-label">INCIDENT STATUS</div><div id="newIncidentStatusPanel" class="ecto-choice-panel"></div></div>
+        <label class="incident-case-wide">INCIDENT DESCRIPTION<textarea id="newIncidentDescription" rows="4" placeholder="FIELD DESCRIPTION / OBSERVED EVENTS"></textarea></label>
+        <label class="incident-case-wide">FIELD ACTIONS<textarea id="newIncidentActions" rows="4" placeholder="ACTIONS TAKEN / EQUIPMENT DEPLOYED"></textarea></label>
+        <label class="incident-case-wide">OUTCOME / CONTAINMENT<textarea id="newIncidentOutcome" rows="3" placeholder="CONTAINMENT, EVACUATION, FALSE POSITIVE OR OTHER OUTCOME"></textarea></label>
+        <label class="incident-case-wide">FIELD LOG<textarea id="newIncidentLog" rows="4" placeholder="INITIAL FIELD LOG / OPERATOR NOTES"></textarea></label>
+        <div class="button-row">
+          <button type="button" id="saveNewIncidentBtn">SAVE INCIDENT</button>
+          <button type="button" id="cancelNewIncidentBtn">CANCEL</button>
+        </div>
+        <div id="incidentEntryModeStatus" class="dim" style="margin-top:6px;">NEW CASE FILE // READY FOR ENTRY</div>
       </div>
     </div>
   </div>
@@ -2164,13 +2198,12 @@ window.addEventListener("load",post);
   let incidentReports=[];
   let selectedIncidentDbId=null;
 
-  function getNowTime(){ return new Date().toTimeString().slice(0,8); }
-  function getNowDate(){ return new Date().toLocaleDateString(); }
+  function getNowTime(){ return new Date().toTimeString().slice(0,5); }
+  function getNowDate(){ const d=new Date(); return String(d.getDate()).padStart(2,"0")+"/"+String(d.getMonth()+1).padStart(2,"0")+"/"+d.getFullYear(); }
   function nextIncidentId(){
     const existingMax=incidentReports.reduce((max,r)=>{const m=String(r.incidentId||"").match(/-(\d{4})$/);return m?Math.max(max,+m[1]):max;},0);
     window.__ectoIncidentCounter=Math.max(window.__ectoIncidentCounter||0,existingMax)+1;
-    const n=String(window.__ectoIncidentCounter).padStart(4,"0");
-    return `UK-${new Date().getFullYear().toString().slice(-2)}-${n}`;
+    return `UK-${new Date().getFullYear().toString().slice(-2)}-${String(window.__ectoIncidentCounter).padStart(4,"0")}`;
   }
   function ensureSectorState(f){
     if(!f.incidentId) f.incidentId=nextIncidentId();
@@ -2184,71 +2217,49 @@ window.addEventListener("load",post);
     if(typeof f.spectralMatch!=="string") f.spectralMatch="NO MATCH ANALYSIS";
     return f;
   }
-  function addPkeReading(f,pke){
-    ensureSectorState(f);
-    f.pkeHistory.unshift({time:getNowTime(),pke});
-    f.pkeHistory=f.pkeHistory.slice(0,20);
-  }
+  function addPkeReading(f,pke){ ensureSectorState(f); f.pkeHistory.unshift({time:getNowTime(),pke}); f.pkeHistory=f.pkeHistory.slice(0,20); }
   function snapshotIncidentReport(index){
-    const f=ensureSectorState(ukFranchises[index]);
-    const team=f.teams[activeSubTeamIndex];
-    return {
-      incidentId:f.incidentId, incidentOpened:f.incidentOpened, recordedAt:new Date().toISOString(),
-      date:new Date(f.incidentOpened).toLocaleDateString(), time:new Date(f.incidentOpened).toTimeString().slice(0,8),
-      sector:f.city, lead:f.lead, threat:f.threat, ghost:f.ghost, pke:f.lastPke||"NO RECENT READING",
-      pkeHistory:Array.isArray(f.pkeHistory)?f.pkeHistory.slice(0,20):[],
-      responseStatus:f.responseStatus||"STANDING BY", responseStage:f.responseStage||"STANDING BY",
-      team:team?.teamName||"UNASSIGNED", trapState:f.trapState||"STOWED",
-      containment:`${f.cellsOccupied||0} / ${f.cells||0} CELLS OCCUPIED`, cellsOccupied:f.cellsOccupied||0, cells:f.cells||0,
-      coordinates:f.latLon, spectralMatch:f.spectralMatch||"NO MATCH ANALYSIS", actions:Array.isArray(f.actionHistory)?f.actionHistory.slice(0,40):[],
-      closed:(f.responseStage==="CLOSED" || /^(RESOLVED|CONTAINMENT CONFIRMED)/.test(f.responseStatus||""))
-    };
+    const f=ensureSectorState(ukFranchises[index]); const team=f.teams[activeSubTeamIndex];
+    return {incidentId:f.incidentId,incidentOpened:f.incidentOpened,recordedAt:new Date().toISOString(),date:new Date(f.incidentOpened).toLocaleDateString(),time:new Date(f.incidentOpened).toTimeString().slice(0,5),sector:f.city,location:f.city,lead:f.lead||"UNASSIGNED",threat:f.threat||"LOW",ghost:f.ghost||"UNIDENTIFIED ENTITY",pke:f.lastPke||"NO RECENT READING",pkeHistory:Array.isArray(f.pkeHistory)?f.pkeHistory.slice(0,20):[],responseStatus:f.responseStatus||"STANDING BY",responseStage:f.responseStage||"STANDING BY",team:team?.teamName||"UNASSIGNED",trapState:f.trapState||"STOWED",containment:`${f.cellsOccupied||0} / ${f.cells||0} CELLS OCCUPIED`,cellsOccupied:f.cellsOccupied||0,cells:f.cells||0,coordinates:f.latLon||"NOT RECORDED",grid:getFullGridRef(f,null),spectralMatch:f.spectralMatch||"NO MATCH ANALYSIS",actions:Array.isArray(f.actionHistory)?f.actionHistory.slice(0,40):[],description:f.incidentDescription||"",fieldActions:f.fieldActions||"",outcome:f.incidentOutcome||"",fieldLog:f.incidentFieldLog||"",closed:(f.responseStage==="CLOSED"||/^(RESOLVED|CONTAINMENT CONFIRMED)/.test(f.responseStatus||""))};
   }
-  function saveIncidentDatabase(){
-    try{localStorage.setItem(INCIDENT_DB_KEY,JSON.stringify(incidentReports));}catch(e){}
+  function normaliseStoredIncident(r){
+    r.location=r.location||r.sector||"FIELD LOCATION"; r.sector=r.sector||r.location; r.grid=r.grid||r.coordinates||"NOT RECORDED"; r.lead=r.lead||"UNASSIGNED"; r.ghost=r.ghost||"UNIDENTIFIED ENTITY"; r.threat=r.threat||"LOW"; r.responseStatus=r.responseStatus||"STANDING BY"; r.team=r.team||"UNASSIGNED"; r.pke=r.pke||"NO RECENT READING"; r.description=r.description||""; r.fieldActions=r.fieldActions||""; r.outcome=r.outcome||""; r.fieldLog=r.fieldLog||""; r.closed=!!r.closed; return r;
   }
-  function loadIncidentDatabase(){
-    try{const raw=localStorage.getItem(INCIDENT_DB_KEY);if(raw){const parsed=JSON.parse(raw);if(Array.isArray(parsed)) incidentReports=parsed;}}catch(e){incidentReports=[];}
-  }
-  function upsertCurrentIncident(index){
-    const snap=snapshotIncidentReport(index);
-    const pos=incidentReports.findIndex(r=>r.incidentId===snap.incidentId);
-    if(pos>=0) incidentReports[pos]=snap; else incidentReports.unshift(snap);
-    selectedIncidentDbId=snap.incidentId;
-    saveIncidentDatabase();
-    renderIncidentDatabase();
-  }
-  function seedIncidentDatabase(){
-    if(incidentReports.length) return;
-    ukFranchises.forEach((_,i)=>{const snap=snapshotIncidentReport(i);incidentReports.push(snap);});
-    incidentReports.sort((a,b)=>String(b.incidentOpened).localeCompare(String(a.incidentOpened)));
-    saveIncidentDatabase();
-  }
+  function saveIncidentDatabase(){try{localStorage.setItem(INCIDENT_DB_KEY,JSON.stringify(incidentReports));}catch(e){}}
+  function loadIncidentDatabase(){try{const raw=localStorage.getItem(INCIDENT_DB_KEY);if(raw){const parsed=JSON.parse(raw);if(Array.isArray(parsed)) incidentReports=parsed.map(normaliseStoredIncident);}}catch(e){incidentReports=[];}}
+  function upsertCurrentIncident(index){const snap=snapshotIncidentReport(index);const pos=incidentReports.findIndex(r=>r.incidentId===snap.incidentId);if(pos>=0)incidentReports[pos]=normaliseStoredIncident({...incidentReports[pos],...snap});else incidentReports.unshift(snap);selectedIncidentDbId=snap.incidentId;saveIncidentDatabase();renderIncidentDatabase();}
+  function seedIncidentDatabase(){if(incidentReports.length)return;ukFranchises.forEach((_,i)=>incidentReports.push(snapshotIncidentReport(i)));incidentReports.sort((a,b)=>String(b.incidentOpened).localeCompare(String(a.incidentOpened)));saveIncidentDatabase();}
   function getIncidentReportById(id){return incidentReports.find(r=>r.incidentId===id)||null;}
-  function escapeHtml(v){return String(v??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[m]));}
+  const incidentChoiceValues={team:"UNASSIGNED",threat:"LOW",status:"STANDING BY"};
+  function renderIncidentChoicePanel(id,values,selected,callback){const el=$f(id);if(!el)return;el.innerHTML=values.map(v=>`<button type="button" class="${String(v)===String(selected)?"active":""}" data-choice="${escapeHtml(v)}">${escapeHtml(v)}</button>`).join("");el.querySelectorAll("[data-choice]").forEach(b=>b.onclick=()=>{callback(b.dataset.choice);renderIncidentChoicePanel(id,values,b.dataset.choice,callback);});}
+  function setupIncidentCaseFileControls(){
+    const dbBtn=$f("incidentDatabaseModeBtn"),newBtn=$f("incidentNewEntryModeBtn"),dbPane=$f("incidentDatabasePane"),newPane=$f("incidentNewEntryPane"),saveBtn=$f("saveNewIncidentBtn"),cancelBtn=$f("cancelNewIncidentBtn");
+    const teamValues=["UNASSIGNED",...Array.from(new Set(ukFranchises.flatMap(f=>(f.teams||[]).map(t=>t.teamName)).filter(Boolean)))];
+    const threatValues=["LOW","MODERATE","HIGH","CRITICAL"];
+    const statusValues=["STANDING BY","OPEN / ACTIVE","FIELD RESPONSE","CONTAINMENT","RESOLVED","CLOSED"];
+    const show=(mode)=>{const isNew=mode==="new";dbPane?.classList.toggle("hidden",isNew);newPane?.classList.toggle("hidden",!isNew);dbBtn?.classList.toggle("active",!isNew);newBtn?.classList.toggle("active",isNew);if(isNew){const id=$f("newIncidentId");if(!id.value)id.value=nextIncidentId();if(!$f("newIncidentDate").value)$f("newIncidentDate").value=getNowDate();if(!$f("newIncidentTime").value)$f("newIncidentTime").value=getNowTime();renderIncidentChoicePanel("newIncidentTeamPanel",teamValues,incidentChoiceValues.team,v=>incidentChoiceValues.team=v);renderIncidentChoicePanel("newIncidentThreatPanel",threatValues,incidentChoiceValues.threat,v=>incidentChoiceValues.threat=v);renderIncidentChoicePanel("newIncidentStatusPanel",statusValues,incidentChoiceValues.status,v=>incidentChoiceValues.status=v);}};
+    dbBtn&&(dbBtn.onclick=()=>show("db"));newBtn&&(newBtn.onclick=()=>show("new"));cancelBtn&&(cancelBtn.onclick=()=>{clearIncidentNewForm();show("db")});
+    saveBtn&&(saveBtn.onclick=()=>{const name=$f("newIncidentId").value.trim()||nextIncidentId();const entry={incidentId:name,incidentOpened:new Date().toISOString(),recordedAt:new Date().toISOString(),date:$f("newIncidentDate").value.trim()||getNowDate(),time:$f("newIncidentTime").value.trim()||getNowTime(),sector:$f("newIncidentLocation").value.trim()||"FIELD LOCATION",location:$f("newIncidentLocation").value.trim()||"FIELD LOCATION",lead:$f("newIncidentLead").value.trim()||"UNASSIGNED",ghost:$f("newIncidentGhost").value.trim()||"UNIDENTIFIED ENTITY",pke:$f("newIncidentPke").value.trim()||"NO RECENT READING",grid:$f("newIncidentGrid").value.trim()||"NOT RECORDED",team:incidentChoiceValues.team,threat:incidentChoiceValues.threat,responseStatus:incidentChoiceValues.status,responseStage:incidentChoiceValues.status==="CLOSED"||incidentChoiceValues.status==="RESOLVED"?"CLOSED":"FIELD RESPONSE",trapState:"STOWED",containment:"NOT RECORDED",coordinates:"NOT RECORDED",spectralMatch:"NO MATCH ANALYSIS",pkeHistory:[],actions:[],description:$f("newIncidentDescription").value.trim(),fieldActions:$f("newIncidentActions").value.trim(),outcome:$f("newIncidentOutcome").value.trim(),fieldLog:$f("newIncidentLog").value.trim(),closed:incidentChoiceValues.status==="CLOSED"||incidentChoiceValues.status==="RESOLVED"};incidentReports.unshift(entry);selectedIncidentDbId=entry.incidentId;saveIncidentDatabase();renderIncidentDatabase();clearIncidentNewForm();show("db");log(`Incident Database: New field incident '${entry.incidentId}' recorded.` ,"info");});
+    renderIncidentChoicePanel("incidentStatusFilterPanel",["ALL","OPEN","CLOSED"],"ALL",v=>{window.__incidentStatusFilter=v;renderIncidentDatabase();}); window.__incidentStatusFilter="ALL";
+    $f("incidentDatabaseModeBtn")?.classList.add("active");
+  }
+  function clearIncidentNewForm(){["newIncidentId","newIncidentDate","newIncidentTime","newIncidentLocation","newIncidentGrid","newIncidentLead","newIncidentGhost","newIncidentPke","newIncidentDescription","newIncidentActions","newIncidentOutcome","newIncidentLog"].forEach(id=>{const el=$f(id);if(el)el.value="";});incidentChoiceValues.team="UNASSIGNED";incidentChoiceValues.threat="LOW";incidentChoiceValues.status="STANDING BY";}
+  function editStoredIncident(id){const r=getIncidentReportById(id);if(!r)return;const set=(id,v)=>{const el=$f(id);if(el)el.value=v||"";};set("newIncidentId",r.incidentId);set("newIncidentDate",r.date);set("newIncidentTime",r.time);set("newIncidentLocation",r.location);set("newIncidentGrid",r.grid);set("newIncidentLead",r.lead);set("newIncidentGhost",r.ghost);set("newIncidentPke",r.pke);set("newIncidentDescription",r.description);set("newIncidentActions",r.fieldActions);set("newIncidentOutcome",r.outcome);set("newIncidentLog",r.fieldLog);incidentChoiceValues.team=r.team;incidentChoiceValues.threat=r.threat;incidentChoiceValues.status=r.closed?"CLOSED":r.responseStatus;renderIncidentDatabase();$f("incidentNewEntryModeBtn")?.click();const save=$f("saveNewIncidentBtn");if(save)save.onclick=()=>{const pos=incidentReports.findIndex(x=>x.incidentId===id);if(pos<0)return;incidentReports[pos]=normaliseStoredIncident({...incidentReports[pos],date:$f("newIncidentDate").value,time:$f("newIncidentTime").value,location:$f("newIncidentLocation").value||"FIELD LOCATION",sector:$f("newIncidentLocation").value||"FIELD LOCATION",grid:$f("newIncidentGrid").value||"NOT RECORDED",lead:$f("newIncidentLead").value||"UNASSIGNED",ghost:$f("newIncidentGhost").value||"UNIDENTIFIED ENTITY",pke:$f("newIncidentPke").value||"NO RECENT READING",team:incidentChoiceValues.team,threat:incidentChoiceValues.threat,responseStatus:incidentChoiceValues.status,responseStage:(incidentChoiceValues.status==="CLOSED"||incidentChoiceValues.status==="RESOLVED")?"CLOSED":"FIELD RESPONSE",description:$f("newIncidentDescription").value,fieldActions:$f("newIncidentActions").value,outcome:$f("newIncidentOutcome").value,fieldLog:$f("newIncidentLog").value,closed:incidentChoiceValues.status==="CLOSED"||incidentChoiceValues.status==="RESOLVED"});selectedIncidentDbId=id;saveIncidentDatabase();renderIncidentDatabase();log(`Incident Database: Updated case file '${id}'.`,"info");$f("incidentDatabaseModeBtn")?.click();};}
   function renderIncidentDatabase(){
-    const list=$f("incidentDatabaseList"),dossier=$f("incidentDatabaseDossier"),printBtn=$f("printStoredIncidentBtn");if(!list||!dossier)return;
-    const preservedId=selectedIncidentDbId,scroll=dossier.scrollTop,q=($f("incidentSearchInput")?.value||"").trim().toLowerCase(),filter=$f("incidentStatusFilter")?.value||"ALL";
-    const rows=incidentReports.filter(r=>{const hay=[r.incidentId,r.sector,r.lead,r.ghost,r.team,r.threat,r.responseStatus].join(" ").toLowerCase();return (filter==="ALL"||(filter==="CLOSED"?r.closed:!r.closed))&&(!q||hay.includes(q));});
-    list.innerHTML=rows.length?rows.map(r=>`<div class="incident-db-row${r.incidentId===preservedId?" active":""}" data-incident-id="${escapeHtml(r.incidentId)}"><b>${escapeHtml(r.incidentId)}</b><span>${escapeHtml(r.date)}</span><span>${escapeHtml(r.sector)}</span><span class="incident-db-status ${r.closed?"closed":"open"}">${escapeHtml(r.responseStatus)}</span><span class="db-hide-small">${escapeHtml(r.threat)}</span></div>`).join(""):'<div class="incident-db-empty">NO INCIDENT RECORDS MATCH CURRENT FILTER</div>';
+    const list=$f("incidentDatabaseList"),dossier=$f("incidentDatabaseDossier"),printBtn=$f("printStoredIncidentBtn"),editBtn=$f("editStoredIncidentBtn");if(!list||!dossier)return;
+    const preservedId=selectedIncidentDbId,scroll=dossier.scrollTop,q=($f("incidentSearchInput")?.value||"").trim().toLowerCase(),filter=window.__incidentStatusFilter||"ALL";
+    const rows=incidentReports.map(normaliseStoredIncident).filter(r=>{const hay=[r.incidentId,r.location,r.sector,r.lead,r.ghost,r.team,r.threat,r.responseStatus].join(" ").toLowerCase();return(filter==="ALL"||(filter==="CLOSED"?r.closed:!r.closed))&&(!q||hay.includes(q));});
+    list.innerHTML=rows.length?rows.map(r=>`<div class="incident-db-row${r.incidentId===preservedId?" active":""}" data-incident-id="${escapeHtml(r.incidentId)}"><b>${escapeHtml(r.incidentId)}</b><span>${escapeHtml(r.date)}</span><span>${escapeHtml(r.location)}</span><span class="incident-db-status ${r.closed?"closed":"open"}">${escapeHtml(r.responseStatus)}</span><span class="db-hide-small">${escapeHtml(r.threat)}</span></div>`).join(""):"<div class=\"incident-db-empty\">NO INCIDENT RECORDS MATCH CURRENT FILTER</div>";
     list.querySelectorAll("[data-incident-id]").forEach(row=>row.onclick=()=>{selectedIncidentDbId=row.dataset.incidentId;renderIncidentDatabase();});
     let selected=preservedId?getIncidentReportById(preservedId):null;if(!selected){selected=rows[0]||null;if(selected)selectedIncidentDbId=selected.incidentId;}
-    if(selected){const pkeHistory=(selected.pkeHistory||[]).slice(0,8).map(x=>`<span>${escapeHtml(x.time)} // ${escapeHtml(x.pke)} PKE</span>`).join("<br>")||"NO PKE HISTORY";const actions=(selected.actions||[]).map(a=>`<div class="db-action">[${escapeHtml(a.time)}] ${escapeHtml(a.text)}</div>`).join("")||"NO ACTIONS LOGGED";dossier.innerHTML=`<div class="db-head"><b>${escapeHtml(selected.incidentId)} // STORED DOSSIER</b><span class="incident-db-status ${selected.closed?"closed":"open"}">${selected.closed?"CLOSED":"OPEN"}</span></div><div class="db-grid"><div>DATE: <b>${escapeHtml(selected.date)}</b></div><div>TIME: <b>${escapeHtml(selected.time)}</b></div><div>SECTOR: <b>${escapeHtml(selected.sector)}</b></div><div>LEAD: <b>${escapeHtml(selected.lead)}</b></div><div>THREAT: <b>${escapeHtml(selected.threat)}</b></div><div>ENTITY: <b>${escapeHtml(selected.ghost)}</b></div><div>PKE: <b>${escapeHtml(selected.pke)}</b></div><div>STAGE: <b>${escapeHtml(selected.responseStage)}</b></div><div>STATUS: <b>${escapeHtml(selected.responseStatus)}</b></div><div>UNIT: <b>${escapeHtml(selected.team)}</b></div><div>TRAP: <b>${escapeHtml(selected.trapState)}</b></div><div>CONTAINMENT: <b>${escapeHtml(selected.containment)}</b></div><div>GRID: <b>${escapeHtml(selected.coordinates)}</b></div></div><div class="db-actions"><b>PKE HISTORY</b><br>${pkeHistory}<br><br><b>ACTION LOG</b>${actions}</div>`;dossier.scrollTop=scroll;if(printBtn)printBtn.disabled=false;}else{dossier.innerHTML='<div class="dim">SELECT AN INCIDENT TO VIEW THE STORED DOSSIER.</div>';if(printBtn)printBtn.disabled=true;}
+    if(selected){normaliseStoredIncident(selected);const actions=(selected.actions||[]).map(a=>`<div class="db-action">[${escapeHtml(a.time)}] ${escapeHtml(a.text)}</div>`).join("")||"NO ACTIONS LOGGED";const pke=(selected.pkeHistory||[]).slice(0,8).map(x=>`<span>${escapeHtml(x.time)} // ${escapeHtml(x.pke)} PKE</span>`).join("<br>")||"NO PKE HISTORY";dossier.innerHTML=`<div class="db-head"><b>${escapeHtml(selected.incidentId)} // FIELD CASE FILE</b><span class="incident-db-status ${selected.closed?"closed":"open"}">${selected.closed?"CLOSED":"OPEN"}</span></div><div class="db-grid"><div>DATE: <b>${escapeHtml(selected.date)}</b></div><div>TIME: <b>${escapeHtml(selected.time)}</b></div><div>LOCATION: <b>${escapeHtml(selected.location)}</b></div><div>ECTO VECTOR / GRID: <b>${escapeHtml(selected.grid)}</b></div><div>LEAD: <b>${escapeHtml(selected.lead)}</b></div><div>ASSIGNED TEAM: <b>${escapeHtml(selected.team)}</b></div><div>THREAT: <b>${escapeHtml(selected.threat)}</b></div><div>ENTITY: <b>${escapeHtml(selected.ghost)}</b></div><div>PKE: <b>${escapeHtml(selected.pke)}</b></div><div>STATUS: <b>${escapeHtml(selected.responseStatus)}</b></div></div><div class="db-section"><b>INCIDENT DESCRIPTION</b><br>${escapeHtml(selected.description||"NO DESCRIPTION RECORDED")}</div><div class="db-section"><b>FIELD ACTIONS</b><br>${escapeHtml(selected.fieldActions||actions)}</div><div class="db-section"><b>OUTCOME / CONTAINMENT</b><br>${escapeHtml(selected.outcome||selected.containment||"NO OUTCOME RECORDED")}</div><div class="db-section"><b>FIELD LOG</b><br>${escapeHtml(selected.fieldLog||"NO FIELD LOG RECORDED")}</div><div class="db-section"><b>PKE HISTORY</b><br>${pke}</div>`;dossier.scrollTop=scroll;if(printBtn)printBtn.disabled=false;if(editBtn)editBtn.disabled=false;}else{dossier.innerHTML='<div class="dim">SELECT AN INCIDENT TO VIEW THE STORED CASE FILE.</div>';if(printBtn)printBtn.disabled=true;if(editBtn)editBtn.disabled=true;}
+    if(printBtn)printBtn.onclick=()=>printStoredIncidentReport(getIncidentReportById(selectedIncidentDbId));if(editBtn)editBtn.onclick=()=>editStoredIncident(selectedIncidentDbId);
   }
   function buildIncidentReport(index){return snapshotIncidentReport(index);}
   function printStoredIncidentReport(report){
-    if(!report)return;
-    const box=document.getElementById("thermalPrintReport"); if(!box)return;
-    const actionLines=(report.actions||[]).map(a=>`<div>[${escapeHtml(a.time)}] ${escapeHtml(a.text)}</div>`).join("")||"<div>NO ACTIONS LOGGED</div>";
-    const pkeLines=(report.pkeHistory||[]).slice(0,8).map(x=>`<div>[${escapeHtml(x.time)}] ${escapeHtml(x.pke)} PKE</div>`).join("")||"<div>NO PKE HISTORY</div>";
-    box.innerHTML=`<div style="text-align:center;font-weight:bold;font-size:13pt;">ECTO OS</div><div style="text-align:center;">FIELD INCIDENT REPORT</div><div class="thermal-rule"></div><div>INCIDENT: ${escapeHtml(report.incidentId)}</div><div>DATE: ${escapeHtml(report.date)}</div><div>TIME: ${escapeHtml(report.time)}</div><div class="thermal-rule"></div><div>SECTOR: ${escapeHtml(report.sector)}</div><div>LEAD: ${escapeHtml(report.lead)}</div><div>THREAT: ${escapeHtml(report.threat)}</div><div>ENTITY: ${escapeHtml(report.ghost)}</div><div>PKE: ${escapeHtml(report.pke)}</div><div>STAGE: ${escapeHtml(report.responseStage)}</div><div>STATUS: ${escapeHtml(report.responseStatus)}</div><div>UNIT: ${escapeHtml(report.team)}</div><div>TRAP: ${escapeHtml(report.trapState)}</div><div>CONTAINMENT: ${escapeHtml(report.containment)}</div><div>GRID: ${escapeHtml(report.coordinates)}</div><div class="thermal-rule"></div><div style="font-weight:bold;">PKE HISTORY</div>${pkeLines}<div class="thermal-rule"></div><div style="font-weight:bold;">ACTION LOG</div>${actionLines}<div class="thermal-rule"></div><div style="text-align:center;">ECTO FIELD OPERATIONS DIVISION<br>END OF REPORT</div>`;
-    window.print();
+    if(!report)return;const box=document.getElementById("thermalPrintReport");if(!box)return;const actionLines=(report.actions||[]).map(a=>`<div>[${escapeHtml(a.time)}] ${escapeHtml(a.text)}</div>`).join("")||"<div>NO ACTIONS LOGGED</div>";const pkeLines=(report.pkeHistory||[]).slice(0,8).map(x=>`<div>[${escapeHtml(x.time)}] ${escapeHtml(x.pke)} PKE</div>`).join("")||"<div>NO PKE HISTORY</div>";box.innerHTML=`<div style="text-align:center;font-weight:bold;font-size:13pt;">ECTO OS</div><div style="text-align:center;">FIELD INCIDENT REPORT</div><div class="thermal-rule"></div><div>INCIDENT: ${escapeHtml(report.incidentId)}</div><div>DATE: ${escapeHtml(report.date)}</div><div>TIME: ${escapeHtml(report.time)}</div><div>LOCATION: ${escapeHtml(report.location||report.sector)}</div><div>GRID: ${escapeHtml(report.grid||report.coordinates)}</div><div>LEAD: ${escapeHtml(report.lead)}</div><div>TEAM: ${escapeHtml(report.team)}</div><div>THREAT: ${escapeHtml(report.threat)}</div><div>ENTITY: ${escapeHtml(report.ghost)}</div><div>PKE: ${escapeHtml(report.pke)}</div><div>STATUS: ${escapeHtml(report.responseStatus)}</div><div class="thermal-rule"></div><div style="font-weight:bold;">INCIDENT DESCRIPTION</div><div>${escapeHtml(report.description||"NO DESCRIPTION RECORDED")}</div><div class="thermal-rule"></div><div style="font-weight:bold;">FIELD ACTIONS</div><div>${escapeHtml(report.fieldActions||actionLines)}</div><div class="thermal-rule"></div><div style="font-weight:bold;">OUTCOME / CONTAINMENT</div><div>${escapeHtml(report.outcome||report.containment||"NO OUTCOME RECORDED")}</div><div class="thermal-rule"></div><div style="font-weight:bold;">FIELD LOG</div><div>${escapeHtml(report.fieldLog||"NO FIELD LOG RECORDED")}</div><div class="thermal-rule"></div><div style="font-weight:bold;">PKE HISTORY</div>${pkeLines}<div class="thermal-rule"></div><div style="text-align:center;">ECTO FIELD OPERATIONS DIVISION<br>END OF REPORT</div>`;window.print();
   }
-  function printThermalIncidentReport(index){
-    const current=snapshotIncidentReport(index);
-    const stored=getIncidentReportById(current.incidentId);
-    printStoredIncidentReport(stored||current);
-  }
+  function printThermalIncidentReport(index){const current=snapshotIncidentReport(index);const stored=getIncidentReportById(current.incidentId);printStoredIncidentReport(stored||current);}
 
   function wireMapDossierControls(){
     const pf=$f('mapPreflightBtn');
@@ -3706,6 +3717,7 @@ window.addEventListener("load",post);
     if(incidentStatusFilter)incidentStatusFilter.onchange=renderIncidentDatabase;
     const printStoredIncidentBtn=$f("printStoredIncidentBtn");
     if(printStoredIncidentBtn)printStoredIncidentBtn.onclick=()=>printStoredIncidentReport(getIncidentReportById(selectedIncidentDbId));
+    setupIncidentCaseFileControls();
     const exportIncidentDbBtn=$f("exportIncidentDbBtn"), importIncidentDbBtn=$f("importIncidentDbBtn"), importIncidentDbFile=$f("importIncidentDbFile");
     if(exportIncidentDbBtn)exportIncidentDbBtn.onclick=()=>{
       const payload={version:"1.0",exportDate:new Date().toISOString(),source:"ECTO OS",incidentReports};
