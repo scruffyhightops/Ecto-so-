@@ -21,6 +21,42 @@ header{height:58px;border-bottom:1px solid var(--ui-border);display:flex;justify
 .logline{margin-bottom:4px}
 .logline.warn{color:#ffb000}.logline.alert{color:#ff5555}
 
+/* THREAT MAP V2.2.7 RESPONSIVE REWORK */
+.threat-map-shell{display:flex;flex-direction:column;gap:12px;width:100%;min-width:0}
+.threat-map-map-panel,.threat-map-info-panel,.threat-map-sites-panel{border:1px solid var(--ui-border);background:var(--ui-panel);min-width:0}
+.threat-map-map-panel{padding:12px;background:#030c03}
+.threat-map-panel-head,.threat-sites-head{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--ui-border);padding-bottom:8px;margin-bottom:10px}
+.threat-map-subline{font-size:10px;color:var(--ui-dim);margin-top:4px;letter-spacing:.8px}
+.threat-map-canvas-wrap{position:relative;width:100%;height:clamp(330px,48vh,540px);min-height:330px;background:var(--ui-deep);border:1px solid var(--ui-grid);overflow:hidden}
+.threat-map-canvas-wrap canvas{width:100%;height:100%;display:block;cursor:pointer;border:0}
+.threat-map-info-panel{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,.9fr);gap:12px;padding:12px}
+.threat-info-card{border:1px solid var(--ui-border);background:#030c03;padding:10px;min-width:0}
+.threat-info-card .dossier-box{max-height:260px}
+.threat-actions{margin-bottom:0}
+.threat-actions button{min-height:44px}
+.threat-map-sites-panel{padding:12px;background:#030c03}
+.threat-sites-head{margin-bottom:8px}
+.threat-site-grid{grid-template-columns:repeat(auto-fit,minmax(250px,1fr));max-height:none;overflow:visible}
+.threat-map-sites-panel .site-row{min-height:58px}
+.threat-map-sites-panel .site-add-note{border-top:1px dotted var(--ui-grid);padding-top:8px}
+@media(max-width:1000px){
+  .threat-map-info-panel{grid-template-columns:1fr}
+}
+@media(max-width:720px){
+  .threat-map-map-panel{padding:10px}
+  .threat-map-panel-head,.threat-sites-head{align-items:flex-start;flex-direction:column}
+  .threat-map-panel-head .map-controls{position:static;display:flex;width:100%;justify-content:flex-start}
+  .threat-map-panel-head .map-controls button{flex:1;min-height:42px}
+  .threat-map-canvas-wrap{height:clamp(300px,46vh,460px);min-height:300px}
+  .threat-map-info-panel,.threat-map-sites-panel{padding:10px}
+  .threat-actions{flex-direction:column}
+  .threat-actions button{width:100%}
+  .threat-site-grid{grid-template-columns:1fr}
+}
+@media(min-width:721px) and (max-width:1000px){
+  .threat-map-canvas-wrap{height:clamp(340px,50vh,500px)}
+}
+
 /* TACTICAL UK MAP COMPONENT STYLES */
 .tactical-map-wrapper{background:var(--ui-panel);color:var(--ui-accent);font-family:monospace;display:grid;grid-template-columns:2.2fr 1.2fr;gap:12px;width:100%;box-sizing:border-box}
 .tactical-panel{background:#030c03;border:1px solid var(--ui-border);padding:12px;display:flex;flex-direction:column;position:relative;overflow:hidden}
@@ -675,58 +711,62 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
 
 <section id="ukmap" class="screen">
   <h1>UK THREAT MAP // GEOGRAPHIC PARANORMAL TELEMETRY</h1>
-  <div class="grid" style="grid-template-columns: 1fr;">
-    <div class="panel">
-      <!-- TACTICAL REGIONAL MAP COMPONENT -->
-      <div class="tactical-map-wrapper">
-        <!-- Left Panel: Canvas Map -->
-        <div class="tactical-panel">
-          <h2>UK Regional Sector Map <small>[TAP CITY NODE TO INSPECT]</small></h2>
-          <div class="chart-container">
-            <div class="map-breadcrumb" id="mapBreadcrumb">UK FIELD NETWORK</div>
-            <div class="map-controls">
-              <button type="button" id="mapUkViewBtn">UK VIEW</button>
-              <button type="button" id="mapRegionViewBtn">CITY REGION</button>
-            </div>
-            <canvas id="tacticalMapCanvas"></canvas>
-          </div>
-          <div class="telemetry-row">
-            <span>Active Radar Sweep:</span>
-            <span class="telemetry-val text-green">360° Omnidirectional Scan</span>
-          </div>
+  <div class="threat-map-shell">
+    <section class="threat-map-map-panel">
+      <div class="threat-map-panel-head">
+        <div>
+          <div class="panel-title">UK REGIONAL SECTOR MAP <span class="dim">[TAP CITY / SITE NODE TO INSPECT]</span></div>
+          <div class="threat-map-subline" id="mapBreadcrumb">UK FIELD NETWORK</div>
         </div>
-        
-        <!-- Right Panel: Target Details Dossier & Quick Launch -->
-        <div class="tactical-panel">
-          <h2>Sector Target Details <small>[INTELLIGENCE DOSSIER]</small></h2>
-          <div class="dossier-box" id="map-target-dossier">
-            <div class="text-blue"><strong>LONDON HQ [LON-01]</strong></div>
-            <div>Lead Commander: Dr. E. Spengler</div>
-            <div>Active Threat: Class-2 Manifested Entity</div>
-            <div>Threat Level: <span class="text-green">NOMINAL (Low)</span></div>
-            <div>GPS Coordinates: 51.5074° N, 0.1278° W</div>
-          </div>
-          <div class="button-row" style="margin-bottom:6px;">
-            <button id="openRosterModalBtn" style="border-color: #39a9ff; color: #39a9ff;">OPEN TEAM ROSTER</button>
-            <button id="openMapPreflightBtn" style="border-color: var(--ui-accent); color: var(--ui-accent);">OPEN PREFLIGHT</button>
-            <button id="sectorActionBtn" style="border-color: #ffb000; color: #ffb000;">EXECUTE ACTION</button>
-          </div>
-          
-          <div class="dim" style="margin-top:4px; margin-bottom:2px;">QUICK SELECT SECTOR:</div>
-          <div class="teams-submenu" id="ukTeamsSubMenu" style="max-height:90px;"></div>
-          <div id="selectedLocationTeamsPanel" class="selected-location-teams" style="margin-top:10px;">
-            <div class="dim">AVAILABLE TEAMS AT SELECTED LOCATION</div>
-            <div id="selectedLocationTeamsList" class="site-list" style="max-height:150px;"></div>
-          </div>
-          <div id="cityRegionPanel" class="hidden" style="margin-top:8px;">
-            <div class="dim">INVESTIGATION LOCATIONS <span id="siteCountLabel"></span></div>
-            <div id="citySiteList" class="site-list"></div>
-            <div class="site-add-note">Real-world places are treated as geographic anchors. Paranormal incidents, ECTO sites and field notes are presented as part of the ECTO OS field network.</div>
-          </div>
+        <div class="map-controls">
+          <button type="button" id="mapUkViewBtn">UK VIEW</button>
+          <button type="button" id="mapRegionViewBtn">CITY REGION</button>
+        </div>
+      </div>
+      <div class="threat-map-canvas-wrap">
+        <canvas id="tacticalMapCanvas"></canvas>
+      </div>
+      <div class="telemetry-row">
+        <span>Active Radar Sweep:</span>
+        <span class="telemetry-val text-green">360° Omnidirectional Scan</span>
+      </div>
+    </section>
+
+    <section class="threat-map-info-panel">
+      <div class="threat-info-card">
+        <div class="panel-title">SELECTED LOCATION <span class="dim">[INTELLIGENCE DOSSIER]</span></div>
+        <div class="dossier-box" id="map-target-dossier">
+          <div class="text-blue"><strong>LONDON HQ [LON-01]</strong></div>
+          <div>Lead Commander: Dr. E. Spengler</div>
+          <div>Active Threat: Class-2 Manifested Entity</div>
+          <div>Threat Level: <span class="text-green">NOMINAL (Low)</span></div>
+          <div>GPS Coordinates: 51.5074° N, 0.1278° W</div>
+        </div>
+        <div class="button-row threat-actions">
+          <button id="openRosterModalBtn" style="border-color:#39a9ff;color:#39a9ff;">OPEN TEAM ROSTER</button>
+          <button id="openMapPreflightBtn" style="border-color:var(--ui-accent);color:var(--ui-accent);">OPEN PREFLIGHT</button>
+          <button id="sectorActionBtn" style="border-color:#ffb000;color:#ffb000;">EXECUTE ACTION</button>
         </div>
       </div>
 
-    </div>
+      <div class="threat-info-card">
+        <div class="panel-title">AVAILABLE TEAMS AT SELECTED LOCATION</div>
+        <div class="dim">QUICK SELECT SECTOR:</div>
+        <div class="teams-submenu" id="ukTeamsSubMenu"></div>
+        <div id="selectedLocationTeamsPanel" class="selected-location-teams">
+          <div id="selectedLocationTeamsList" class="site-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="cityRegionPanel" class="threat-map-sites-panel hidden">
+      <div class="threat-sites-head">
+        <div class="panel-title">INVESTIGATION LOCATIONS <span class="dim" id="siteCountLabel"></span></div>
+        <div class="dim">GEO-REFERENCED TO SELECTED FIELD LOCATION</div>
+      </div>
+      <div id="citySiteList" class="site-list threat-site-grid"></div>
+      <div class="site-add-note">Real-world places are treated as geographic anchors. Paranormal incidents, ECTO sites and field notes are presented as part of the ECTO OS field network.</div>
+    </section>
   </div>
 </section>
 
@@ -1850,9 +1890,18 @@ window.addEventListener("load",post);
     list.querySelectorAll("[data-site-index]").forEach(row=>row.onclick=()=>{selectedSiteIndex=+row.dataset.siteIndex; renderCitySites(); updateMapDossier(selectedMapIndex);});
   }
   function regionBounds(f){
-    const sites=f.sites||[]; let lats=[f.lat],lons=[f.lon]; sites.forEach(s=>{lats.push(Number(s.lat));lons.push(Number(s.lon));});
-    const latPad=Math.max(.012,(Math.max(...lats)-Math.min(...lats))*.35),lonPad=Math.max(.018,(Math.max(...lons)-Math.min(...lons))*.35);
-    return {minLat:Math.min(...lats)-latPad,maxLat:Math.max(...lats)+latPad,minLon:Math.min(...lons)-lonPad,maxLon:Math.max(...lons)+lonPad};
+    // The parent field location is the geographic anchor. Investigation Sites
+    // are plotted from their own decimal lat/lon without changing the whole
+    // region scale when one site is unusually distant or mistyped.
+    const centerLat=Number(f.lat)||0, centerLon=Number(f.lon)||0;
+    const sites=(f.sites||[]).filter(s=>Number.isFinite(Number(s.lat))&&Number.isFinite(Number(s.lon)));
+    let latRadius=.18, lonRadius=.28;
+    sites.forEach(s=>{
+      const lat=Math.abs(Number(s.lat)-centerLat), lon=Math.abs(Number(s.lon)-centerLon);
+      if(lat<=1.0) latRadius=Math.max(latRadius,lat*1.22+.03);
+      if(lon<=1.5) lonRadius=Math.max(lonRadius,lon*1.22+.04);
+    });
+    return {minLat:centerLat-latRadius,maxLat:centerLat+latRadius,minLon:centerLon-lonRadius,maxLon:centerLon+lonRadius};
   }
   function drawTacticalMap(ctx,w,h){
     ctx.clearRect(0,0,w,h);
@@ -1883,7 +1932,13 @@ window.addEventListener("load",post);
       const cityQ=projectGeo(Number(f.lat),Number(f.lon),b.minLon,b.maxLon,b.maxLat,b.minLat,w,h,34,34);
       drawNode(ctx,cityQ.x,cityQ.y,"#39a9ff",false,locationDisplayName(f));
       ctx.fillStyle=dim;ctx.font="8px monospace";ctx.fillText("FIELD LOCATION",cityQ.x+10,cityQ.y+14);
-      f.sites.forEach((site,idx)=>{const q=projectGeo(Number(site.lat),Number(site.lon),b.minLon,b.maxLon,b.maxLat,b.minLat,w,h,34,34);let color=site.threat==="SEVERE"?"#ff55dd":site.threat==="HIGH"?"#ff5555":site.threat==="ELEVATED"?"#ffb000":"var(--ui-accent)";drawNode(ctx,q.x,q.y,color,idx===selectedSiteIndex,site.name);});
+      f.sites.forEach((site,idx)=>{
+        const lat=Number(site.lat),lon=Number(site.lon);
+        if(!Number.isFinite(lat)||!Number.isFinite(lon))return;
+        const q=projectGeo(lat,lon,b.minLon,b.maxLon,b.maxLat,b.minLat,w,h,34,34);
+        let color=site.threat==="SEVERE"?"#ff55dd":site.threat==="HIGH"?"#ff5555":site.threat==="ELEVATED"?"#ffb000":"var(--ui-accent)";
+        drawNode(ctx,q.x,q.y,color,idx===selectedSiteIndex,site.name);
+      });
     }
   }
   function drawNode(ctx,x,y,color,selected,label){
@@ -1895,7 +1950,13 @@ window.addEventListener("load",post);
     const canvas=$("tacticalMapCanvas");if(!canvas)return;const rect=canvas.getBoundingClientRect();const x=event.clientX-rect.left,y=event.clientY-rect.top;
     if(mapViewMode==="region"){
       const f=ukFranchises[selectedMapIndex];ensureSiteDatabase(f);const b=regionBounds(f);let best=-1,dist=32;
-      f.sites.forEach((site,i)=>{const q=projectGeo(Number(site.lat),Number(site.lon),b.minLon,b.maxLon,b.maxLat,b.minLat,canvas.width,canvas.height,34,34);const d=Math.hypot(x-q.x,y-q.y);if(d<dist){dist=d;best=i;}});
+      f.sites.forEach((site,i)=>{
+        const lat=Number(site.lat),lon=Number(site.lon);
+        if(!Number.isFinite(lat)||!Number.isFinite(lon))return;
+        const q=projectGeo(lat,lon,b.minLon,b.maxLon,b.maxLat,b.minLat,canvas.width,canvas.height,34,34);
+        const d=Math.hypot(x-q.x,y-q.y);
+        if(d<dist){dist=d;best=i;}
+      });
       if(best!==-1){selectedSiteIndex=best;renderCitySites();updateMapDossier(selectedMapIndex);} return;
     }
     let best=-1,dist=35;ukFranchises.forEach((f,idx)=>{const q=projectLocation(f,canvas.width,canvas.height);const d=Math.hypot(x-q.x,y-q.y);if(d<dist){dist=d;best=idx;}});if(best!==-1)selectSector(best);
