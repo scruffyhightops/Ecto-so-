@@ -1273,7 +1273,9 @@ window.addEventListener("load",post);
     menu.style.left=left+"px";menu.style.top=top+"px";menu.style.width=width+"px";menu.style.maxHeight=maxH+"px";
   }
   function ectoTransformSelect(select){
-    if(!select || select.dataset.ectoSelectReady==="1")return;
+    // LOCATION MANAGEMENT is a protected admin editor. Keep its native select controls intact.
+    if(!select || select.closest("#locationAdminContent"))return;
+    if(select.dataset.ectoSelectReady==="1")return;
     const wrap=document.createElement("div"); wrap.className="ecto-select-wrap";
     select.parentNode.insertBefore(wrap,select); wrap.appendChild(select);
     select.classList.add("ecto-select-native"); select.dataset.ectoSelectReady="1";
