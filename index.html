@@ -867,7 +867,7 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
           <div class="panel-title">UK FIELD LOCATION DATABASE <span class="dim">[GEO-REFERENCED SECTORS / FIELD NETWORK]</span></div>
           <div class="dim">DATABASE: ONLINE // EDIT MODE: AUTHORISED</div>
         </div>
-        <div class="dim" style="line-height:1.5;margin-bottom:12px;">Select a stored location to edit its record, or create a new field location. Investigation sites are managed separately beneath the location record.</div>
+        <div class="dim" style="line-height:1.5;margin-bottom:12px;">Select a stored location to edit its record, or create a new field location. Investigation sites for the selected location can be added, edited or deleted from the register below.</div>
         <div class="location-db-grid" style="grid-template-columns:minmax(0,1.35fr) minmax(280px,.85fr);align-items:start;">
           <div>
             <div class="location-section-head"><span>LOCATION RECORD</span><span class="dim">[CITY / SECTOR / GEO-REFERENCE]</span></div>
@@ -1478,6 +1478,11 @@ window.addEventListener("load",post);
     list.innerHTML=ukFranchises.map((f,i)=>`<div class="location-row${i===selectedMapIndex?" active":""}"><div><b>${escapeHtml(locationDisplayName(f))}</b>${i===selectedMapIndex?'<span class="location-selected-badge">SELECTED</span>':''}<div class="location-meta">${escapeHtml(f.region||"UK")} // ${escapeHtml(f.locationId||"")}</div></div><div><span class="location-status">${escapeHtml(f.source||"CANONICAL")}</span><br><span class="location-meta">${Number(f.lat).toFixed(4)}, ${Number(f.lon).toFixed(4)}</span></div><div class="location-meta">${escapeHtml(f.threat)}</div><div class="button-row" style="margin:0;gap:4px;"><button type="button" data-location-index="${i}">INSPECT</button><button type="button" data-edit-location="${i}">EDIT</button></div></div>`).join("");
     list.querySelectorAll("[data-location-index]").forEach(btn=>btn.onclick=()=>{selectSector(+btn.dataset.locationIndex);renderLocationDatabase();});
     list.querySelectorAll("[data-edit-location]").forEach(btn=>btn.onclick=()=>startLocationEdit(+btn.dataset.editLocation));
+    const siteParent=$f("siteParentInput");
+    if(siteParent && ukFranchises[selectedMapIndex]){
+      siteParent.value=String(selectedMapIndex);
+      siteParent.dispatchEvent(new Event("change"));
+    }
     renderConfigurationSiteRegister(selectedMapIndex);
   }
   function renderConfigurationSiteRegister(parentIndex){
@@ -1489,9 +1494,16 @@ window.addEventListener("load",post);
     const wrap=document.createElement("div");
     wrap.id="configurationSiteRegister";
     wrap.style.cssText="margin-top:10px;border-top:1px solid var(--ui-grid);padding-top:10px;";
-    wrap.innerHTML=`<div class="panel-title">INVESTIGATION SITES // ${escapeHtml(locationDisplayName(f).toUpperCase())} <span class="dim">[DELETE / MANAGE]</span></div>`+
-      (f.sites.length?f.sites.map((site,i)=>`<div class="location-row" style="margin-top:5px;grid-template-columns:1fr auto;"><div><b>${escapeHtml(site.name)}</b><div class="location-meta">${escapeHtml(site.siteId)} // ${escapeHtml(site.status)}</div></div><button type="button" data-config-delete-site="${i}" style="border-color:#ff5555;color:#ff5555;min-height:38px;">DELETE</button></div>`).join(""):'<div class="dim" style="margin-top:6px;">NO INVESTIGATION SITES REGISTERED FOR THIS LOCATION.</div>');
+    wrap.innerHTML=`<div class="panel-title">INVESTIGATION SITES // ${escapeHtml(locationDisplayName(f).toUpperCase())} <span class="dim">[EDIT / DELETE]</span></div>`+
+      (f.sites.length?f.sites.map((site,i)=>`<div class="location-row" style="margin-top:5px;grid-template-columns:minmax(0,1fr) auto;"><div><b>${escapeHtml(site.name)}</b><div class="location-meta">${escapeHtml(site.siteId||"SITE")} // ${escapeHtml(site.status||"MONITORING")} // ${escapeHtml(site.threat||"LOW")}</div></div><div class="button-row" style="margin:0;gap:4px;justify-content:flex-end;"><button type="button" data-config-edit-site="${i}" style="min-height:38px;">EDIT</button><button type="button" data-config-delete-site="${i}" style="border-color:#ff5555;color:#ff5555;min-height:38px;">DELETE</button></div></div>`).join(""):'<div class="dim" style="margin-top:6px;">NO INVESTIGATION SITES REGISTERED FOR THIS LOCATION.</div>');
     host.parentNode.appendChild(wrap);
+    wrap.querySelectorAll("[data-config-edit-site]").forEach(btn=>btn.onclick=()=>{
+      startSiteEdit(parentIndex,+btn.dataset.configEditSite);
+      const editor=$f("siteNameInput");
+      if(editor)editor.focus({preventScroll:true});
+      const siteSection=editor?.closest(".location-form");
+      if(siteSection)siteSection.scrollIntoView({behavior:"smooth",block:"center"});
+    });
     wrap.querySelectorAll("[data-config-delete-site]").forEach(btn=>btn.onclick=()=>deleteInvestigationSiteFromConfig(parentIndex,+btn.dataset.configDeleteSite));
   }
 
