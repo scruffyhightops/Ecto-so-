@@ -39,7 +39,7 @@ header{height:58px;border-bottom:1px solid var(--ui-border);display:flex;justify
 .teams-submenu{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-top:10px;max-height:150px;overflow-y:auto;padding-right:4px}
 .team-card{background:var(--ui-deep);border:1px solid var(--ui-grid);padding:8px;font-size:11px;cursor:pointer;transition:all 0.2s}
 .team-card:hover{border-color:var(--ui-accent);background:#041204}
-.team-card.active{border-color:var(--ui-accent);background:#071a07}
+.team-card.active{border-color:var(--ui-accent);background:#071a07;box-shadow:inset 0 0 0 1px var(--ui-accent)}
 .team-card-header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--ui-grid);padding-bottom:4px;margin-bottom:4px}
 .team-card-header b{color:#39a9ff;letter-spacing:1px}
 
@@ -1660,32 +1660,7 @@ window.addEventListener("load",post);
     printStoredIncidentReport(stored||current);
   }
 
-  let locationEditorUnlocked=false;
-  function openLocationManagementFromMap(mode,index,siteIndex=-1){
-    const configScreen=document.querySelector('.screen#config');
-    if(!configScreen)return;
-    document.querySelectorAll('.screen').forEach(sc=>sc.classList.toggle('active',sc.id==='config'));
-    document.querySelectorAll('[data-screen]').forEach(nav=>nav.classList.toggle('active',nav.dataset.screen==='config'));
-    const details=document.querySelector('details.config-details');
-    if(details)details.open=true;
-    if(!locationEditorUnlocked){
-      const code=$f('locationAdminCode');
-      if(code){code.focus({preventScroll:true});}
-      const err=$f('locationAdminError');
-      if(err)err.textContent='AUTHORISATION REQUIRED // ENTER SYSTEM CLEARANCE CODE';
-      return;
-    }
-    if(mode==='site' && siteIndex>=0)startSiteEdit(index,siteIndex);
-    else startLocationEdit(index);
-    const target=$f(mode==='site'?'siteNameInput':'locationCityInput');
-    if(target)target.scrollIntoView({behavior:'smooth',block:'center'});
-  }
-
   function wireMapDossierControls(){
-    const editLoc=$f('mapEditSelectedLocationBtn');
-    if(editLoc)editLoc.onclick=()=>openLocationManagementFromMap('location',selectedMapIndex);
-    const editSite=$f('mapEditSelectedSiteBtn');
-    if(editSite)editSite.onclick=()=>openLocationManagementFromMap('site',selectedMapIndex,selectedSiteIndex);
     const pf=$f('mapPreflightBtn');
     if(pf)pf.onclick=()=>{document.querySelectorAll('.screen').forEach(sc=>sc.classList.toggle('active',sc.id==='fieldops'));document.querySelectorAll('[data-screen]').forEach(nav=>nav.classList.toggle('active',nav.dataset.screen==='fieldops'));renderPreflight();updateReadiness();};
   }
@@ -1705,7 +1680,6 @@ window.addEventListener("load",post);
         <div>Threat Level: <span class="text-blue">${escapeHtml(selectedSite.threat)}</span></div>
         <div>Coordinates: ${Number(selectedSite.lat).toFixed(4)}° N, ${Math.abs(Number(selectedSite.lon)).toFixed(4)}° ${Number(selectedSite.lon)<0?"W":"E"}</div>
         <div style="margin-top:7px;line-height:1.45;">${escapeHtml(selectedSite.desc||"")}</div>
-        <div class="button-row" style="margin-top:9px;"><button type="button" id="mapEditSelectedSiteBtn">EDIT INVESTIGATION SITE</button></div>
         <div class="dim" style="margin-top:7px;">PARENT SECTOR: ${escapeHtml(f.city)}</div>
       `;
     }else{
@@ -1726,7 +1700,6 @@ window.addEventListener("load",post);
         <div>Containment Capacity: <span class="text-blue">${f.cellsOccupied||0} / ${f.cells||0}</span></div>
         <div>PKE History: <span class="dim">${f.pkeHistory&&f.pkeHistory.length ? f.pkeHistory.slice(0,5).map(x=>escapeHtml(x.pke)).join(" / ")+" PKE" : "NO HISTORY"}</span></div>
         <div>GPS Coordinates: ${escapeHtml(f.latLon)}</div>
-        <div class="button-row" style="margin-top:9px;"><button type="button" id="mapEditSelectedLocationBtn">EDIT FIELD LOCATION</button><button type="button" id="mapPreflightBtn" style="border-color:#ffb000;color:#ffb000;">PRE-FLIGHT</button></div>
         <div class="dim" style="margin-top:7px;">CITY REGION: ${f.sites.length} INVESTIGATION LOCATION(S) // TAP CITY REGION TO OPEN</div>
       `;
     }
@@ -1928,13 +1901,14 @@ window.addEventListener("load",post);
       };
 
       let totalOps = getTotalStaffCount(f);
+      const isSelected=idx===selectedMapIndex;
       card.innerHTML=`
         <div class="team-card-header">
           <b>${f.city.split(' ')[0].toUpperCase()}</b>
           <span style="font-size:9px; color:${f.threatColor};">${totalOps} ops</span>
         </div>
         <div style="font-size:10px; color:var(--ui-accent); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-          ${f.teams.length} Team(s) Active
+          ${isSelected?'<span class="location-selected-badge" style="margin-left:0;margin-right:4px;">SELECTED</span>':''}${f.teams.length} Team(s) Active
         </div>
       `;
       menu.appendChild(card);
