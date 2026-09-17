@@ -1290,8 +1290,8 @@ window.addEventListener("load",post);
     select.addEventListener("change",sync);
   }
   function initEctoSelectSystem(){
-    document.querySelectorAll("select:not(#locationadmin select)").forEach(ectoTransformSelect);
-    const observer=new MutationObserver(mutations=>{for(const m of mutations){for(const node of m.addedNodes){if(node.nodeType!==1)continue;if(node.matches?.("select") && !node.closest?.("#locationadmin"))ectoTransformSelect(node);node.querySelectorAll?.("select:not(#locationadmin select)").forEach(ectoTransformSelect);}}});
+    document.querySelectorAll("select").forEach(ectoTransformSelect);
+    const observer=new MutationObserver(mutations=>{for(const m of mutations){for(const node of m.addedNodes){if(node.nodeType!==1)continue;if(node.matches?.("select"))ectoTransformSelect(node);node.querySelectorAll?.("select").forEach(ectoTransformSelect);}}});
     observer.observe(document.body,{childList:true,subtree:true});
     document.addEventListener("click",e=>{if(ectoOpenSelect&&!e.target.closest(".ecto-select-button")&&!e.target.closest(".ecto-select-menu"))ectoCloseSelect();});
     window.addEventListener("resize",()=>{if(ectoOpenSelect)ectoPositionSelect(ectoOpenSelect.button,ectoOpenSelect.menu);});
@@ -3396,23 +3396,6 @@ window.addEventListener("load",post);
     ukFranchises.forEach(ensureSectorState);
     ukFranchises.forEach(hydrateLocationRecord);
     const addLocationBtn=$f("addLocationBtn"); if(addLocationBtn) addLocationBtn.onclick=saveOrAddFieldLocation;
-    function initEctoSelect(id){
-      const sel=$f(id); if(!sel||sel.dataset.ectoEnhanced)return;
-      sel.dataset.ectoEnhanced="1"; sel.classList.add("ecto-select-native");
-      const wrap=document.createElement("div"); wrap.className="ecto-select-wrap";
-      sel.parentNode.insertBefore(wrap,sel); wrap.appendChild(sel);
-      const btn=document.createElement("button"); btn.type="button"; btn.className="ecto-select-btn"; btn.setAttribute("aria-haspopup","listbox");
-      const menu=document.createElement("div"); menu.className="ecto-select-menu"; menu.setAttribute("role","listbox");
-      wrap.appendChild(btn); wrap.appendChild(menu);
-      const sync=()=>{const opt=sel.options[sel.selectedIndex];btn.textContent=opt?opt.textContent:"SELECT";menu.querySelectorAll(".ecto-select-option").forEach(o=>o.classList.toggle("selected",o.dataset.value===sel.value));};
-      const close=()=>{menu.classList.remove("open");btn.classList.remove("active");};
-      const open=()=>{document.querySelectorAll(".ecto-select-menu.open").forEach(m=>{if(m!==menu)m.classList.remove("open");});menu.classList.toggle("open");btn.classList.toggle("active",menu.classList.contains("open"));};
-      btn.onclick=e=>{e.preventDefault();open();};
-      const rebuild=()=>{menu.innerHTML="";Array.from(sel.options).forEach(opt=>{const o=document.createElement("button");o.type="button";o.className="ecto-select-option";o.textContent=opt.textContent;o.dataset.value=opt.value;o.onclick=()=>{sel.value=opt.value;sel.dispatchEvent(new Event("change",{bubbles:true}));sync();close();};menu.appendChild(o);});sync();};
-      rebuild(); new MutationObserver(rebuild).observe(sel,{childList:true,subtree:true}); sel.addEventListener("change",sync);
-      document.addEventListener("click",e=>{if(!wrap.contains(e.target))close();});
-    }
-    ["locationSourceInput","siteTypeInput","siteThreatInput"].forEach(initEctoSelect);
     const addSiteBtn=$f("addSiteBtn"); if(addSiteBtn) addSiteBtn.onclick=saveOrAddInvestigationSite;
     const locationAdminUnlockBtn=$f("locationAdminUnlockBtn"),locationAdminCode=$f("locationAdminCode"),locationAdminError=$f("locationAdminError"),locationAdminStatus=$f("locationAdminStatus");
     const LOCATION_ADMIN_CODES=new Set(["ECTO-ADMIN-1984"]);
