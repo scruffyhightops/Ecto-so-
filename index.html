@@ -1290,8 +1290,8 @@ window.addEventListener("load",post);
     select.addEventListener("change",sync);
   }
   function initEctoSelectSystem(){
-    document.querySelectorAll("select").forEach(ectoTransformSelect);
-    const observer=new MutationObserver(mutations=>{for(const m of mutations){for(const node of m.addedNodes){if(node.nodeType!==1)continue;if(node.matches?.("select"))ectoTransformSelect(node);node.querySelectorAll?.("select").forEach(ectoTransformSelect);}}});
+    document.querySelectorAll("select:not(#locationadmin select)").forEach(ectoTransformSelect);
+    const observer=new MutationObserver(mutations=>{for(const m of mutations){for(const node of m.addedNodes){if(node.nodeType!==1)continue;if(node.matches?.("select") && !node.closest?.("#locationadmin"))ectoTransformSelect(node);node.querySelectorAll?.("select:not(#locationadmin select)").forEach(ectoTransformSelect);}}});
     observer.observe(document.body,{childList:true,subtree:true});
     document.addEventListener("click",e=>{if(ectoOpenSelect&&!e.target.closest(".ecto-select-button")&&!e.target.closest(".ecto-select-menu"))ectoCloseSelect();});
     window.addEventListener("resize",()=>{if(ectoOpenSelect)ectoPositionSelect(ectoOpenSelect.button,ectoOpenSelect.menu);});
