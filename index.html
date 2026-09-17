@@ -301,21 +301,20 @@ main{
 @media(hover:none){button:hover,.team-card:hover{background:inherit;border-color:var(--ui-grid);}button:active{border-color:var(--ui-accent);} }
 
 
-/* THREAT MAP VIEWPORT LOCK // keep the operational map inside the app viewport */
-.screen#ukmap{height:100%;min-height:0;overflow:hidden;}
-.screen#ukmap>.grid{height:100%;min-height:0;}
-.screen#ukmap>.grid>.panel{height:100%;min-height:0;overflow:hidden;}
-.screen#ukmap .tactical-map-wrapper{height:100%;min-height:0;overflow:hidden;}
-.screen#ukmap .tactical-panel{min-height:0;overflow:hidden;}
-@media(max-width:900px){
-  .screen#ukmap .tactical-map-wrapper{height:100%;}
-}
-
-/* THREAT MAP COMPACT VIEW // reduce unnecessary page scrolling on iPad */
-.screen#ukmap .tactical-map-wrapper{min-height:0;}
-.screen#ukmap .tactical-panel{min-height:0;}
-.screen#ukmap .dossier-box{max-height:220px;}
-.screen#ukmap .site-list{max-height:150px;}
+/* THREAT MAP / LOCATION MANAGEMENT ROBUST LAYOUT */
+.screen#ukmap{min-height:100%;overflow:visible;display:block;}
+.screen#ukmap>.grid{height:auto;min-height:0;}
+.screen#ukmap>.grid>.panel{height:auto;min-height:0;overflow:visible;}
+.screen#ukmap .tactical-map-wrapper{height:auto;min-height:0;overflow:visible;}
+.screen#ukmap .tactical-panel{min-height:0;overflow:visible;}
+.screen#ukmap .dossier-box{max-height:220px;overflow:auto;}
+.screen#ukmap .site-list{max-height:150px;overflow:auto;}
+.config-details{grid-column:span 2;border:1px solid var(--ui-border);background:var(--ui-panel);}
+.config-details-summary{appearance:none;-webkit-appearance:none;width:100%;border:0;border-radius:0;margin:0;padding:13px 15px;font:inherit;font-size:13px;letter-spacing:1px;color:var(--ui-accent);background:var(--ui-deep);min-height:48px;display:flex;align-items:center;justify-content:flex-start;gap:8px;text-align:left;cursor:pointer;box-sizing:border-box;}
+.config-details-summary .dim{margin-left:auto;}
+.config-details-state{font-size:9px;color:var(--ui-dim);margin-left:8px;white-space:nowrap;}
+.config-details-body{padding:15px;border-top:1px solid var(--ui-border);}
+.config-details-body.hidden{display:none;}
 @media(max-width:900px){
   .screen#ukmap .chart-container{min-height:220px;}
   .screen#ukmap .tactical-panel{padding:10px;}
@@ -815,8 +814,8 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
         <button id="applyRgbBtn" type="button">APPLY RGB PROFILE</button>
       </div>
     </div>
-    <details class="config-details" id="locationManagementDetails">
-      <summary id="locationManagementSummary">CITY / SITE CUSTOMISATION <span class="dim">[FIELD NETWORK]</span></summary>
+    <section class="config-details" id="locationManagementDetails">
+      <button type="button" class="config-details-summary" id="locationManagementSummary" aria-expanded="false">CITY / SITE CUSTOMISATION <span class="dim">[FIELD NETWORK]</span><span class="config-details-state" id="locationManagementState">[ OPEN ]</span></button>
       <div class="config-details-body">
       <div id="locationAdminGate" class="location-admin-gate">
         <div class="panel-title">LOCATION MANAGEMENT // ACCESS CONTROL</div>
@@ -862,7 +861,7 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
       <div class="location-lock-row"><button id="lockLocationAdminBtn" type="button">LOCK LOCATION MANAGEMENT</button></div>
       </div>
       </div>
-    </details>
+    </section>
 
     <div class="panel" style="grid-column: span 2;">
       <div class="panel-title">SYSTEM DATA SYNC <span class="dim">[EXPORT / IMPORT CONFIG ACROSS COMPUTERS]</span></div>
@@ -2892,9 +2891,19 @@ window.addEventListener("load",post);
     ukFranchises.forEach(ensureSectorState);
     ukFranchises.forEach(hydrateLocationRecord);
     const addLocationBtn=$f("addLocationBtn"); if(addLocationBtn) addLocationBtn.onclick=saveOrAddFieldLocation;
-    // Native <details>/<summary> behaviour is intentionally retained here.
-    // Safari/iPad handles the open/close state natively; manually toggling it
-    // from the summary click caused a double-toggle and left the editor closed.
+    // CITY / SITE CUSTOMISATION uses an explicit ECTO toggle rather than native
+    // <details>/<summary>, which avoids Safari/iPad double-toggle behaviour.
+    const locationManagementSummary=$f("locationManagementSummary"),locationManagementBody=document.querySelector("#locationManagementDetails .config-details-body"),locationManagementState=$f("locationManagementState");
+    const setLocationManagementOpen=open=>{
+      const isOpen=!!open;
+      if(locationManagementBody)locationManagementBody.classList.toggle("hidden",!isOpen);
+      if(locationManagementSummary)locationManagementSummary.setAttribute("aria-expanded",String(isOpen));
+      if(locationManagementState)locationManagementState.textContent=isOpen?"[ CLOSE ]":"[ OPEN ]";
+    };
+    if(locationManagementSummary){
+      locationManagementSummary.onclick=e=>{e.preventDefault();e.stopPropagation();const open=locationManagementSummary.getAttribute("aria-expanded")==="true";setLocationManagementOpen(!open);};
+    }
+    setLocationManagementOpen(false);
     function initEctoSelect(id){
       const sel=$f(id); if(!sel||sel.dataset.ectoEnhanced)return;
       sel.dataset.ectoEnhanced="1"; sel.classList.add("ecto-select-native");
