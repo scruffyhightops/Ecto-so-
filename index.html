@@ -989,9 +989,16 @@ document.addEventListener("keydown",e=>{
   }
 });
 
-document.querySelectorAll("[data-screen]").forEach(b=>b.onclick=()=>{
-  document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("active",s.id===b.dataset.screen));
-});
+function showScreen(screenId){
+  const target=document.getElementById(screenId);
+  if(!target)return;
+  document.querySelectorAll(".screen").forEach(s=>{s.classList.remove("active");s.setAttribute("aria-hidden","true");});
+  target.classList.add("active");
+  target.setAttribute("aria-hidden","false");
+  document.querySelectorAll("[data-screen]").forEach(b=>b.classList.toggle("active",b.dataset.screen===screenId));
+}
+document.querySelectorAll("[data-screen]").forEach(b=>b.onclick=()=>showScreen(b.dataset.screen));
+document.addEventListener("click",e=>{const b=e.target.closest("[data-screen]");if(b && !b.closest("nav"))showScreen(b.dataset.screen);});
 
 const lockBtn = $("lock");
 if(lockBtn) lockBtn.onclick=()=>location.reload();
@@ -3181,3 +3188,11 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 </body></html>
+<style>
+/* V2.2.1 LOCATION ADMIN / SCREEN ISOLATION */
+.screen#locationmgmt .location-management-panel{width:100%;min-width:0;box-sizing:border-box;}
+.screen#locationmgmt .location-db-grid{display:grid;grid-template-columns:1fr;gap:16px;}
+.screen#locationmgmt .location-form{grid-template-columns:repeat(2,minmax(0,1fr));}
+.screen#locationmgmt .location-list{max-height:420px;overflow:auto;}
+@media(max-width:600px){.screen#locationmgmt .location-form{grid-template-columns:1fr;}}
+</style>
