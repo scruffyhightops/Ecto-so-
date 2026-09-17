@@ -317,8 +317,19 @@ main{
 
 
 /* THREAT MAP COMPACT VIEW // reduce unnecessary page scrolling on iPad */
-.screen#ukmap .tactical-map-wrapper{min-height:0;}
-.screen#ukmap .tactical-panel{min-height:0;}
+.screen#ukmap .tactical-map-wrapper{min-height:0;align-items:stretch;}
+.screen#ukmap .tactical-panel{min-height:0;min-width:0;}
+.screen#ukmap .chart-container{min-height:0;}
+@media(min-width:901px){
+  .screen#ukmap .tactical-map-wrapper{height:clamp(320px,52vh,500px);}
+}
+@media(max-width:900px){
+  .screen#ukmap .tactical-panel:first-child .chart-container{height:220px;min-height:220px;flex:0 0 220px;}
+  .screen#ukmap .tactical-panel{overflow:hidden;}
+}
+@media(max-width:600px){
+  .screen#ukmap .tactical-panel:first-child .chart-container{height:200px;min-height:200px;flex-basis:200px;}
+}
 .screen#ukmap .dossier-box{max-height:220px;}
 .screen#ukmap .site-list{max-height:150px;}
 @media(max-width:900px){
@@ -1803,7 +1814,15 @@ window.addEventListener("load",post);
 
   function projectGeo(lat,lon,minLon,maxLon,maxLat,minLat,w,h,padX=22,padY=18){
     lat=Number(lat);lon=Number(lon);minLon=Number(minLon);maxLon=Number(maxLon);maxLat=Number(maxLat);minLat=Number(minLat);
-    return {x:padX+((lon-minLon)/(maxLon-minLon))*(w-padX*2),y:padY+((maxLat-lat)/(maxLat-minLat))*(h-padY*2)};
+    const lonSpan=Math.max(0.000001,maxLon-minLon),latSpan=Math.max(0.000001,maxLat-minLat);
+    const midLat=((maxLat+minLat)/2)*Math.PI/180;
+    const geoWidth=lonSpan*Math.cos(midLat);
+    const geoHeight=latSpan;
+    const usableW=Math.max(1,w-padX*2),usableH=Math.max(1,h-padY*2);
+    const scale=Math.min(usableW/geoWidth,usableH/geoHeight);
+    const drawW=geoWidth*scale,drawH=geoHeight*scale;
+    const left=(w-drawW)/2,top=(h-drawH)/2;
+    return {x:left+(lon-minLon)*Math.cos(midLat)*scale,y:top+(maxLat-lat)*scale};
   }
   function projectLocation(f,w,h){
     const q=projectGeo(Number(f.lat),Number(f.lon),-8.5,1.8,59.2,49.8,w,h,Math.max(22,w*.06),Math.max(18,h*.07));
@@ -1861,6 +1880,9 @@ window.addEventListener("load",post);
       const f=ukFranchises[selectedMapIndex]; ensureSiteDatabase(f); const b=regionBounds(f);
       ctx.fillStyle=dim;ctx.font="8px monospace";ctx.fillText(`CITY REGION // ${locationDisplayName(f).toUpperCase()}`,8,12);
       ctx.strokeStyle="rgba(57,169,255,0.16)";ctx.lineWidth=1.5;ctx.strokeRect(18,24,w-36,h-42);
+      const cityQ=projectGeo(Number(f.lat),Number(f.lon),b.minLon,b.maxLon,b.maxLat,b.minLat,w,h,34,34);
+      drawNode(ctx,cityQ.x,cityQ.y,"#39a9ff",false,locationDisplayName(f));
+      ctx.fillStyle=dim;ctx.font="8px monospace";ctx.fillText("FIELD LOCATION",cityQ.x+10,cityQ.y+14);
       f.sites.forEach((site,idx)=>{const q=projectGeo(Number(site.lat),Number(site.lon),b.minLon,b.maxLon,b.maxLat,b.minLat,w,h,34,34);let color=site.threat==="SEVERE"?"#ff55dd":site.threat==="HIGH"?"#ff5555":site.threat==="ELEVATED"?"#ffb000":"var(--ui-accent)";drawNode(ctx,q.x,q.y,color,idx===selectedSiteIndex,site.name);});
     }
   }
