@@ -442,7 +442,7 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
 @media print{
   @page{size:80mm auto;margin:4mm}
   html,body{width:80mm;height:auto;min-height:0;background:#fff!important;color:#000!important;overflow:visible!important;font-family:monospace}
-  body.spectre-printing>*:not(#spectrePrintReport){display:none!important}
+  body.spectre-printing>*:not(#thermalPrintReport){display:none!important}
   #thermalPrintReport{display:block!important;width:72mm;background:#fff;color:#000;font-size:10pt;line-height:1.35;padding:0;margin:0}
   #thermalPrintReport *{color:#000!important;background:#fff!important;border-color:#000!important;box-shadow:none!important}
   .thermal-rule{border-top:1px dashed #000;margin:7px 0}
@@ -2293,8 +2293,19 @@ window.addEventListener("load",post);
     const box=document.getElementById("thermalPrintReport"); if(!box)return;
     const actionLines=(report.actions||[]).map(a=>`<div>[${escapeHtml(a.time)}] ${escapeHtml(a.text)}</div>`).join("")||"<div>NO ACTIONS LOGGED</div>";
     const pkeLines=(report.pkeHistory||[]).slice(0,8).map(x=>`<div>[${escapeHtml(x.time)}] ${escapeHtml(x.pke)} PKE</div>`).join("")||"<div>NO PKE HISTORY</div>";
-    box.innerHTML=`<div style="text-align:center;font-weight:bold;font-size:13pt;">ECTO OS</div><div style="text-align:center;">FIELD INCIDENT REPORT</div><div class="thermal-rule"></div><div>INCIDENT: ${escapeHtml(report.incidentId)}</div><div>DATE: ${escapeHtml(report.date)}</div><div>TIME: ${escapeHtml(report.time)}</div><div class="thermal-rule"></div><div>SECTOR: ${escapeHtml(report.sector)}</div><div>LEAD: ${escapeHtml(report.lead)}</div><div>THREAT: ${escapeHtml(report.threat)}</div><div>ENTITY: ${escapeHtml(report.ghost)}</div><div>PKE: ${escapeHtml(report.pke)}</div><div>STAGE: ${escapeHtml(report.responseStage)}</div><div>STATUS: ${escapeHtml(report.responseStatus)}</div><div>UNIT: ${escapeHtml(report.team)}</div><div>TRAP: ${escapeHtml(report.trapState)}</div><div>CONTAINMENT: ${escapeHtml(report.containment)}</div><div>GRID: ${escapeHtml(report.coordinates)}</div><div class="thermal-rule"></div><div style="font-weight:bold;">PKE HISTORY</div>${pkeLines}<div class="thermal-rule"></div><div style="font-weight:bold;">ACTION LOG</div>${actionLines}<div class="thermal-rule"></div><div style="text-align:center;">ECTO FIELD OPERATIONS DIVISION<br>END OF REPORT</div>`;
+    const description=report.fieldDescription||report.description||"NO DESCRIPTION RECORDED";
+    const outcome=report.outcome||report.containment||"NOT RECORDED";
+    const fieldLog=report.fieldLog||"NO FIELD LOG RECORDED";
+    const location=report.location||report.sector||"UNSPECIFIED";
+    const gridRef=report.gridRef||report.coordinates||"UNASSIGNED";
+    box.innerHTML=`<div style="text-align:center;font-weight:bold;font-size:13pt;">ECTO OS</div><div style="text-align:center;">FIELD INCIDENT REPORT</div><div class="thermal-rule"></div><div>INCIDENT: ${escapeHtml(report.incidentId)}</div><div>DATE: ${escapeHtml(report.date)}</div><div>TIME: ${escapeHtml(report.time)}</div><div class="thermal-rule"></div><div>LOCATION: ${escapeHtml(location)}</div><div>GRID: ${escapeHtml(gridRef)}</div><div>LEAD: ${escapeHtml(report.lead)}</div><div>TEAM: ${escapeHtml(report.team)}</div><div>THREAT: ${escapeHtml(report.threat)}</div><div>ENTITY: ${escapeHtml(report.ghost)}</div><div>PKE: ${escapeHtml(report.pke)}</div><div>STAGE: ${escapeHtml(report.responseStage)}</div><div>STATUS: ${escapeHtml(report.responseStatus)}</div><div>TRAP: ${escapeHtml(report.trapState)}</div><div>CONTAINMENT: ${escapeHtml(report.containment)}</div><div class="thermal-rule"></div><div style="font-weight:bold;">INCIDENT DESCRIPTION</div><div>${escapeHtml(description).replace(/\n/g,"<br>")}</div><div class="thermal-rule"></div><div style="font-weight:bold;">PKE HISTORY</div>${pkeLines}<div class="thermal-rule"></div><div style="font-weight:bold;">ACTION LOG</div>${actionLines}<div class="thermal-rule"></div><div style="font-weight:bold;">OUTCOME / CONTAINMENT</div><div>${escapeHtml(outcome).replace(/\n/g,"<br>")}</div><div class="thermal-rule"></div><div style="font-weight:bold;">FIELD LOG</div><div>${escapeHtml(fieldLog).replace(/\n/g,"<br>")}</div><div class="thermal-rule"></div><div style="text-align:center;">ECTO FIELD OPERATIONS DIVISION<br>END OF REPORT</div>`;
+    document.body.classList.add("spectre-printing");
+    box.setAttribute("aria-hidden","false");
+    let cleaned=false;
+    const cleanup=()=>{if(cleaned)return;cleaned=true;document.body.classList.remove("spectre-printing");box.setAttribute("aria-hidden","true");window.removeEventListener("afterprint",cleanup);};
+    window.addEventListener("afterprint",cleanup);
     window.print();
+    setTimeout(cleanup,1500);
   }
   function printThermalIncidentReport(index){
     const current=snapshotIncidentReport(index);
@@ -4006,5 +4017,58 @@ window.addEventListener("load",post);
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
 }
-\n  /* ===== INCIDENT CASE FILE CONTROLS ===== */\n  (function(){\n    const dbBtn=$f("incidentDatabaseModeBtn"),newBtn=$f("incidentNewEntryModeBtn"),dbPane=$f("incidentDatabasePane"),newPane=$f("incidentNewEntryPane");\n    if(!dbBtn||!newBtn||!dbPane||!newPane)return;\n    let newIncidentThreat="ELEVATED",newIncidentStatus="OPEN / ACTIVE";\n    function nextStandaloneIncidentId(){\n      const max=incidentReports.reduce((m,r)=>{const x=String(r.incidentId||"").match(/-(\\d{4})$/);return x?Math.max(m,Number(x[1])):m;},0);\n      return `MAN-${new Date().getFullYear().toString().slice(-2)}-${String(max+1).padStart(4,"0")}`;\n    }\n    function setChoice(rootId,value){\n      const root=$f(rootId); if(!root)return;\n      root.querySelectorAll("button[data-value]").forEach(b=>b.classList.toggle("active",b.dataset.value===value));\n    }\n    function resetNewIncidentForm(){\n      const id=$f("newIncidentId"),now=new Date();\n      if(id)id.value=nextStandaloneIncidentId();\n      const d=$f("newIncidentDate"),t=$f("newIncidentTime");\n      if(d)d.value=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;\n      if(t)t.value=`${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}`;\n      ["newIncidentLocation","newIncidentGrid","newIncidentLead","newIncidentGhost","newIncidentPke","newIncidentTeam","newIncidentDescription","newIncidentActions","newIncidentOutcome","newIncidentLog"].forEach(id=>{const e=$f(id);if(e)e.value="";});\n      newIncidentThreat="ELEVATED";newIncidentStatus="OPEN / ACTIVE";setChoice("newIncidentThreatChoices",newIncidentThreat);setChoice("newIncidentStatusChoices",newIncidentStatus);\n    }\n    function show(mode){\n      const isNew=mode==="new";\n      dbPane.classList.toggle("hidden",isNew);newPane.classList.toggle("hidden",!isNew);\n      dbBtn.classList.toggle("active",!isNew);newBtn.classList.toggle("active",isNew);\n      if(isNew)resetNewIncidentForm();\n      else {loadIncidentDatabase();seedIncidentDatabase();renderIncidentDatabase();}\n    }\n    dbBtn.onclick=()=>show("db");newBtn.onclick=()=>show("new");\n    $f("cancelNewIncidentBtn").onclick=()=>show("db");\n    $f("newIncidentThreatChoices").querySelectorAll("button[data-value]").forEach(b=>b.onclick=()=>{newIncidentThreat=b.dataset.value;setChoice("newIncidentThreatChoices",newIncidentThreat);});\n    $f("newIncidentStatusChoices").querySelectorAll("button[data-value]").forEach(b=>b.onclick=()=>{newIncidentStatus=b.dataset.value;setChoice("newIncidentStatusChoices",newIncidentStatus);});\n    $f("saveNewIncidentBtn").onclick=()=>{\n      const name=$f("newIncidentId").value.trim();if(!name)return;\n      const date=$f("newIncidentDate").value,time=$f("newIncidentTime").value;\n      const opened=(date&&time)?new Date(`${date}T${time}:00`).toISOString():new Date().toISOString();\n      const actionsText=$f("newIncidentActions").value.trim();\n      const logText=$f("newIncidentLog").value.trim();\n      const status=newIncidentStatus;\n      const report={\n        incidentId:name,incidentOpened:opened,recordedAt:new Date().toISOString(),date:date?date.split("-").reverse().join("/"):getNowDate(),time:time||getNowTime(),\n        sector:$f("newIncidentLocation").value.trim()||"UNSPECIFIED",location:$f("newIncidentLocation").value.trim()||"UNSPECIFIED",gridRef:$f("newIncidentGrid").value.trim()||"UNASSIGNED",sectorRef:$f("newIncidentGrid").value.trim()||"UNASSIGNED",\n        lead:$f("newIncidentLead").value.trim()||"UNASSIGNED",ghost:$f("newIncidentGhost").value.trim()||"UNIDENTIFIED ENTITY",pke:$f("newIncidentPke").value.trim()||"NO READING",\n        pkeHistory:[],responseStatus:status,responseStage:status==="RESOLVED"?"CLOSED":status,team:$f("newIncidentTeam").value.trim()||"UNASSIGNED",threat:newIncidentThreat,trapState:"STOWED",containment:$f("newIncidentOutcome").value.trim()||"NOT RECORDED",cellsOccupied:0,cells:0,coordinates:"MANUAL CASE FILE",spectralMatch:"NO MATCH ANALYSIS",\n        actions:actionsText?[{time:time||getNowTime(),text:actionsText}]:[],fieldDescription:$f("newIncidentDescription").value.trim()||"NO DESCRIPTION RECORDED",outcome:$f("newIncidentOutcome").value.trim()||"NOT RECORDED",fieldLog:logText,closed:status==="RESOLVED"\n      };\n      incidentReports.unshift(report);selectedIncidentDbId=report.incidentId;saveIncidentDatabase();renderIncidentDatabase();show("db");\n      log(`Incident Database: Logged new case file '${report.incidentId}'.`,"info");\n    };\n    renderIncidentDatabase();\n  })();\n</script>
+
+  /* ===== INCIDENT CASE FILE CONTROLS ===== */
+  (function(){
+    const dbBtn=$f("incidentDatabaseModeBtn"),newBtn=$f("incidentNewEntryModeBtn"),dbPane=$f("incidentDatabasePane"),newPane=$f("incidentNewEntryPane");
+    if(!dbBtn||!newBtn||!dbPane||!newPane)return;
+    let newIncidentThreat="ELEVATED",newIncidentStatus="OPEN / ACTIVE";
+    function nextStandaloneIncidentId(){
+      const max=incidentReports.reduce((m,r)=>{const x=String(r.incidentId||"").match(/-(\\d{4})$/);return x?Math.max(m,Number(x[1])):m;},0);
+      return `MAN-${new Date().getFullYear().toString().slice(-2)}-${String(max+1).padStart(4,"0")}`;
+    }
+    function setChoice(rootId,value){
+      const root=$f(rootId); if(!root)return;
+      root.querySelectorAll("button[data-value]").forEach(b=>b.classList.toggle("active",b.dataset.value===value));
+    }
+    function resetNewIncidentForm(){
+      const id=$f("newIncidentId"),now=new Date();
+      if(id)id.value=nextStandaloneIncidentId();
+      const d=$f("newIncidentDate"),t=$f("newIncidentTime");
+      if(d)d.value=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
+      if(t)t.value=`${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}`;
+      ["newIncidentLocation","newIncidentGrid","newIncidentLead","newIncidentGhost","newIncidentPke","newIncidentTeam","newIncidentDescription","newIncidentActions","newIncidentOutcome","newIncidentLog"].forEach(id=>{const e=$f(id);if(e)e.value="";});
+      newIncidentThreat="ELEVATED";newIncidentStatus="OPEN / ACTIVE";setChoice("newIncidentThreatChoices",newIncidentThreat);setChoice("newIncidentStatusChoices",newIncidentStatus);
+    }
+    function show(mode){
+      const isNew=mode==="new";
+      dbPane.classList.toggle("hidden",isNew);newPane.classList.toggle("hidden",!isNew);
+      dbBtn.classList.toggle("active",!isNew);newBtn.classList.toggle("active",isNew);
+      if(isNew)resetNewIncidentForm();
+      else {loadIncidentDatabase();seedIncidentDatabase();renderIncidentDatabase();}
+    }
+    dbBtn.onclick=()=>show("db");newBtn.onclick=()=>show("new");
+    $f("cancelNewIncidentBtn").onclick=()=>show("db");
+    $f("newIncidentThreatChoices").querySelectorAll("button[data-value]").forEach(b=>b.onclick=()=>{newIncidentThreat=b.dataset.value;setChoice("newIncidentThreatChoices",newIncidentThreat);});
+    $f("newIncidentStatusChoices").querySelectorAll("button[data-value]").forEach(b=>b.onclick=()=>{newIncidentStatus=b.dataset.value;setChoice("newIncidentStatusChoices",newIncidentStatus);});
+    $f("saveNewIncidentBtn").onclick=()=>{
+      const name=$f("newIncidentId").value.trim();if(!name)return;
+      const date=$f("newIncidentDate").value,time=$f("newIncidentTime").value;
+      const opened=(date&&time)?new Date(`${date}T${time}:00`).toISOString():new Date().toISOString();
+      const actionsText=$f("newIncidentActions").value.trim();
+      const logText=$f("newIncidentLog").value.trim();
+      const status=newIncidentStatus;
+      const report={
+        incidentId:name,incidentOpened:opened,recordedAt:new Date().toISOString(),date:date?date.split("-").reverse().join("/"):getNowDate(),time:time||getNowTime(),
+        sector:$f("newIncidentLocation").value.trim()||"UNSPECIFIED",location:$f("newIncidentLocation").value.trim()||"UNSPECIFIED",gridRef:$f("newIncidentGrid").value.trim()||"UNASSIGNED",sectorRef:$f("newIncidentGrid").value.trim()||"UNASSIGNED",
+        lead:$f("newIncidentLead").value.trim()||"UNASSIGNED",ghost:$f("newIncidentGhost").value.trim()||"UNIDENTIFIED ENTITY",pke:$f("newIncidentPke").value.trim()||"NO READING",
+        pkeHistory:[],responseStatus:status,responseStage:status==="RESOLVED"?"CLOSED":status,team:$f("newIncidentTeam").value.trim()||"UNASSIGNED",threat:newIncidentThreat,trapState:"STOWED",containment:$f("newIncidentOutcome").value.trim()||"NOT RECORDED",cellsOccupied:0,cells:0,coordinates:"MANUAL CASE FILE",spectralMatch:"NO MATCH ANALYSIS",
+        actions:actionsText?[{time:time||getNowTime(),text:actionsText}]:[],fieldDescription:$f("newIncidentDescription").value.trim()||"NO DESCRIPTION RECORDED",outcome:$f("newIncidentOutcome").value.trim()||"NOT RECORDED",fieldLog:logText,closed:status==="RESOLVED"
+      };
+      incidentReports.unshift(report);selectedIncidentDbId=report.incidentId;saveIncidentDatabase();renderIncidentDatabase();show("db");
+      log(`Incident Database: Logged new case file '${report.incidentId}'.`,"info");
+    };
+    renderIncidentDatabase();
+  })();
+</script>
 </body></html>
