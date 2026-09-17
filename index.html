@@ -423,6 +423,28 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
   .screen#locationadmin .location-db-grid{grid-template-columns:1fr!important;}
   .screen#locationadmin .location-list{max-height:none;}
 }
+
+/* ===== V2.2.5 MINIMAL CRT BOOT SCREEN ===== */
+#boot{position:fixed;inset:0;z-index:99999;background:#020602;color:var(--ui-accent);font-family:var(--mono,monospace);display:flex;align-items:center;justify-content:center;overflow:hidden;}
+#boot.hidden{display:none;}
+#boot::before{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(to bottom,rgba(255,255,255,.025) 0,rgba(255,255,255,.025) 1px,transparent 1px,transparent 4px);opacity:.45;}
+.ecto-boot-frame{position:relative;width:min(1180px,94vw);height:min(700px,88vh);border:1px solid var(--ui-border);background:rgba(1,5,1,.96);box-shadow:0 0 24px rgba(115,255,128,.08),inset 0 0 35px rgba(115,255,128,.025);padding:18px;box-sizing:border-box;display:flex;flex-direction:column;}
+.ecto-boot-top{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--ui-grid);padding:0 0 10px;margin-bottom:12px;font-size:10px;letter-spacing:1.2px;}
+.ecto-boot-title{font-size:22px;font-weight:bold;letter-spacing:3px;}
+.ecto-boot-content{flex:1;display:grid;grid-template-columns:minmax(250px,1fr) minmax(300px,1.25fr);gap:18px;min-height:0;}
+.ecto-boot-panel{border:1px solid var(--ui-grid);padding:12px;min-height:0;overflow:hidden;background:rgba(0,0,0,.16);}
+.ecto-boot-panel-title{font-size:10px;letter-spacing:1.2px;border-bottom:1px solid var(--ui-grid);padding-bottom:7px;margin-bottom:10px;}
+.ecto-boot-log{font-size:11px;line-height:1.65;height:100%;overflow:hidden;}
+.ecto-boot-row{display:grid;grid-template-columns:1fr auto;gap:12px;padding:4px 0;border-bottom:1px dotted rgba(115,255,128,.16);font-size:10px;}
+.ecto-boot-ok{font-weight:bold;}
+.ecto-boot-bar{height:10px;border:1px solid var(--ui-border);margin-top:14px;padding:2px;box-sizing:border-box;}
+.ecto-boot-fill{height:100%;width:0;background:var(--ui-accent);transition:width .18s linear;}
+.ecto-boot-percent{display:flex;justify-content:space-between;margin-top:6px;font-size:9px;}
+.ecto-boot-logo-space{height:145px;border:1px dashed var(--ui-grid);display:flex;align-items:center;justify-content:center;margin-bottom:14px;opacity:.8;}
+.ecto-boot-logo-space span{text-align:center;font-size:9px;letter-spacing:1.5px;line-height:1.7;}
+.ecto-boot-status{border-top:1px solid var(--ui-grid);padding-top:12px;text-align:center;letter-spacing:1.5px;font-size:10px;}
+.ecto-boot-ready{font-size:17px;font-weight:bold;letter-spacing:3px;margin-top:7px;}
+@media(max-width:800px){#boot{align-items:stretch;} .ecto-boot-frame{width:100vw;height:100dvh;border:0;padding:12px;} .ecto-boot-content{grid-template-columns:1fr;overflow:auto;} .ecto-boot-panel{overflow:visible;} .ecto-boot-logo-space{height:100px;} .ecto-boot-top{align-items:flex-start;gap:8px;flex-direction:column;} .ecto-boot-title{font-size:19px;}}
 </style><link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#73ff80">
 <meta name="mobile-web-app-capable" content="yes">
@@ -431,10 +453,7 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
 <meta name="apple-mobile-web-app-title" content="ECTO OS">
 <link rel="apple-touch-icon" href="./icons/icon-192.png">
 </head><body>
-<section id="boot"><div class="box"><div class="logo">ECTO OS // FIELD SYSTEM</div><div id="post"></div>
-<div id="loginPanel" class="login hidden"><div class="login-title">SECURITY KERNEL // ACCESS REQUIRED</div>
-<div class="row"><input id="accessCode" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="ENTER CLEARANCE CODE"><button id="authorise" type="button">AUTHORISE</button></div>
-<div id="error"></div><div class="hint">ENTER = AUTHORISE // ESC = CLEAR // TRY: FIELD-1984 / GM-051 / AUTHOR</div><div id="verified" class="verified hidden"></div></div></div></section>
+<section id="boot"><div class="ecto-boot-frame"><div class="ecto-boot-top"><div class="ecto-boot-title">ECTO OS</div><div>PARANORMAL FIELD OPERATIONS COMPUTER</div><div>BOOT // V2.2.5</div></div><div class="ecto-boot-content"><div class="ecto-boot-panel"><div class="ecto-boot-panel-title">SYSTEM BOOT DIALOGUE</div><div id="post" class="ecto-boot-log"></div></div><div class="ecto-boot-panel"><div class="ecto-boot-panel-title">SYSTEM INITIALISATION</div><div class="ecto-boot-logo-space"><span>LOGO RESERVE<br><span class="dim">ECTO SYSTEM IDENTIFICATION</span></span></div><div class="ecto-boot-row"><span>FIELD COMPUTER</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>PKE SENSOR ARRAY</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>CONTAINMENT GRID</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>SPECTRAL DATABASE</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>UK THREAT NETWORK</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>AUDIO SYSTEM</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>CONFIGURATION INTERFACE</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-bar"><div id="ectoBootFill" class="ecto-boot-fill"></div></div><div class="ecto-boot-percent"><span>LOADING ECTO OS...</span><span id="ectoBootPercent">0%</span></div><div class="ecto-boot-status"><div>ALL SYSTEMS NOMINAL</div><div class="ecto-boot-ready">ECTO OS READY</div></div></div></div><div id="loginPanel" class="login hidden"><div class="login-title">SECURITY KERNEL // ACCESS REQUIRED</div><div class="row"><input id="accessCode" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="ENTER CLEARANCE CODE"><button id="authorise" type="button">AUTHORISE</button></div><div id="error"></div><div class="hint">ENTER = AUTHORISE // ESC = CLEAR // TRY: FIELD-1984 / GM-051 / AUTHOR</div><div id="verified" class="verified hidden"></div></div></div></section>
 <section id="app" class="hidden"><header><div class="title">ECTO OS // FIELD ENGINEERING COMPUTER</div><div class="session" id="session">NO SESSION</div><div class="system-clock" id="systemClock">00:00:00 // 00/00/0000</div></header>
 <div id="layout"><nav>
 <button data-screen="status">1 STATUS</button><button data-screen="containment">2 CONTAINMENT</button><button data-screen="diagnostics">3 DIAGNOSTICS</button><button data-screen="faults">4 SPECTRE DATABASE</button><button data-screen="fieldops">5 FIELD OPERATIONS</button><button data-screen="ukmap">6 UK THREAT MAP</button><button data-screen="incidents">7 INCIDENT DATABASE</button><button data-screen="config">8 CONFIGURATION</button><button data-screen="locationadmin">9 LOCATION MANAGEMENT</button><button id="lock" type="button">LOCK SYSTEM</button>
@@ -867,7 +886,7 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
           <div class="panel-title">UK FIELD LOCATION DATABASE <span class="dim">[GEO-REFERENCED SECTORS / FIELD NETWORK]</span></div>
           <div class="dim">DATABASE: ONLINE // EDIT MODE: AUTHORISED</div>
         </div>
-        <div class="dim" style="line-height:1.5;margin-bottom:12px;">Select a stored location to edit its record, or create a new field location. Investigation sites for the selected location can be added, edited or deleted from the register below.</div>
+        <div class="dim" style="line-height:1.5;margin-bottom:12px;">Select a stored location to edit its record, or create a new field location. Investigation sites are managed separately beneath the location record.</div>
         <div class="location-db-grid" style="grid-template-columns:minmax(0,1.35fr) minmax(280px,.85fr);align-items:start;">
           <div>
             <div class="location-section-head"><span>LOCATION RECORD</span><span class="dim">[CITY / SECTOR / GEO-REFERENCE]</span></div>
@@ -924,11 +943,17 @@ async function post(){
   const postBox=$("post");
   const panel=$("loginPanel");
   if(!postBox || !panel) return;
-  for(const x of lines){
-    postBox.textContent += x + "\n";
-    await sleep(35);
+  const fill=$("ectoBootFill"), pct=$("ectoBootPercent");
+  postBox.textContent="";
+  for(let i=0;i<lines.length;i++){
+    const x=lines[i]; postBox.textContent += x + "\n";
+    const p=Math.round(((i+1)/lines.length)*100);
+    if(fill) fill.style.width=p+"%";
+    if(pct) pct.textContent=p+"%";
+    await sleep(55);
   }
   bootFinished=true;
+  await sleep(250);
   panel.classList.remove("hidden");
   focusLogin();
 }
@@ -1478,11 +1503,6 @@ window.addEventListener("load",post);
     list.innerHTML=ukFranchises.map((f,i)=>`<div class="location-row${i===selectedMapIndex?" active":""}"><div><b>${escapeHtml(locationDisplayName(f))}</b>${i===selectedMapIndex?'<span class="location-selected-badge">SELECTED</span>':''}<div class="location-meta">${escapeHtml(f.region||"UK")} // ${escapeHtml(f.locationId||"")}</div></div><div><span class="location-status">${escapeHtml(f.source||"CANONICAL")}</span><br><span class="location-meta">${Number(f.lat).toFixed(4)}, ${Number(f.lon).toFixed(4)}</span></div><div class="location-meta">${escapeHtml(f.threat)}</div><div class="button-row" style="margin:0;gap:4px;"><button type="button" data-location-index="${i}">INSPECT</button><button type="button" data-edit-location="${i}">EDIT</button></div></div>`).join("");
     list.querySelectorAll("[data-location-index]").forEach(btn=>btn.onclick=()=>{selectSector(+btn.dataset.locationIndex);renderLocationDatabase();});
     list.querySelectorAll("[data-edit-location]").forEach(btn=>btn.onclick=()=>startLocationEdit(+btn.dataset.editLocation));
-    const siteParent=$f("siteParentInput");
-    if(siteParent && ukFranchises[selectedMapIndex]){
-      siteParent.value=String(selectedMapIndex);
-      siteParent.dispatchEvent(new Event("change"));
-    }
     renderConfigurationSiteRegister(selectedMapIndex);
   }
   function renderConfigurationSiteRegister(parentIndex){
@@ -1494,16 +1514,9 @@ window.addEventListener("load",post);
     const wrap=document.createElement("div");
     wrap.id="configurationSiteRegister";
     wrap.style.cssText="margin-top:10px;border-top:1px solid var(--ui-grid);padding-top:10px;";
-    wrap.innerHTML=`<div class="panel-title">INVESTIGATION SITES // ${escapeHtml(locationDisplayName(f).toUpperCase())} <span class="dim">[EDIT / DELETE]</span></div>`+
-      (f.sites.length?f.sites.map((site,i)=>`<div class="location-row" style="margin-top:5px;grid-template-columns:minmax(0,1fr) auto;"><div><b>${escapeHtml(site.name)}</b><div class="location-meta">${escapeHtml(site.siteId||"SITE")} // ${escapeHtml(site.status||"MONITORING")} // ${escapeHtml(site.threat||"LOW")}</div></div><div class="button-row" style="margin:0;gap:4px;justify-content:flex-end;"><button type="button" data-config-edit-site="${i}" style="min-height:38px;">EDIT</button><button type="button" data-config-delete-site="${i}" style="border-color:#ff5555;color:#ff5555;min-height:38px;">DELETE</button></div></div>`).join(""):'<div class="dim" style="margin-top:6px;">NO INVESTIGATION SITES REGISTERED FOR THIS LOCATION.</div>');
+    wrap.innerHTML=`<div class="panel-title">INVESTIGATION SITES // ${escapeHtml(locationDisplayName(f).toUpperCase())} <span class="dim">[DELETE / MANAGE]</span></div>`+
+      (f.sites.length?f.sites.map((site,i)=>`<div class="location-row" style="margin-top:5px;grid-template-columns:1fr auto;"><div><b>${escapeHtml(site.name)}</b><div class="location-meta">${escapeHtml(site.siteId)} // ${escapeHtml(site.status)}</div></div><button type="button" data-config-delete-site="${i}" style="border-color:#ff5555;color:#ff5555;min-height:38px;">DELETE</button></div>`).join(""):'<div class="dim" style="margin-top:6px;">NO INVESTIGATION SITES REGISTERED FOR THIS LOCATION.</div>');
     host.parentNode.appendChild(wrap);
-    wrap.querySelectorAll("[data-config-edit-site]").forEach(btn=>btn.onclick=()=>{
-      startSiteEdit(parentIndex,+btn.dataset.configEditSite);
-      const editor=$f("siteNameInput");
-      if(editor)editor.focus({preventScroll:true});
-      const siteSection=editor?.closest(".location-form");
-      if(siteSection)siteSection.scrollIntoView({behavior:"smooth",block:"center"});
-    });
     wrap.querySelectorAll("[data-config-delete-site]").forEach(btn=>btn.onclick=()=>deleteInvestigationSiteFromConfig(parentIndex,+btn.dataset.configDeleteSite));
   }
 
