@@ -439,10 +439,14 @@ main{
 .theme-c64{--ui-accent:#a8d8ff;--ui-border:#315b8a;--ui-dim:#5f8fba;--ui-panel:#06101c;--ui-deep:#020812;--ui-grid:#1d4168;--ui-blue:#7abfff}
 body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel-title{border-color:var(--ui-border)} .panel{background:var(--ui-panel);border-color:var(--ui-border)} .logbox,.field-canvas{background:var(--ui-deep);border-color:var(--ui-grid);color:var(--ui-accent)} .metric{border-color:var(--ui-grid)} button{color:var(--ui-accent);border-color:var(--ui-border)} input[type=range]{accent-color:var(--ui-accent)} .dim{color:var(--ui-dim)} .bar{border-color:var(--ui-border)} .bar i{background:var(--ui-accent)} .rgb-box{margin-top:8px;border:1px solid var(--ui-border);padding:9px;background:var(--ui-deep)} .rgb-row{display:flex;align-items:center;gap:8px;margin:5px 0}.rgb-row label{display:flex;align-items:center;gap:8px;width:100%}.rgb-row input{flex:1}.rgb-row b{min-width:28px;text-align:right;color:var(--ui-accent)} .theme-row{flex-wrap:wrap}.theme-btn{min-width:130px}.theme-btn.active{background:var(--ui-accent);color:#000;border-color:var(--ui-accent)}
 
+
+/* V2.2.27 INCIDENT CASE FILE */
+.incident-mode-row{margin-top:8px}.incident-mode-row button{min-width:150px}.ecto-case-file-pane{border-top:1px solid var(--ui-grid);padding-top:10px}.ecto-case-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:9px}.ecto-case-grid label,.ecto-case-wide{display:flex;flex-direction:column;gap:5px;min-width:0;color:var(--ui-accent);font-size:10px;letter-spacing:.06em}.ecto-case-grid input,.ecto-case-wide textarea{width:100%;box-sizing:border-box}.ecto-case-wide{margin-top:9px}.ecto-choice-label{gap:7px!important}.ecto-choice-row{display:flex;gap:5px;flex-wrap:wrap}.ecto-choice-row button{flex:1 1 90px;min-height:40px}.ecto-choice-row button.active{background:var(--ui-accent);color:#000;border-color:var(--ui-accent)}@media(max-width:700px){.ecto-case-grid{grid-template-columns:1fr}.incident-mode-row button{flex:1 1 140px}}
+@media print{body.incident-printing>*:not(#thermalPrintReport){display:none!important}body.incident-printing{margin:0!important;padding:0!important;background:#fff!important;color:#000!important}body.incident-printing #thermalPrintReport{display:block!important;visibility:visible!important}}
 @media print{
   @page{size:80mm auto;margin:4mm}
   html,body{width:80mm;height:auto;min-height:0;background:#fff!important;color:#000!important;overflow:visible!important;font-family:monospace}
-  body.spectre-printing>*:not(#thermalPrintReport){display:none!important}
+  body.spectre-printing>*:not(#spectrePrintReport){display:none!important}
   #thermalPrintReport{display:block!important;width:72mm;background:#fff;color:#000;font-size:10pt;line-height:1.35;padding:0;margin:0}
   #thermalPrintReport *{color:#000!important;background:#fff!important;border-color:#000!important;box-shadow:none!important}
   .thermal-rule{border-top:1px dashed #000;margin:7px 0}
@@ -727,18 +731,6 @@ textarea{
   .ecto-site-actions{justify-content:flex-start;margin-top:5px}
   .ecto-site-actions button{flex:1 1 110px}
 }
-
-/* ===== INCIDENT CASE FILE V2.2.25 ===== */
-.ecto-case-file-pane{margin-top:6px}
-.ecto-case-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px}
-.ecto-case-grid label,.ecto-case-wide{display:block;font-size:.78rem;letter-spacing:.06em}
-.ecto-case-grid input,.ecto-case-wide input,.ecto-case-wide textarea{width:100%;box-sizing:border-box;margin-top:4px}
-.ecto-case-grid input[readonly]{opacity:.7}
-.ecto-case-wide{margin-top:8px}
-.ecto-choice-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
-.ecto-choice-row button{min-height:38px;padding:7px 10px}
-.ecto-choice-row button.active{outline:2px solid var(--ui-accent);outline-offset:-2px}
-@media(max-width:600px){.ecto-case-grid{grid-template-columns:1fr}.ecto-choice-row button{flex:1 1 120px}}
 </style><link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#73ff80">
 <meta name="mobile-web-app-capable" content="yes">
@@ -1143,63 +1135,25 @@ textarea{
 
 <section id="incidents" class="screen">
   <h1>INCIDENT REPORT DATABASE // LOCAL FIELD ARCHIVE</h1>
-  <div class="grid">
-    <div class="panel" style="grid-column: span 2;">
-      <div class="panel-title">INCIDENT REPORT DATABASE <span class="dim">[LOCAL FIELD ARCHIVE]</span></div>
-      <div class="button-row" style="margin-bottom:10px;">
-        <button type="button" id="incidentDatabaseModeBtn" class="active">DATABASE</button>
-        <button type="button" id="incidentNewEntryModeBtn">NEW INCIDENT</button>
-      </div>
-
-      <div id="incidentDatabasePane">
-        <div class="incident-db-toolbar">
-          <input type="search" id="incidentSearchInput" placeholder="SEARCH INCIDENT / SECTOR / LEAD / ENTITY">
-          <select id="incidentStatusFilter"><option value="ALL">ALL STATUS</option><option value="OPEN">OPEN / ACTIVE</option><option value="CLOSED">CLOSED / RESOLVED</option></select>
-        </div>
-        <div id="incidentDatabaseList" class="incident-db-list"></div>
-        <div id="incidentDatabaseDossier" class="incident-db-dossier"><div class="dim">SELECT AN INCIDENT TO VIEW THE STORED DOSSIER.</div></div>
-        <div class="button-row">
-          <button id="printStoredIncidentBtn" type="button" disabled>PRINT STORED REPORT</button>
-          <button id="exportIncidentDbBtn" type="button">EXPORT INCIDENT DATABASE</button>
-          <button id="importIncidentDbBtn" type="button">IMPORT INCIDENT DATABASE</button>
-          <input type="file" id="importIncidentDbFile" accept=".json" class="hidden">
-        </div>
-      </div>
-
-      <div id="incidentNewEntryPane" class="hidden ecto-case-file-pane">
-        <div class="panel-title">NEW INCIDENT CASE FILE <span class="dim">[FIELD ARCHIVE ENTRY]</span></div>
-        <div class="ecto-case-grid">
-          <label>INCIDENT ID<input id="newIncidentId" readonly></label>
-          <label>DATE<input id="newIncidentDate" type="date"></label>
-          <label>TIME<input id="newIncidentTime" type="time"></label>
-          <label>LOCATION<input id="newIncidentLocation" placeholder="LOCATION / SITE"></label>
-          <label>ECTO VECTOR / GRID<input id="newIncidentGrid" placeholder="e.g. C3-B2-08-EV01"></label>
-          <label>LEAD COMMANDER<input id="newIncidentLead" placeholder="TEAM MEMBER"></label>
-          <label>SPECTRE / ENTITY<input id="newIncidentGhost" placeholder="ENTITY DESIGNATION"></label>
-          <label>PKE READING<input id="newIncidentPke" inputmode="numeric" placeholder="PKE"></label>
-          <label>ASSIGNED TEAM<input id="newIncidentTeam" placeholder="TEAM / UNIT"></label>
-          <label>THREAT LEVEL
-            <div class="ecto-choice-row" id="newIncidentThreatChoices">
-              <button type="button" data-value="LOW">LOW</button><button type="button" data-value="ELEVATED">ELEVATED</button><button type="button" data-value="HIGH">HIGH</button><button type="button" data-value="SEVERE">SEVERE</button>
-            </div>
-          </label>
-          <label>INCIDENT STATUS
-            <div class="ecto-choice-row" id="newIncidentStatusChoices">
-              <button type="button" data-value="OPEN / ACTIVE">OPEN / ACTIVE</button><button type="button" data-value="CONTAINED">CONTAINED</button><button type="button" data-value="RESOLVED">RESOLVED</button>
-            </div>
-          </label>
-        </div>
-        <label class="ecto-case-wide">INCIDENT DESCRIPTION<textarea id="newIncidentDescription" rows="4" placeholder="FIELD OBSERVATIONS / INCIDENT DESCRIPTION"></textarea></label>
-        <label class="ecto-case-wide">FIELD ACTIONS<textarea id="newIncidentActions" rows="4" placeholder="ACTIONS TAKEN DURING RESPONSE"></textarea></label>
-        <label class="ecto-case-wide">OUTCOME / CONTAINMENT<textarea id="newIncidentOutcome" rows="3" placeholder="OUTCOME / CONTAINMENT STATUS"></textarea></label>
-        <label class="ecto-case-wide">FIELD LOG<textarea id="newIncidentLog" rows="4" placeholder="INITIAL FIELD LOG ENTRY"></textarea></label>
-        <div class="button-row">
-          <button type="button" id="saveNewIncidentBtn">SAVE INCIDENT</button>
-          <button type="button" id="cancelNewIncidentBtn">CANCEL</button>
-        </div>
-      </div>
+  <div class="grid"><div class="panel" style="grid-column: span 2;">
+    <div class="panel-title">INCIDENT REPORT DATABASE <span class="dim">[LOCAL FIELD ARCHIVE]</span></div>
+    <div class="button-row incident-mode-row"><button type="button" id="incidentDatabaseModeBtn" class="active">DATABASE</button><button type="button" id="incidentNewEntryModeBtn">NEW INCIDENT</button></div>
+    <div id="incidentDatabasePane">
+      <div class="incident-db-toolbar"><input type="search" id="incidentSearchInput" placeholder="SEARCH INCIDENT / SECTOR / LEAD / ENTITY"><select id="incidentStatusFilter"><option value="ALL">ALL STATUS</option><option value="OPEN">OPEN / ACTIVE</option><option value="CLOSED">CLOSED / RESOLVED</option></select></div>
+      <div id="incidentDatabaseList" class="incident-db-list"></div><div id="incidentDatabaseDossier" class="incident-db-dossier"><div class="dim">SELECT AN INCIDENT TO VIEW THE STORED DOSSIER.</div></div>
+      <div class="button-row"><button id="printStoredIncidentBtn" type="button" disabled>PRINT STORED REPORT</button><button id="exportIncidentDbBtn" type="button">EXPORT INCIDENT DATABASE</button><button id="importIncidentDbBtn" type="button">IMPORT INCIDENT DATABASE</button><input type="file" id="importIncidentDbFile" accept=".json" class="hidden"></div>
     </div>
-  </div>
+    <div id="incidentNewEntryPane" class="hidden ecto-case-file-pane">
+      <div class="panel-title">NEW INCIDENT CASE FILE <span class="dim">[FIELD ARCHIVE ENTRY]</span></div>
+      <div class="ecto-case-grid">
+        <label>INCIDENT ID<input id="newIncidentId" readonly></label><label>DATE<input id="newIncidentDate" type="date"></label><label>TIME<input id="newIncidentTime" type="time"></label><label>LOCATION<input id="newIncidentLocation" placeholder="FIELD LOCATION / SECTOR"></label><label>ECTO VECTOR / GRID<input id="newIncidentGrid" placeholder="E.G. C3-B2-08-EV01"></label><label>LEAD COMMANDER<input id="newIncidentLead" placeholder="OPERATIVE / COMMANDER"></label><label>SPECTRE / ENTITY<input id="newIncidentGhost" placeholder="ENTITY DESIGNATION"></label><label>PKE READING<input id="newIncidentPke" placeholder="PKE READING"></label><label>ASSIGNED TEAM<input id="newIncidentTeam" placeholder="TEAM / UNIT"></label>
+        <label class="ecto-choice-label">THREAT LEVEL<div class="ecto-choice-row" id="newIncidentThreatChoices"><button type="button" data-value="LOW">LOW</button><button type="button" data-value="ELEVATED">ELEVATED</button><button type="button" data-value="HIGH">HIGH</button><button type="button" data-value="SEVERE">SEVERE</button></div></label>
+        <label class="ecto-choice-label">INCIDENT STATUS<div class="ecto-choice-row" id="newIncidentStatusChoices"><button type="button" data-value="OPEN / ACTIVE">OPEN / ACTIVE</button><button type="button" data-value="CONTAINED">CONTAINED</button><button type="button" data-value="RESOLVED">RESOLVED</button></div></label>
+      </div>
+      <label class="ecto-case-wide">INCIDENT DESCRIPTION<textarea id="newIncidentDescription" rows="4" placeholder="FIELD DESCRIPTION / INITIAL OBSERVATIONS"></textarea></label><label class="ecto-case-wide">FIELD ACTIONS<textarea id="newIncidentActions" rows="4" placeholder="ACTIONS TAKEN / EQUIPMENT USED"></textarea></label><label class="ecto-case-wide">OUTCOME / CONTAINMENT<textarea id="newIncidentOutcome" rows="3" placeholder="OUTCOME / CONTAINMENT STATUS"></textarea></label><label class="ecto-case-wide">FIELD LOG<textarea id="newIncidentLog" rows="4" placeholder="INITIAL FIELD LOG ENTRY"></textarea></label>
+      <div class="button-row"><button type="button" id="saveNewIncidentBtn">SAVE INCIDENT</button><button type="button" id="cancelNewIncidentBtn">CANCEL</button></div>
+    </div>
+  </div></div>
 </section>
 
 <section id="config" class="screen">
@@ -2290,23 +2244,15 @@ window.addEventListener("load",post);
   function buildIncidentReport(index){return snapshotIncidentReport(index);}
   function printStoredIncidentReport(report){
     if(!report)return;
-    const box=document.getElementById("thermalPrintReport"); if(!box)return;
+    const box=document.getElementById("thermalPrintReport");if(!box)return;
     const actionLines=(report.actions||[]).map(a=>`<div>[${escapeHtml(a.time)}] ${escapeHtml(a.text)}</div>`).join("")||"<div>NO ACTIONS LOGGED</div>";
     const pkeLines=(report.pkeHistory||[]).slice(0,8).map(x=>`<div>[${escapeHtml(x.time)}] ${escapeHtml(x.pke)} PKE</div>`).join("")||"<div>NO PKE HISTORY</div>";
-    const description=report.fieldDescription||report.description||"NO DESCRIPTION RECORDED";
-    const outcome=report.outcome||report.containment||"NOT RECORDED";
-    const fieldLog=report.fieldLog||"NO FIELD LOG RECORDED";
-    const location=report.location||report.sector||"UNSPECIFIED";
-    const gridRef=report.gridRef||report.coordinates||"UNASSIGNED";
-    box.innerHTML=`<div style="text-align:center;font-weight:bold;font-size:13pt;">ECTO OS</div><div style="text-align:center;">FIELD INCIDENT REPORT</div><div class="thermal-rule"></div><div>INCIDENT: ${escapeHtml(report.incidentId)}</div><div>DATE: ${escapeHtml(report.date)}</div><div>TIME: ${escapeHtml(report.time)}</div><div class="thermal-rule"></div><div>LOCATION: ${escapeHtml(location)}</div><div>GRID: ${escapeHtml(gridRef)}</div><div>LEAD: ${escapeHtml(report.lead)}</div><div>TEAM: ${escapeHtml(report.team)}</div><div>THREAT: ${escapeHtml(report.threat)}</div><div>ENTITY: ${escapeHtml(report.ghost)}</div><div>PKE: ${escapeHtml(report.pke)}</div><div>STAGE: ${escapeHtml(report.responseStage)}</div><div>STATUS: ${escapeHtml(report.responseStatus)}</div><div>TRAP: ${escapeHtml(report.trapState)}</div><div>CONTAINMENT: ${escapeHtml(report.containment)}</div><div class="thermal-rule"></div><div style="font-weight:bold;">INCIDENT DESCRIPTION</div><div>${escapeHtml(description).replace(/\n/g,"<br>")}</div><div class="thermal-rule"></div><div style="font-weight:bold;">PKE HISTORY</div>${pkeLines}<div class="thermal-rule"></div><div style="font-weight:bold;">ACTION LOG</div>${actionLines}<div class="thermal-rule"></div><div style="font-weight:bold;">OUTCOME / CONTAINMENT</div><div>${escapeHtml(outcome).replace(/\n/g,"<br>")}</div><div class="thermal-rule"></div><div style="font-weight:bold;">FIELD LOG</div><div>${escapeHtml(fieldLog).replace(/\n/g,"<br>")}</div><div class="thermal-rule"></div><div style="text-align:center;">ECTO FIELD OPERATIONS DIVISION<br>END OF REPORT</div>`;
-    document.body.classList.add("spectre-printing");
-    box.setAttribute("aria-hidden","false");
-    let cleaned=false;
-    const cleanup=()=>{if(cleaned)return;cleaned=true;document.body.classList.remove("spectre-printing");box.setAttribute("aria-hidden","true");window.removeEventListener("afterprint",cleanup);};
-    window.addEventListener("afterprint",cleanup);
-    window.print();
-    setTimeout(cleanup,1500);
+    const description=report.fieldDescription||report.description||"NO DESCRIPTION RECORDED", outcome=report.outcome||report.containment||"NOT RECORDED", fieldLog=report.fieldLog||"NO FIELD LOG RECORDED", grid=report.gridRef||report.sectorRef||report.coordinates||"UNASSIGNED";
+    box.innerHTML=`<div style="text-align:center;font-weight:bold;font-size:13pt;">ECTO OS</div><div style="text-align:center;">FIELD INCIDENT REPORT</div><div class="thermal-rule"></div><div>INCIDENT: ${escapeHtml(report.incidentId)}</div><div>DATE: ${escapeHtml(report.date)}</div><div>TIME: ${escapeHtml(report.time)}</div><div class="thermal-rule"></div><div>LOCATION: ${escapeHtml(report.location||report.sector)}</div><div>ECTO VECTOR / GRID: ${escapeHtml(grid)}</div><div>LEAD: ${escapeHtml(report.lead)}</div><div>TEAM: ${escapeHtml(report.team)}</div><div>THREAT: ${escapeHtml(report.threat)}</div><div>ENTITY: ${escapeHtml(report.ghost)}</div><div>PKE: ${escapeHtml(report.pke)}</div><div>STAGE: ${escapeHtml(report.responseStage)}</div><div>STATUS: ${escapeHtml(report.responseStatus)}</div><div>TRAP: ${escapeHtml(report.trapState)}</div><div>CONTAINMENT: ${escapeHtml(report.containment)}</div><div class="thermal-rule"></div><div style="font-weight:bold;">INCIDENT DESCRIPTION</div><div>${escapeHtml(description).replace(/\n/g,"<br>")}</div><div class="thermal-rule"></div><div style="font-weight:bold;">PKE HISTORY</div>${pkeLines}<div class="thermal-rule"></div><div style="font-weight:bold;">ACTION LOG</div>${actionLines}<div class="thermal-rule"></div><div style="font-weight:bold;">OUTCOME / CONTAINMENT</div><div>${escapeHtml(outcome).replace(/\n/g,"<br>")}</div><div class="thermal-rule"></div><div style="font-weight:bold;">FIELD LOG</div><div>${escapeHtml(fieldLog).replace(/\n/g,"<br>")}</div><div class="thermal-rule"></div><div style="text-align:center;">ECTO FIELD OPERATIONS DIVISION<br>END OF REPORT</div>`;
+    document.body.classList.add("incident-printing");window.print();
   }
+  window.addEventListener("afterprint",()=>document.body.classList.remove("incident-printing"));
+
   function printThermalIncidentReport(index){
     const current=snapshotIncidentReport(index);
     const stored=getIncidentReportById(current.incidentId);
@@ -3870,6 +3816,19 @@ window.addEventListener("load",post);
     updateReadiness();
     renderSpectreRegistry();
     updateSpectreDetails(spectreCategories[0]);
+    /* ===== INCIDENT CASE FILE CONTROLS // V2.2.27 ===== */
+    const incidentDatabaseModeBtn=$f("incidentDatabaseModeBtn"),incidentNewEntryModeBtn=$f("incidentNewEntryModeBtn"),incidentDatabasePane=$f("incidentDatabasePane"),incidentNewEntryPane=$f("incidentNewEntryPane");
+    let newIncidentThreat="ELEVATED",newIncidentStatus="OPEN / ACTIVE";
+    function nextStandaloneIncidentId(){const max=incidentReports.reduce((m,r)=>{const x=String(r.incidentId||"").match(/-(\d{4})$/);return x?Math.max(m,Number(x[1])):m;},0);return `MAN-${new Date().getFullYear().toString().slice(-2)}-${String(max+1).padStart(4,"0")}`;}
+    function setIncidentChoice(rootId,value){const root=$f(rootId);if(!root)return;root.querySelectorAll("button[data-value]").forEach(b=>b.classList.toggle("active",b.dataset.value===value));}
+    function resetNewIncidentForm(){const id=$f("newIncidentId"),now=new Date();if(id)id.value=nextStandaloneIncidentId();const d=$f("newIncidentDate"),t=$f("newIncidentTime");if(d)d.value=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;if(t)t.value=`${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}`;["newIncidentLocation","newIncidentGrid","newIncidentLead","newIncidentGhost","newIncidentPke","newIncidentTeam","newIncidentDescription","newIncidentActions","newIncidentOutcome","newIncidentLog"].forEach(id=>{const e=$f(id);if(e)e.value="";});newIncidentThreat="ELEVATED";newIncidentStatus="OPEN / ACTIVE";setIncidentChoice("newIncidentThreatChoices",newIncidentThreat);setIncidentChoice("newIncidentStatusChoices",newIncidentStatus);}
+    function showIncidentMode(mode){const isNew=mode==="new";if(!incidentDatabasePane||!incidentNewEntryPane)return;incidentDatabasePane.classList.toggle("hidden",isNew);incidentNewEntryPane.classList.toggle("hidden",!isNew);if(incidentDatabaseModeBtn)incidentDatabaseModeBtn.classList.toggle("active",!isNew);if(incidentNewEntryModeBtn)incidentNewEntryModeBtn.classList.toggle("active",isNew);if(isNew)resetNewIncidentForm();else{loadIncidentDatabase();seedIncidentDatabase();renderIncidentDatabase();}}
+    if(incidentDatabaseModeBtn)incidentDatabaseModeBtn.onclick=()=>showIncidentMode("db");if(incidentNewEntryModeBtn)incidentNewEntryModeBtn.onclick=()=>showIncidentMode("new");
+    const cancelNewIncidentBtn=$f("cancelNewIncidentBtn");if(cancelNewIncidentBtn)cancelNewIncidentBtn.onclick=()=>showIncidentMode("db");
+    const threatChoices=$f("newIncidentThreatChoices");if(threatChoices)threatChoices.querySelectorAll("button[data-value]").forEach(b=>b.onclick=()=>{newIncidentThreat=b.dataset.value;setIncidentChoice("newIncidentThreatChoices",newIncidentThreat);});
+    const statusChoices=$f("newIncidentStatusChoices");if(statusChoices)statusChoices.querySelectorAll("button[data-value]").forEach(b=>b.onclick=()=>{newIncidentStatus=b.dataset.value;setIncidentChoice("newIncidentStatusChoices",newIncidentStatus);});
+    const saveNewIncidentBtn=$f("saveNewIncidentBtn");if(saveNewIncidentBtn)saveNewIncidentBtn.onclick=()=>{const name=$f("newIncidentId")?.value.trim();if(!name)return;const date=$f("newIncidentDate")?.value||"",time=$f("newIncidentTime")?.value||"",opened=(date&&time)?new Date(`${date}T${time}:00`).toISOString():new Date().toISOString(),actionsText=$f("newIncidentActions")?.value.trim()||"",logText=$f("newIncidentLog")?.value.trim()||"",location=$f("newIncidentLocation")?.value.trim()||"UNSPECIFIED",grid=$f("newIncidentGrid")?.value.trim()||"UNASSIGNED";const report={incidentId:name,incidentOpened:opened,recordedAt:new Date().toISOString(),date:date?date.split("-").reverse().join("/"):getNowDate(),time:time||getNowTime(),sector:location,location,gridRef:grid,sectorRef:grid,lead:$f("newIncidentLead")?.value.trim()||"UNASSIGNED",ghost:$f("newIncidentGhost")?.value.trim()||"UNIDENTIFIED ENTITY",pke:$f("newIncidentPke")?.value.trim()||"NO READING",pkeHistory:[],responseStatus:newIncidentStatus,responseStage:newIncidentStatus==="RESOLVED"?"CLOSED":newIncidentStatus,team:$f("newIncidentTeam")?.value.trim()||"UNASSIGNED",threat:newIncidentThreat,trapState:"STOWED",containment:$f("newIncidentOutcome")?.value.trim()||"NOT RECORDED",cellsOccupied:0,cells:0,coordinates:"MANUAL CASE FILE",spectralMatch:"NO MATCH ANALYSIS",actions:actionsText?[{time:time||getNowTime(),text:actionsText}]:[],fieldDescription:$f("newIncidentDescription")?.value.trim()||"NO DESCRIPTION RECORDED",outcome:$f("newIncidentOutcome")?.value.trim()||"NOT RECORDED",fieldLog:logText,closed:newIncidentStatus==="RESOLVED"};incidentReports.unshift(report);selectedIncidentDbId=report.incidentId;saveIncidentDatabase();renderIncidentDatabase();showIncidentMode("db");log(`Incident Database: Logged new case file '${report.incidentId}'.`,"info");};
+
     setupSpectreCaseFileControls();
 
     const spectreClassInfoModal=$f("spectreClassInfoModal");
@@ -4017,58 +3976,5 @@ window.addEventListener("load",post);
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
 }
-
-  /* ===== INCIDENT CASE FILE CONTROLS ===== */
-  (function(){
-    const dbBtn=$f("incidentDatabaseModeBtn"),newBtn=$f("incidentNewEntryModeBtn"),dbPane=$f("incidentDatabasePane"),newPane=$f("incidentNewEntryPane");
-    if(!dbBtn||!newBtn||!dbPane||!newPane)return;
-    let newIncidentThreat="ELEVATED",newIncidentStatus="OPEN / ACTIVE";
-    function nextStandaloneIncidentId(){
-      const max=incidentReports.reduce((m,r)=>{const x=String(r.incidentId||"").match(/-(\\d{4})$/);return x?Math.max(m,Number(x[1])):m;},0);
-      return `MAN-${new Date().getFullYear().toString().slice(-2)}-${String(max+1).padStart(4,"0")}`;
-    }
-    function setChoice(rootId,value){
-      const root=$f(rootId); if(!root)return;
-      root.querySelectorAll("button[data-value]").forEach(b=>b.classList.toggle("active",b.dataset.value===value));
-    }
-    function resetNewIncidentForm(){
-      const id=$f("newIncidentId"),now=new Date();
-      if(id)id.value=nextStandaloneIncidentId();
-      const d=$f("newIncidentDate"),t=$f("newIncidentTime");
-      if(d)d.value=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
-      if(t)t.value=`${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}`;
-      ["newIncidentLocation","newIncidentGrid","newIncidentLead","newIncidentGhost","newIncidentPke","newIncidentTeam","newIncidentDescription","newIncidentActions","newIncidentOutcome","newIncidentLog"].forEach(id=>{const e=$f(id);if(e)e.value="";});
-      newIncidentThreat="ELEVATED";newIncidentStatus="OPEN / ACTIVE";setChoice("newIncidentThreatChoices",newIncidentThreat);setChoice("newIncidentStatusChoices",newIncidentStatus);
-    }
-    function show(mode){
-      const isNew=mode==="new";
-      dbPane.classList.toggle("hidden",isNew);newPane.classList.toggle("hidden",!isNew);
-      dbBtn.classList.toggle("active",!isNew);newBtn.classList.toggle("active",isNew);
-      if(isNew)resetNewIncidentForm();
-      else {loadIncidentDatabase();seedIncidentDatabase();renderIncidentDatabase();}
-    }
-    dbBtn.onclick=()=>show("db");newBtn.onclick=()=>show("new");
-    $f("cancelNewIncidentBtn").onclick=()=>show("db");
-    $f("newIncidentThreatChoices").querySelectorAll("button[data-value]").forEach(b=>b.onclick=()=>{newIncidentThreat=b.dataset.value;setChoice("newIncidentThreatChoices",newIncidentThreat);});
-    $f("newIncidentStatusChoices").querySelectorAll("button[data-value]").forEach(b=>b.onclick=()=>{newIncidentStatus=b.dataset.value;setChoice("newIncidentStatusChoices",newIncidentStatus);});
-    $f("saveNewIncidentBtn").onclick=()=>{
-      const name=$f("newIncidentId").value.trim();if(!name)return;
-      const date=$f("newIncidentDate").value,time=$f("newIncidentTime").value;
-      const opened=(date&&time)?new Date(`${date}T${time}:00`).toISOString():new Date().toISOString();
-      const actionsText=$f("newIncidentActions").value.trim();
-      const logText=$f("newIncidentLog").value.trim();
-      const status=newIncidentStatus;
-      const report={
-        incidentId:name,incidentOpened:opened,recordedAt:new Date().toISOString(),date:date?date.split("-").reverse().join("/"):getNowDate(),time:time||getNowTime(),
-        sector:$f("newIncidentLocation").value.trim()||"UNSPECIFIED",location:$f("newIncidentLocation").value.trim()||"UNSPECIFIED",gridRef:$f("newIncidentGrid").value.trim()||"UNASSIGNED",sectorRef:$f("newIncidentGrid").value.trim()||"UNASSIGNED",
-        lead:$f("newIncidentLead").value.trim()||"UNASSIGNED",ghost:$f("newIncidentGhost").value.trim()||"UNIDENTIFIED ENTITY",pke:$f("newIncidentPke").value.trim()||"NO READING",
-        pkeHistory:[],responseStatus:status,responseStage:status==="RESOLVED"?"CLOSED":status,team:$f("newIncidentTeam").value.trim()||"UNASSIGNED",threat:newIncidentThreat,trapState:"STOWED",containment:$f("newIncidentOutcome").value.trim()||"NOT RECORDED",cellsOccupied:0,cells:0,coordinates:"MANUAL CASE FILE",spectralMatch:"NO MATCH ANALYSIS",
-        actions:actionsText?[{time:time||getNowTime(),text:actionsText}]:[],fieldDescription:$f("newIncidentDescription").value.trim()||"NO DESCRIPTION RECORDED",outcome:$f("newIncidentOutcome").value.trim()||"NOT RECORDED",fieldLog:logText,closed:status==="RESOLVED"
-      };
-      incidentReports.unshift(report);selectedIncidentDbId=report.incidentId;saveIncidentDatabase();renderIncidentDatabase();show("db");
-      log(`Incident Database: Logged new case file '${report.incidentId}'.`,"info");
-    };
-    renderIncidentDatabase();
-  })();
 </script>
 </body></html>
