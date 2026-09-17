@@ -302,7 +302,9 @@ main{
 
 
 /* THREAT MAP / LOCATION MANAGEMENT ROBUST LAYOUT */
-.screen#ukmap{min-height:100%;overflow:visible;display:block;}
+/* V2.2.0: Threat Map uses normal document flow. main owns scrolling; the map itself
+   must never impose a viewport-sized box that pushes the rest of the application off-screen. */
+.screen#ukmap{min-height:0;height:auto;overflow:visible;display:block;}
 .screen#ukmap>.grid{height:auto;min-height:0;}
 .screen#ukmap>.grid>.panel{height:auto;min-height:0;overflow:visible;}
 .screen#ukmap .tactical-map-wrapper{height:auto;min-height:0;overflow:visible;}
@@ -310,10 +312,9 @@ main{
 .screen#ukmap .dossier-box{max-height:220px;overflow:auto;}
 .screen#ukmap .site-list{max-height:150px;overflow:auto;}
 .config-details{grid-column:span 2;border:1px solid var(--ui-border);background:var(--ui-panel);}
-.config-details-summary{appearance:none;-webkit-appearance:none;width:100%;border:0;border-radius:0;margin:0;padding:13px 15px;font:inherit;font-size:13px;letter-spacing:1px;color:var(--ui-accent);background:var(--ui-deep);min-height:48px;display:flex;align-items:center;justify-content:flex-start;gap:8px;text-align:left;cursor:pointer;box-sizing:border-box;}
+.config-details-summary{width:100%;box-sizing:border-box;padding:13px 15px;min-height:48px;display:flex;align-items:center;justify-content:flex-start;gap:8px;text-align:left;font-size:13px;letter-spacing:1px;color:var(--ui-accent);background:var(--ui-deep);border-bottom:1px solid var(--ui-border);}
 .config-details-summary .dim{margin-left:auto;}
-.config-details-state{font-size:9px;color:var(--ui-dim);margin-left:8px;white-space:nowrap;}
-.config-details-body{padding:15px;border-top:1px solid var(--ui-border);}
+.config-details-body{padding:15px;}
 .config-details-body.hidden{display:none;}
 @media(max-width:900px){
   .screen#ukmap .chart-container{min-height:220px;}
@@ -815,7 +816,7 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
       </div>
     </div>
     <section class="config-details" id="locationManagementDetails">
-      <button type="button" class="config-details-summary" id="locationManagementSummary" aria-expanded="false">CITY / SITE CUSTOMISATION <span class="dim">[FIELD NETWORK]</span><span class="config-details-state" id="locationManagementState">[ OPEN ]</span></button>
+      <div class="config-details-summary" id="locationManagementSummary">CITY / SITE CUSTOMISATION <span class="dim">[FIELD NETWORK / AUTHORISED EDITOR]</span></div>
       <div class="config-details-body">
       <div id="locationAdminGate" class="location-admin-gate">
         <div class="panel-title">LOCATION MANAGEMENT // ACCESS CONTROL</div>
@@ -2891,19 +2892,9 @@ window.addEventListener("load",post);
     ukFranchises.forEach(ensureSectorState);
     ukFranchises.forEach(hydrateLocationRecord);
     const addLocationBtn=$f("addLocationBtn"); if(addLocationBtn) addLocationBtn.onclick=saveOrAddFieldLocation;
-    // CITY / SITE CUSTOMISATION uses an explicit ECTO toggle rather than native
-    // <details>/<summary>, which avoids Safari/iPad double-toggle behaviour.
-    const locationManagementSummary=$f("locationManagementSummary"),locationManagementBody=document.querySelector("#locationManagementDetails .config-details-body"),locationManagementState=$f("locationManagementState");
-    const setLocationManagementOpen=open=>{
-      const isOpen=!!open;
-      if(locationManagementBody)locationManagementBody.classList.toggle("hidden",!isOpen);
-      if(locationManagementSummary)locationManagementSummary.setAttribute("aria-expanded",String(isOpen));
-      if(locationManagementState)locationManagementState.textContent=isOpen?"[ CLOSE ]":"[ OPEN ]";
-    };
-    if(locationManagementSummary){
-      locationManagementSummary.onclick=e=>{e.preventDefault();e.stopPropagation();const open=locationManagementSummary.getAttribute("aria-expanded")==="true";setLocationManagementOpen(!open);};
-    }
-    setLocationManagementOpen(false);
+    // Location management is intentionally presented directly in Configuration.
+    // The authorisation gate controls access to the editor; there is no collapsible
+    // browser/Safari control between the user and the access prompt.
     function initEctoSelect(id){
       const sel=$f(id); if(!sel||sel.dataset.ectoEnhanced)return;
       sel.dataset.ectoEnhanced="1"; sel.classList.add("ecto-select-native");
