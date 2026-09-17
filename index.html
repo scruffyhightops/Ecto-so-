@@ -805,8 +805,8 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
         <button id="applyRgbBtn" type="button">APPLY RGB PROFILE</button>
       </div>
     </div>
-    <details class="config-details">
-      <summary>CITY / SITE CUSTOMISATION <span class="dim">[FIELD NETWORK]</span></summary>
+    <details class="config-details" id="locationManagementDetails">
+      <summary id="locationManagementSummary">CITY / SITE CUSTOMISATION <span class="dim">[FIELD NETWORK]</span></summary>
       <div class="config-details-body">
       <div id="locationAdminGate" class="location-admin-gate">
         <div class="panel-title">LOCATION MANAGEMENT // ACCESS CONTROL</div>
@@ -2882,6 +2882,15 @@ window.addEventListener("load",post);
     ukFranchises.forEach(ensureSectorState);
     ukFranchises.forEach(hydrateLocationRecord);
     const addLocationBtn=$f("addLocationBtn"); if(addLocationBtn) addLocationBtn.onclick=saveOrAddFieldLocation;
+    const locationManagementDetails=$f("locationManagementDetails");
+    const locationManagementSummary=$f("locationManagementSummary");
+    if(locationManagementDetails&&locationManagementSummary){
+      locationManagementSummary.addEventListener("click",e=>{
+        e.preventDefault();
+        locationManagementDetails.open=!locationManagementDetails.open;
+        if(locationManagementDetails.open){setTimeout(()=>{try{locationManagementDetails.scrollIntoView({behavior:"smooth",block:"nearest"});}catch(err){}},20);}
+      });
+    }
     function initEctoSelect(id){
       const sel=$f(id); if(!sel||sel.dataset.ectoEnhanced)return;
       sel.dataset.ectoEnhanced="1"; sel.classList.add("ecto-select-native");
