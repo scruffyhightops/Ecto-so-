@@ -491,6 +491,111 @@ body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel
 }
 #locationAdminContent .location-form select:disabled{opacity:.45;cursor:not-allowed;}
 
+/* ===== V2.2.19 // ECTO INPUT CONTROLS =====
+   Replace browser/iOS-looking text-entry controls with a consistent
+   ECTO terminal treatment. Native keyboard/input behaviour is preserved.
+   Selectors remain on their existing V2.2.18 ECTO Selection Panel system. */
+input[type="text"],
+input[type="search"],
+input[type="number"],
+input[type="password"],
+textarea{
+  box-sizing:border-box;
+  width:100%;
+  min-height:44px;
+  padding:10px 11px;
+  margin:0;
+  border:1px solid var(--ui-grid);
+  border-radius:0;
+  outline:none;
+  background:var(--ui-deep);
+  color:var(--ui-accent);
+  font-family:var(--mono,monospace);
+  font-size:11px;
+  line-height:1.35;
+  letter-spacing:.35px;
+  caret-color:var(--ui-accent);
+  -webkit-appearance:none;
+  appearance:none;
+  -webkit-tap-highlight-color:transparent;
+}
+input[type="text"]::placeholder,
+input[type="search"]::placeholder,
+input[type="number"]::placeholder,
+input[type="password"]::placeholder,
+textarea::placeholder{
+  color:var(--ui-dim);
+  opacity:.75;
+}
+input[type="text"]:focus,
+input[type="search"]:focus,
+input[type="number"]:focus,
+input[type="password"]:focus,
+textarea:focus{
+  border-color:var(--ui-accent);
+  outline:1px solid var(--ui-accent);
+  box-shadow:0 0 8px rgba(115,255,128,.12),inset 0 0 10px rgba(115,255,128,.025);
+  background:#041204;
+}
+input[type="text"]:disabled,
+input[type="search"]:disabled,
+input[type="number"]:disabled,
+input[type="password"]:disabled,
+textarea:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+}
+input[type="number"]{
+  -moz-appearance:textfield;
+}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button{
+  -webkit-appearance:none;
+  margin:0;
+}
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button{
+  -webkit-appearance:none;
+  appearance:none;
+}
+textarea{
+  min-height:108px;
+  resize:vertical;
+  line-height:1.5;
+}
+/* ECTO field labels and entry spacing */
+.location-field input[type="text"],
+.location-field input[type="number"],
+.location-field textarea{
+  background:var(--ui-deep);
+}
+.location-field input[type="number"]{
+  font-variant-numeric:tabular-nums;
+}
+/* Clearance/admin codes: deliberate terminal-style entry */
+#accessCode,
+#locationAdminCode{
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  font-size:12px;
+}
+#accessCode::placeholder,
+#locationAdminCode::placeholder{
+  letter-spacing:.08em;
+}
+/* Grid reference remains touch-friendly without changing its existing logic. */
+#mapGridRefInput{
+  text-transform:uppercase;
+  letter-spacing:1px;
+}
+@media(max-width:700px){
+  input[type="text"],input[type="search"],input[type="number"],input[type="password"],textarea{
+    min-height:46px;
+    font-size:16px;
+  }
+  textarea{min-height:120px;}
+}
+
 /* ===== V2.2.5 MINIMAL CRT BOOT SCREEN ===== */
 #boot{position:fixed;inset:0;z-index:99999;background:#020602;color:var(--ui-accent);font-family:var(--mono,monospace);display:flex;align-items:center;justify-content:center;overflow:hidden;}
 #boot.hidden{display:none;}
