@@ -440,6 +440,46 @@ main{
 body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel-title{border-color:var(--ui-border)} .panel{background:var(--ui-panel);border-color:var(--ui-border)} .logbox,.field-canvas{background:var(--ui-deep);border-color:var(--ui-grid);color:var(--ui-accent)} .metric{border-color:var(--ui-grid)} button{color:var(--ui-accent);border-color:var(--ui-border)} input[type=range]{accent-color:var(--ui-accent)} .dim{color:var(--ui-dim)} .bar{border-color:var(--ui-border)} .bar i{background:var(--ui-accent)} .rgb-box{margin-top:8px;border:1px solid var(--ui-border);padding:9px;background:var(--ui-deep)} .rgb-row{display:flex;align-items:center;gap:8px;margin:5px 0}.rgb-row label{display:flex;align-items:center;gap:8px;width:100%}.rgb-row input{flex:1}.rgb-row b{min-width:28px;text-align:right;color:var(--ui-accent)} .theme-row{flex-wrap:wrap}.theme-btn{min-width:130px}.theme-btn.active{background:var(--ui-accent);color:#000;border-color:var(--ui-accent)}
 
 
+/* V2.2.29 // UNIFIED ECTO INCIDENT INPUTS */
+.ecto-case-file-pane input,
+.ecto-case-file-pane textarea{
+  width:100%;
+  min-width:0;
+  box-sizing:border-box;
+  min-height:44px;
+  padding:9px 10px;
+  margin:0;
+  background:var(--ui-deep)!important;
+  color:var(--ui-accent)!important;
+  border:1px solid var(--ui-grid)!important;
+  border-radius:0!important;
+  outline:none;
+  font:inherit;
+  font-size:11px;
+  line-height:1.4;
+  caret-color:var(--ui-accent);
+  -webkit-appearance:none;
+  appearance:none;
+  box-shadow:none;
+}
+.ecto-case-file-pane textarea{min-height:96px;resize:vertical;}
+.ecto-case-file-pane input:focus,
+.ecto-case-file-pane textarea:focus{
+  border-color:var(--ui-accent)!important;
+  outline:1px solid var(--ui-accent);
+  box-shadow:0 0 8px rgba(115,255,128,.12);
+}
+.ecto-case-file-pane input::placeholder,
+.ecto-case-file-pane textarea::placeholder{
+  color:var(--ui-dim)!important;
+  opacity:.72;
+}
+@media(max-width:700px){
+  .ecto-case-file-pane input,
+  .ecto-case-file-pane textarea{min-height:46px;padding:10px;}
+  .ecto-case-file-pane textarea{min-height:110px;}
+}
+
 /* V2.2.27 INCIDENT CASE FILE */
 .incident-mode-row{margin-top:8px}.incident-mode-row button{min-width:150px}.ecto-case-file-pane{border-top:1px solid var(--ui-grid);padding-top:10px}.ecto-case-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:9px}.ecto-case-grid label,.ecto-case-wide{display:flex;flex-direction:column;gap:5px;min-width:0;color:var(--ui-accent);font-size:10px;letter-spacing:.06em}.ecto-case-grid input,.ecto-case-wide textarea{width:100%;box-sizing:border-box}.ecto-case-grid input[type="text"],.ecto-case-grid input[type="number"],.ecto-case-grid input[type="search"],.ecto-case-wide textarea{appearance:none;-webkit-appearance:none;border-radius:0}.ecto-case-grid input::placeholder,.ecto-case-wide textarea::placeholder{color:var(--ui-accent);opacity:.42}.ecto-case-grid input:focus,.ecto-case-wide textarea:focus{outline:none;box-shadow:0 0 0 1px var(--ui-accent) inset}.ecto-case-wide{margin-top:9px}.ecto-choice-label{gap:7px!important}.ecto-choice-row{display:flex;gap:5px;flex-wrap:wrap}.ecto-choice-row button{flex:1 1 90px;min-height:40px}.ecto-choice-row button.active{background:var(--ui-accent);color:#000;border-color:var(--ui-accent)}@media(max-width:700px){.ecto-case-grid{grid-template-columns:1fr}.incident-mode-row button{flex:1 1 140px}}
 @media print{body.incident-printing>*:not(#thermalPrintReport){display:none!important}body.incident-printing{margin:0!important;padding:0!important;background:#fff!important;color:#000!important}body.incident-printing #thermalPrintReport{display:block!important;visibility:visible!important}}
