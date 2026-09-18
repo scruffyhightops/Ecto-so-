@@ -771,6 +771,13 @@ textarea{
   .ecto-site-actions{justify-content:flex-start;margin-top:5px}
   .ecto-site-actions button{flex:1 1 110px}
 }
+
+.team-ops-equipment{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:6px}
+.team-ops-equipment .metric{border:1px solid var(--ui-grid);padding:6px;background:var(--ui-deep)}
+.team-ops-roster{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+.team-ops-member{border:1px solid var(--ui-grid);padding:7px;background:var(--ui-deep)}
+.team-ops-member b{color:var(--ui-accent)}
+@media(max-width:700px){.team-ops-roster{grid-template-columns:1fr}.team-ops-equipment{grid-template-columns:1fr}}
 </style><link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#73ff80">
 <meta name="mobile-web-app-capable" content="yes">
@@ -778,24 +785,11 @@ textarea{
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="ECTO OS">
 <link rel="apple-touch-icon" href="./icons/icon-192.png">
-<style id="ecto-team-operations-css">
-.teamops-team-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:7px;max-height:300px;overflow:auto}
-.teamops-team-card{border:1px solid var(--ui-grid);background:var(--ui-deep);padding:9px;cursor:pointer;min-height:58px;color:inherit;text-align:left;font:inherit}
-.teamops-team-card:hover{border-color:#39a9ff;background:#06120b}
-.teamops-team-card.active{border-color:#39a9ff;background:#06120b;box-shadow:inset 3px 0 0 #39a9ff}
-.teamops-team-card b{color:#39a9ff;letter-spacing:.5px}
-.teamops-team-card .teamops-meta{font-size:9px;color:var(--ui-dim);margin-top:4px}
-.teamops-readiness-grid,.teamops-equipment-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:7px;margin-top:10px}
-.teamops-readiness-item,.teamops-equipment-item{border:1px solid var(--ui-grid);background:var(--ui-deep);padding:9px}
-.teamops-readiness-item span,.teamops-equipment-item span{display:block;font-size:9px;color:var(--ui-dim);letter-spacing:1px}
-.teamops-readiness-item b,.teamops-equipment-item b{display:block;margin-top:3px;color:var(--ui-accent)}
-@media(max-width:700px){.teamops-team-list,.teamops-readiness-grid,.teamops-equipment-grid{grid-template-columns:1fr}}
-</style>
 </head><body>
 <section id="boot"><div class="ecto-boot-frame"><div class="ecto-boot-top"><div class="ecto-boot-title">ECTO OS</div><div>PARANORMAL FIELD OPERATIONS COMPUTER</div><div>BOOT // V2.2.5</div></div><div class="ecto-boot-content"><div class="ecto-boot-panel"><div class="ecto-boot-panel-title">SYSTEM BOOT DIALOGUE</div><div id="post" class="ecto-boot-log"></div></div><div class="ecto-boot-panel"><div class="ecto-boot-panel-title">SYSTEM INITIALISATION</div><div class="ecto-boot-logo-space"><span>LOGO RESERVE<br><span class="dim">ECTO SYSTEM IDENTIFICATION</span></span></div><div class="ecto-boot-row"><span>FIELD COMPUTER</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>PKE SENSOR ARRAY</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>CONTAINMENT GRID</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>SPECTRAL DATABASE</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>UK THREAT NETWORK</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>AUDIO SYSTEM</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>CONFIGURATION INTERFACE</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-bar"><div id="ectoBootFill" class="ecto-boot-fill"></div></div><div class="ecto-boot-percent"><span>LOADING ECTO OS...</span><span id="ectoBootPercent">0%</span></div><div class="ecto-boot-status"><div>ALL SYSTEMS NOMINAL</div><div class="ecto-boot-ready">ECTO OS READY</div></div></div></div><div id="loginPanel" class="login hidden"><div class="login-title">SECURITY KERNEL // ACCESS REQUIRED</div><div class="row"><input id="accessCode" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="ENTER CLEARANCE CODE"><button id="authorise" type="button">AUTHORISE</button></div><div id="error"></div><div class="hint">ENTER = AUTHORISE // ESC = CLEAR // TRY: FIELD-1984 / GM-051 / AUTHOR</div><div id="verified" class="verified hidden"></div></div></div></section>
 <section id="app" class="hidden"><header><div class="title">ECTO OS // FIELD ENGINEERING COMPUTER</div><div class="session" id="session">NO SESSION</div><div class="system-clock" id="systemClock">00:00:00 // 00/00/0000</div></header>
 <div id="layout"><nav>
-<button data-screen="status">1 STATUS</button><button data-screen="containment">2 CONTAINMENT</button><button data-screen="diagnostics">3 DIAGNOSTICS</button><button data-screen="faults">4 SPECTRE DATABASE</button><button data-screen="fieldops">5 FIELD OPERATIONS</button><button data-screen="ukmap">6 UK THREAT MAP</button><button data-screen="incidents">7 INCIDENT DATABASE</button><button data-screen="config">8 CONFIGURATION</button><button data-screen="locationadmin">9 LOCATION MANAGEMENT</button><button id="lock" type="button">LOCK SYSTEM</button>
+<button data-screen="status">1 STATUS</button><button data-screen="containment">2 CONTAINMENT</button><button data-screen="diagnostics">3 DIAGNOSTICS</button><button data-screen="faults">4 SPECTRE DATABASE</button><button data-screen="fieldops">5 FIELD OPERATIONS</button><button data-screen="ukmap">6 UK THREAT MAP</button><button data-screen="incidents">7 INCIDENT DATABASE</button><button data-screen="config">8 CONFIGURATION</button><button data-screen="locationadmin">9 LOCATION MANAGEMENT</button><button data-screen="teamops">10 TEAM OPERATIONS</button><button id="lock" type="button">LOCK SYSTEM</button>
 </nav><main>
 <section id="status" class="screen active">
   <h1>SYSTEM STATUS & TELEMETRY</h1>
@@ -997,37 +991,6 @@ textarea{
   </div>
 </section>
 
-<section id="teamops" class="screen">
-  <h1>ECTO TEAM OPERATIONS // FIELD READINESS</h1>
-  <div class="grid">
-    <div class="panel">
-      <div class="panel-title">SELECTED FIELD LOCATION <span class="dim">[LOCATION → TEAM]</span></div>
-      <div class="metric"><span>LOCATION</span><b id="teamOpsLocationLabel">NO LOCATION SELECTED</b></div>
-      <div class="metric"><span>ECTO GRID</span><b id="teamOpsGridLabel">--</b></div>
-      <div class="metric"><span>THREAT LEVEL</span><b id="teamOpsThreatLabel">--</b></div>
-      <div class="dim" style="margin-top:10px;margin-bottom:6px;">AVAILABLE TEAMS AT SELECTED LOCATION</div>
-      <div id="teamOpsTeamList" class="teamops-team-list"></div>
-      <div class="button-row" style="margin-top:8px;"><button type="button" id="teamOpsReturnMapBtn">RETURN TO THREAT MAP</button></div>
-    </div>
-    <div class="panel">
-      <div class="panel-title">TEAM OPERATIONS STATUS <span class="dim">[SAVED TEAM RECORD]</span></div>
-      <div class="metric"><span>SELECTED TEAM</span><b id="teamOpsSelectedTeamLabel">NO TEAM SELECTED</b></div>
-      <div class="metric"><span>PERSONNEL</span><b id="teamOpsPersonnelLabel">0 / 0</b></div>
-      <div class="metric"><span>TEAM STATUS</span><b id="teamOpsStatusLabel">STANDING BY</b></div>
-      <div class="teamops-readiness-grid" id="teamOpsReadinessGrid"></div>
-      <div class="button-row" style="margin-top:10px;">
-        <button type="button" id="teamOpsViewTeamBtn">VIEW TEAM</button>
-        <button type="button" id="teamOpsPreflightBtn" style="border-color:var(--ui-accent);color:var(--ui-accent);">RUN PRE-FLIGHT</button>
-      </div>
-    </div>
-    <div class="panel" style="grid-column:1/-1;">
-      <div class="panel-title">EQUIPMENT ALLOCATION <span class="dim">[TEAM TOTALS]</span></div>
-      <div id="teamOpsEquipmentTotals" class="teamops-equipment-grid"></div>
-      <div class="dim" style="margin-top:8px;">Equipment totals are derived from the selected saved team. Individual equipment testing remains outside ECTO OS.</div>
-    </div>
-  </div>
-</section>
-
 <section id="fieldops" class="screen">
 <h1>FIELD OPERATIONS // DEPLOYMENT CONTROL</h1>
 <div class="grid">
@@ -1052,6 +1015,38 @@ textarea{
     </div>
   </div>
 </div>
+</section>
+
+<section id="teamops" class="screen">
+  <h1>ECTO TEAM OPERATIONS // FIELD READINESS</h1>
+  <div class="grid">
+    <div class="panel">
+      <div class="panel-title">SELECTED FIELD LOCATION</div>
+      <div class="metric"><span>LOCATION</span><b id="teamOpsLocationLabel">--</b></div>
+      <div class="metric"><span>ECTO GRID</span><b id="teamOpsGridLabel">--</b></div>
+      <div class="metric"><span>THREAT LEVEL</span><b id="teamOpsThreatLabel">--</b></div>
+      <div class="dim" style="margin-top:8px;">TEAM SELECTION</div>
+      <div id="teamOpsTeamList" class="site-list" style="max-height:180px;margin-top:5px;"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">TEAM READINESS</div>
+      <div class="metric"><span>TEAM</span><b id="teamOpsNameLabel">--</b></div>
+      <div class="metric"><span>PERSONNEL</span><b id="teamOpsPersonnelLabel">0 / 0</b></div>
+      <div class="metric"><span>TEAM STATUS</span><b id="teamOpsStatusLabel">STANDING BY</b></div>
+      <div class="metric"><span>READINESS</span><b id="teamOpsReadinessLabel">0%</b></div>
+      <div class="bar"><i id="teamOpsReadinessBar" style="width:0%"></i></div>
+      <div class="dim" style="margin-top:10px;">TEAM EQUIPMENT</div>
+      <div id="teamOpsEquipmentList" class="team-ops-equipment"></div>
+    </div>
+    <div class="panel" style="grid-column:span 2;">
+      <div class="panel-title">TEAM MEMBERS // FIELD ASSIGNMENT</div>
+      <div id="teamOpsRosterList" class="team-ops-roster"></div>
+      <div class="button-row" style="margin-top:10px;">
+        <button type="button" id="teamOpsViewTeamBtn">VIEW TEAM</button>
+        <button type="button" id="teamOpsPreflightBtn" style="border-color:var(--ui-accent);color:var(--ui-accent);">RUN PRE-FLIGHT</button>
+      </div>
+    </div>
+  </div>
 </section>
 
 <section id="ukmap" class="screen">
@@ -1108,6 +1103,9 @@ textarea{
           <div id="selectedLocationTeamsPanel" class="selected-location-teams" style="margin-top:10px;">
             <div class="dim">AVAILABLE TEAMS AT SELECTED LOCATION</div>
             <div id="selectedLocationTeamsList" class="site-list" style="max-height:150px;"></div>
+            <div class="button-row" style="margin-top:6px;">
+              <button type="button" id="openTeamOperationsBtn" style="border-color:#39a9ff;color:#39a9ff;">OPEN TEAM OPERATIONS</button>
+            </div>
           </div>
           <div id="cityRegionPanel" class="hidden" style="margin-top:8px;">
             <div class="dim">INVESTIGATION LOCATIONS <span id="siteCountLabel"></span></div>
@@ -2247,7 +2245,6 @@ window.addEventListener("load",post);
     renderTeamRosterModalDetails(index);
     renderPreflight();
     updateReadiness();
-    renderTeamOperations();
     log(`Selected UK tactical sector: ${ukFranchises[index].city}.`, "info");
   }
 
@@ -2308,7 +2305,6 @@ window.addEventListener("load",post);
     selectedIncidentDbId=snap.incidentId;
     saveIncidentDatabase();
     renderIncidentDatabase();
-    renderTeamOperations();
   }
   function seedIncidentDatabase(){
     if(incidentReports.length) return;
@@ -2834,23 +2830,48 @@ window.addEventListener("load",post);
     }, 12000);
   }
 
-  function ectoTeamOpsEquipmentState(team){
-    const members=Array.isArray(team?.members)?team.members:[];
-    const counts={"Proton Pack":0,"PKE Meter":0,"Ecto Goggles":0,"Ghost Trap":0,"Giga-Metre":0};
-    members.forEach(m=>{const checks=m?.preflightChecks||{};if(checks["Proton Pack"])counts["Proton Pack"]++;if(checks["PKE Meter"])counts["PKE Meter"]++;if(checks["Ecto Goggles"])counts["Ecto Goggles"]++;if(checks["Ghost Trap"])counts["Ghost Trap"]++;if(checks["Giga-Metre"])counts["Giga-Metre"]++;});
-    return counts;
-  }
   function renderTeamOperations(){
-    const f=ukFranchises[selectedMapIndex]; if(!f)return;
-    const loc=$f("teamOpsLocationLabel"),grid=$f("teamOpsGridLabel"),threat=$f("teamOpsThreatLabel"),list=$f("teamOpsTeamList"),teamLabel=$f("teamOpsSelectedTeamLabel"),personnel=$f("teamOpsPersonnelLabel"),status=$f("teamOpsStatusLabel"),readiness=$f("teamOpsReadinessGrid"),equipment=$f("teamOpsEquipmentTotals");
-    if(loc)loc.textContent=locationDisplayName(f).toUpperCase(); if(grid)grid.textContent=`${getUkGridRef(f)} // ${getCityGridRef(f)}`; if(threat)threat.textContent=String(f.threat||"UNKNOWN").toUpperCase();
+    const f=ukFranchises[selectedMapIndex];
+    if(!f)return;
+    ensureSectorState(f);
     const teams=Array.isArray(f.teams)?f.teams:[];
-    if(list){list.innerHTML=teams.length?teams.map((t,i)=>`<button type="button" class="teamops-team-card${i===activeSubTeamIndex?" active":""}" data-teamops-team="${i}"><b>${escapeHtml(t.teamName||`TEAM ${i+1}`)}</b><div class="teamops-meta">${(t.members||[]).length} PERSONNEL // ${i===activeSubTeamIndex?"SELECTED":"AVAILABLE"}</div></button>`).join(""): '<div class="dim">NO SAVED TEAMS AT THIS LOCATION</div>';list.querySelectorAll("[data-teamops-team]").forEach(card=>card.onclick=()=>{activeSubTeamIndex=+card.dataset.teamopsTeam;renderTeamOperations();renderSelectedLocationTeams(selectedMapIndex);renderTeamRosterModalDetails(selectedMapIndex);renderPreflight();updateReadiness();});}
-    const team=teams[activeSubTeamIndex]; if(!team){if(teamLabel)teamLabel.textContent="NO TEAM SELECTED";if(personnel)personnel.textContent="0 / 0";if(status)status.textContent="NO TEAM AVAILABLE";if(readiness)readiness.innerHTML="";if(equipment)equipment.innerHTML="";return;}
-    team.members.forEach(ensureMemberPreflight); const total=team.members.length,selected=team.members.filter(m=>m.preflightSelected).length,readyMembers=team.members.filter(m=>m.preflightSelected&&coreEquipment.every(eq=>m.preflightChecks[eq])).length,ready=total>0&&selected===total&&readyMembers===selected;
-    if(teamLabel)teamLabel.textContent=String(team.teamName||`TEAM ${activeSubTeamIndex+1}`).toUpperCase(); if(personnel)personnel.textContent=`${total} / ${total}`; if(status){status.textContent=ready?"READY FOR DEPLOYMENT":selected===0?"STANDING BY":`${readyMembers} / ${selected} OPERATIVES READY`;status.style.color=ready?"var(--ui-accent)":selected?"#ffb000":"#ff5555";}
-    readiness.innerHTML=[["PERSONNEL",`${total} / ${total}`],["SELECTED FOR PREFLIGHT",`${selected} / ${total}`],["READY OPERATIVES",`${readyMembers} / ${selected||total}`]].map(r=>`<div class="teamops-readiness-item"><span>${r[0]}</span><b>${r[1]}</b></div>`).join("");
-    const c=ectoTeamOpsEquipmentState(team); equipment.innerHTML=[["PROTON PACKS",c["Proton Pack"],total],["PKE METERS",c["PKE Meter"],total],["ECTO-GOGGLES",c["Ecto Goggles"],total],["FIELD TRAPS",c["Ghost Trap"],total],["GIGA-METRE",c["Giga-Metre"],1]].map(r=>`<div class="teamops-equipment-item"><span>${r[0]}</span><b>${r[1]} / ${r[2]}</b></div>`).join("");
+    if(activeSubTeamIndex>=teams.length) activeSubTeamIndex=0;
+    const team=teams[activeSubTeamIndex]||null;
+    const loc=$f("teamOpsLocationLabel"),grid=$f("teamOpsGridLabel"),threat=$f("teamOpsThreatLabel"),name=$f("teamOpsNameLabel"),person=$f("teamOpsPersonnelLabel"),status=$f("teamOpsStatusLabel"),ready=$f("teamOpsReadinessLabel"),bar=$f("teamOpsReadinessBar"),list=$f("teamOpsTeamList"),equip=$f("teamOpsEquipmentList"),roster=$f("teamOpsRosterList");
+    if(loc)loc.textContent=locationDisplayName(f);
+    if(grid)grid.textContent=getFullGridRef(f)||getUkGridRef(f)||f.locationId||"--";
+    if(threat)threat.textContent=f.threat||"--";
+    if(list){
+      list.innerHTML=teams.length?teams.map((t,i)=>`<div class="team-card${i===activeSubTeamIndex?" active":""}" data-teamops-index="${i}"><div class="team-card-header"><b>${escapeHtml(t.teamName||`TEAM ${i+1}`)}</b><span>${(t.members||[]).length} OPS</span></div><div class="dim">${escapeHtml((t.members||[]).map(m=>m.name).join(" // ")||"NO OPERATIVES ASSIGNED")}</div></div>`).join(""):"<div class=\"dim\">NO TEAMS CURRENTLY ASSIGNED</div>";
+      list.querySelectorAll("[data-teamops-index]").forEach(el=>el.onclick=()=>{activeSubTeamIndex=+el.dataset.teamopsIndex;renderTeamOperations();renderSelectedLocationTeams(selectedMapIndex);});
+    }
+    if(!team){if(name)name.textContent="NO TEAM SELECTED";if(person)person.textContent="0 / 0";if(status)status.textContent="STANDING BY";if(ready)ready.textContent="0%";if(bar)bar.style.width="0%";if(equip)equip.innerHTML="";if(roster)roster.innerHTML='<div class="dim">SELECT A TEAM TO VIEW PERSONNEL.</div>';return;}
+    const members=Array.isArray(team.members)?team.members:[];
+    const readiness=members.length?100:0;
+    if(name)name.textContent=(team.teamName||`TEAM ${activeSubTeamIndex+1}`).toUpperCase();
+    if(person)person.textContent=`${members.length} / ${members.length}`;
+    if(status)status.textContent=members.length?"READY FOR PRE-FLIGHT":"STANDING BY";
+    if(ready)ready.textContent=`${readiness}%`;
+    if(bar)bar.style.width=`${readiness}%`;
+    if(equip){
+      const eq=[
+        ["PROTON PACKS",members.length],
+        ["PKE METERS",members.length],
+        ["ECTO-GOGGLES",members.length],
+        ["FIELD TRAPS",members.length],
+        ["GIGA-METRE",1]
+      ];
+      equip.innerHTML=eq.map(([label,n])=>`<div class="metric"><span>${label}</span><b>${n} / ${n}</b></div>`).join("");
+    }
+    if(roster)roster.innerHTML=members.length?members.map((m,i)=>`<div class="team-ops-member"><b>${escapeHtml(m.name||`OPERATIVE ${i+1}`)}</b><div class="dim">${escapeHtml(m.role||"FIELD OPERATIVE")}</div></div>`).join(""):'<div class="dim">NO OPERATIVES ASSIGNED TO THIS TEAM.</div>';
+  }
+
+  function openTeamOperations(){
+    if(!ukFranchises[selectedMapIndex])return;
+    renderTeamOperations();
+    document.querySelectorAll(".screen").forEach(sc=>sc.classList.toggle("active",sc.id==="teamops"));
+    document.querySelectorAll("[data-screen]").forEach(nav=>nav.classList.toggle("active",nav.dataset.screen==="teamops"));
+    log(`Opened Team Operations // ${ukFranchises[selectedMapIndex].city} // ${ukFranchises[selectedMapIndex].teams?.[activeSubTeamIndex]?.teamName||"NO TEAM"}.`,"info");
   }
 
   function renderSelectedLocationTeams(index){
@@ -2863,7 +2884,7 @@ window.addEventListener("load",post);
       <div class="team-card-header"><b>${escapeHtml(t.teamName||`TEAM ${i+1}`)}</b><span style="font-size:9px;">${t.members?.length||0} ops</span></div>
       <div style="font-size:9px;color:var(--ui-dim);">${escapeHtml((t.members||[]).map(m=>m.name).join(" // ")||"NO OPERATIVES ASSIGNED")}</div>
     </div>`).join(""):'<div class="dim">NO TEAMS CURRENTLY ASSIGNED TO THIS LOCATION</div>';
-    list.querySelectorAll("[data-location-team]").forEach(card=>card.onclick=()=>{activeSubTeamIndex=+card.dataset.locationTeam;renderSelectedLocationTeams(index);renderTeamRosterModalDetails(index);renderPreflight();updateReadiness();renderTeamOperations();});
+    list.querySelectorAll("[data-location-team]").forEach(card=>card.onclick=()=>{activeSubTeamIndex=+card.dataset.locationTeam;renderSelectedLocationTeams(index);renderTeamRosterModalDetails(index);renderPreflight();updateReadiness();if(document.getElementById("teamops")?.classList.contains("active"))renderTeamOperations();});
   }
 
   function renderUKTeamsSubMenu(){
@@ -3338,15 +3359,14 @@ window.addEventListener("load",post);
     }
 
     const openMapPreflightBtn=$f("openMapPreflightBtn");
-    if(openMapPreflightBtn)openMapPreflightBtn.onclick=()=>{renderPreflight();updateReadiness();document.querySelectorAll(".screen").forEach(sc=>sc.classList.toggle("active",sc.id==="fieldops"));log(`Opened team preflight from threat map // ${ukFranchises[selectedMapIndex]?.city||"CURRENT SECTOR"}.`,"info");};
     const openTeamOperationsBtn=$f("openTeamOperationsBtn");
-    if(openTeamOperationsBtn)openTeamOperationsBtn.onclick=()=>{renderTeamOperations();document.querySelectorAll(".screen").forEach(sc=>sc.classList.toggle("active",sc.id==="teamops"));log(`Opened Team Operations // ${ukFranchises[selectedMapIndex]?.city||"CURRENT LOCATION"}.`,"info");};
-    const teamOpsReturnMapBtn=$f("teamOpsReturnMapBtn");
-    if(teamOpsReturnMapBtn)teamOpsReturnMapBtn.onclick=()=>{document.querySelectorAll(".screen").forEach(sc=>sc.classList.toggle("active",sc.id==="ukmap"));};
+    if(openTeamOperationsBtn)openTeamOperationsBtn.onclick=openTeamOperations;
     const teamOpsPreflightBtn=$f("teamOpsPreflightBtn");
-    if(teamOpsPreflightBtn)teamOpsPreflightBtn.onclick=()=>{renderPreflight();updateReadiness();document.querySelectorAll(".screen").forEach(sc=>sc.classList.toggle("active",sc.id==="fieldops"));log(`Opened pre-flight for ${ukFranchises[selectedMapIndex]?.teams?.[activeSubTeamIndex]?.teamName||"SELECTED TEAM"}.`,"info");};
+    if(teamOpsPreflightBtn)teamOpsPreflightBtn.onclick=()=>{renderPreflight();updateReadiness();document.querySelectorAll(".screen").forEach(sc=>sc.classList.toggle("active",sc.id==="fieldops"));document.querySelectorAll("[data-screen]").forEach(nav=>nav.classList.toggle("active",nav.dataset.screen==="fieldops"));};
     const teamOpsViewTeamBtn=$f("teamOpsViewTeamBtn");
     if(teamOpsViewTeamBtn)teamOpsViewTeamBtn.onclick=()=>{renderTeamRosterModalDetails(selectedMapIndex);const m=$f("teamRosterModal");if(m)m.classList.remove("hidden");};
+
+    if(openMapPreflightBtn)openMapPreflightBtn.onclick=()=>{renderPreflight();updateReadiness();document.querySelectorAll(".screen").forEach(sc=>sc.classList.toggle("active",sc.id==="fieldops"));log(`Opened team preflight from threat map // ${ukFranchises[selectedMapIndex]?.city||"CURRENT SECTOR"}.`,"info");};
 
     const sectorActionBtn = $f("sectorActionBtn");
     const sectorActionModal = $f("sectorActionModal");
