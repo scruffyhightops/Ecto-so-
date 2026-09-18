@@ -771,13 +771,6 @@ textarea{
   .ecto-site-actions{justify-content:flex-start;margin-top:5px}
   .ecto-site-actions button{flex:1 1 110px}
 }
-
-.team-ops-equipment{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:6px}
-.team-ops-equipment .metric{border:1px solid var(--ui-grid);padding:6px;background:var(--ui-deep)}
-.team-ops-roster{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
-.team-ops-member{border:1px solid var(--ui-grid);padding:7px;background:var(--ui-deep)}
-.team-ops-member b{color:var(--ui-accent)}
-@media(max-width:700px){.team-ops-roster{grid-template-columns:1fr}.team-ops-equipment{grid-template-columns:1fr}}
 </style><link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#73ff80">
 <meta name="mobile-web-app-capable" content="yes">
@@ -785,11 +778,23 @@ textarea{
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="ECTO OS">
 <link rel="apple-touch-icon" href="./icons/icon-192.png">
+
+<style>
+.screen#ukmap .dispatch-vehicle-panel{border-top:1px solid var(--ui-grid);padding-top:8px;}
+.screen#ukmap .dispatch-vehicle-card{border:1px solid var(--ui-grid);padding:8px;margin-top:6px;cursor:pointer;background:rgba(0,0,0,.12);min-height:44px;}
+.screen#ukmap .dispatch-vehicle-card.active{border-color:var(--ui-accent);box-shadow:inset 0 0 0 1px var(--ui-accent);}
+.screen#ukmap .dispatch-vehicle-card.busy{opacity:.62;cursor:not-allowed;}
+.screen#ukmap .dispatch-vehicle-card .vehicle-name{font-weight:bold;letter-spacing:.7px;}
+.screen#ukmap .dispatch-vehicle-card .vehicle-meta{font-size:9px;color:var(--ui-dim);margin-top:3px;}
+.screen#ukmap .dispatch-vehicle-status{margin-top:7px;padding:6px;border:1px dashed var(--ui-grid);font-size:9px;color:var(--ui-accent);letter-spacing:.6px;}
+.dispatch-vehicle-preflight{margin-top:7px;border:1px solid var(--ui-grid);padding:8px;}
+.dispatch-vehicle-preflight .dispatch-vehicle-value{color:var(--ui-accent);font-weight:bold;letter-spacing:.7px;}
+</style>
 </head><body>
 <section id="boot"><div class="ecto-boot-frame"><div class="ecto-boot-top"><div class="ecto-boot-title">ECTO OS</div><div>PARANORMAL FIELD OPERATIONS COMPUTER</div><div>BOOT // V2.2.5</div></div><div class="ecto-boot-content"><div class="ecto-boot-panel"><div class="ecto-boot-panel-title">SYSTEM BOOT DIALOGUE</div><div id="post" class="ecto-boot-log"></div></div><div class="ecto-boot-panel"><div class="ecto-boot-panel-title">SYSTEM INITIALISATION</div><div class="ecto-boot-logo-space"><span>LOGO RESERVE<br><span class="dim">ECTO SYSTEM IDENTIFICATION</span></span></div><div class="ecto-boot-row"><span>FIELD COMPUTER</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>PKE SENSOR ARRAY</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>CONTAINMENT GRID</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>SPECTRAL DATABASE</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>UK THREAT NETWORK</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>AUDIO SYSTEM</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>CONFIGURATION INTERFACE</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-bar"><div id="ectoBootFill" class="ecto-boot-fill"></div></div><div class="ecto-boot-percent"><span>LOADING ECTO OS...</span><span id="ectoBootPercent">0%</span></div><div class="ecto-boot-status"><div>ALL SYSTEMS NOMINAL</div><div class="ecto-boot-ready">ECTO OS READY</div></div></div></div><div id="loginPanel" class="login hidden"><div class="login-title">SECURITY KERNEL // ACCESS REQUIRED</div><div class="row"><input id="accessCode" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="ENTER CLEARANCE CODE"><button id="authorise" type="button">AUTHORISE</button></div><div id="error"></div><div class="hint">ENTER = AUTHORISE // ESC = CLEAR // TRY: FIELD-1984 / GM-051 / AUTHOR</div><div id="verified" class="verified hidden"></div></div></div></section>
 <section id="app" class="hidden"><header><div class="title">ECTO OS // FIELD ENGINEERING COMPUTER</div><div class="session" id="session">NO SESSION</div><div class="system-clock" id="systemClock">00:00:00 // 00/00/0000</div></header>
 <div id="layout"><nav>
-<button data-screen="status">1 STATUS</button><button data-screen="containment">2 CONTAINMENT</button><button data-screen="diagnostics">3 DIAGNOSTICS</button><button data-screen="faults">4 SPECTRE DATABASE</button><button data-screen="fieldops">5 FIELD OPERATIONS</button><button data-screen="ukmap">6 UK THREAT MAP</button><button data-screen="incidents">7 INCIDENT DATABASE</button><button data-screen="config">8 CONFIGURATION</button><button data-screen="locationadmin">9 LOCATION MANAGEMENT</button><button data-screen="teamops">10 TEAM OPERATIONS</button><button id="lock" type="button">LOCK SYSTEM</button>
+<button data-screen="status">1 STATUS</button><button data-screen="containment">2 CONTAINMENT</button><button data-screen="diagnostics">3 DIAGNOSTICS</button><button data-screen="faults">4 SPECTRE DATABASE</button><button data-screen="fieldops">5 FIELD OPERATIONS</button><button data-screen="ukmap">6 ECTO DISPATCH</button><button data-screen="incidents">7 INCIDENT DATABASE</button><button data-screen="config">8 CONFIGURATION</button><button data-screen="locationadmin">9 LOCATION MANAGEMENT</button><button id="lock" type="button">LOCK SYSTEM</button>
 </nav><main>
 <section id="status" class="screen active">
   <h1>SYSTEM STATUS & TELEMETRY</h1>
@@ -1017,45 +1022,13 @@ textarea{
 </div>
 </section>
 
-<section id="teamops" class="screen">
-  <h1>ECTO TEAM OPERATIONS // FIELD READINESS</h1>
-  <div class="grid">
-    <div class="panel">
-      <div class="panel-title">SELECTED FIELD LOCATION</div>
-      <div class="metric"><span>LOCATION</span><b id="teamOpsLocationLabel">--</b></div>
-      <div class="metric"><span>ECTO GRID</span><b id="teamOpsGridLabel">--</b></div>
-      <div class="metric"><span>THREAT LEVEL</span><b id="teamOpsThreatLabel">--</b></div>
-      <div class="dim" style="margin-top:8px;">TEAM SELECTION</div>
-      <div id="teamOpsTeamList" class="site-list" style="max-height:180px;margin-top:5px;"></div>
-    </div>
-    <div class="panel">
-      <div class="panel-title">TEAM READINESS</div>
-      <div class="metric"><span>TEAM</span><b id="teamOpsNameLabel">--</b></div>
-      <div class="metric"><span>PERSONNEL</span><b id="teamOpsPersonnelLabel">0 / 0</b></div>
-      <div class="metric"><span>TEAM STATUS</span><b id="teamOpsStatusLabel">STANDING BY</b></div>
-      <div class="metric"><span>READINESS</span><b id="teamOpsReadinessLabel">0%</b></div>
-      <div class="bar"><i id="teamOpsReadinessBar" style="width:0%"></i></div>
-      <div class="dim" style="margin-top:10px;">TEAM EQUIPMENT</div>
-      <div id="teamOpsEquipmentList" class="team-ops-equipment"></div>
-    </div>
-    <div class="panel" style="grid-column:span 2;">
-      <div class="panel-title">TEAM MEMBERS // FIELD ASSIGNMENT</div>
-      <div id="teamOpsRosterList" class="team-ops-roster"></div>
-      <div class="button-row" style="margin-top:10px;">
-        <button type="button" id="teamOpsViewTeamBtn">VIEW TEAM</button>
-        <button type="button" id="teamOpsPreflightBtn" style="border-color:var(--ui-accent);color:var(--ui-accent);">RUN PRE-FLIGHT</button>
-      </div>
-    </div>
-  </div>
-</section>
-
 <section id="ukmap" class="screen">
-  <h1>UK THREAT MAP // GEOGRAPHIC PARANORMAL TELEMETRY</h1>
+  <h1>ECTO DISPATCH // FIELD VEHICLE DEPLOYMENT</h1>
   <div class="grid" style="grid-template-columns:1fr;">
     <div class="panel">
       <div class="tactical-map-wrapper">
         <div class="tactical-panel">
-          <h2>UK REGIONAL SECTOR MAP <small>[REAL-WORLD GEOGRAPHY // ECTO GRID OVERLAY]</small></h2>
+          <h2>DISPATCH MAP <small>[REAL-WORLD GEOGRAPHY // ECTO GRID OVERLAY]</small></h2>
           <div class="chart-container">
             <div class="map-breadcrumb" id="mapBreadcrumb">UK FIELD NETWORK</div>
             <div class="map-controls">
@@ -1077,7 +1050,7 @@ textarea{
           <div class="telemetry-row"><span>Active Radar Sweep:</span><span class="telemetry-val text-green">360° Omnidirectional Scan</span></div>
         </div>
         <div class="tactical-panel">
-          <h2>SECTOR TARGET DETAILS <small>[INTELLIGENCE DOSSIER]</small></h2>
+          <h2>SELECTED INCIDENT <small>[DISPATCH DOSSIER]</small></h2>
           <div class="dossier-box" id="map-target-dossier"></div>
           <div class="grid-ref-band" id="mapGridReferenceBand">
             <div class="grid-ref-cell"><span class="grid-ref-label">UK GRID</span><span class="grid-ref-value" id="mapUkGridRef">--</span></div>
@@ -1094,18 +1067,20 @@ textarea{
             <div class="dim" id="mapGridRefStatus">ENTER A GRID REFERENCE TO LOCATE A REGISTERED FIELD RECORD.</div>
           </div>
           <div class="button-row" style="margin-bottom:6px;">
-            <button id="openRosterModalBtn" style="border-color:#39a9ff;color:#39a9ff;">OPEN TEAM ROSTER</button>
-            <button id="openMapPreflightBtn" style="border-color:var(--ui-accent);color:var(--ui-accent);">OPEN PREFLIGHT</button>
-            <button id="sectorActionBtn" style="border-color:#ffb000;color:#ffb000;">EXECUTE ACTION</button>
+            <button id="openRosterModalBtn" style="border-color:#39a9ff;color:#39a9ff;">VIEW TEAM ROSTER</button>
+            <button id="openMapPreflightBtn" style="border-color:var(--ui-accent);color:var(--ui-accent);">PRE-FLIGHT</button>
+            <button id="sectorActionBtn" style="border-color:#ffb000;color:#ffb000;">FIELD ACTIONS</button>
           </div>
           <div class="dim" style="margin-top:4px;margin-bottom:2px;">QUICK SELECT SECTOR:</div>
           <div class="teams-submenu" id="ukTeamsSubMenu" style="max-height:90px;"></div>
           <div id="selectedLocationTeamsPanel" class="selected-location-teams" style="margin-top:10px;">
             <div class="dim">AVAILABLE TEAMS AT SELECTED LOCATION</div>
             <div id="selectedLocationTeamsList" class="site-list" style="max-height:150px;"></div>
-            <div class="button-row" style="margin-top:6px;">
-              <button type="button" id="openTeamOperationsBtn" style="border-color:#39a9ff;color:#39a9ff;">OPEN TEAM OPERATIONS</button>
-            </div>
+          </div>
+          <div id="dispatchVehiclePanel" class="dispatch-vehicle-panel" style="margin-top:10px;">
+            <div class="dim">AVAILABLE ECTO VEHICLES AT SELECTED LOCATION</div>
+            <div id="dispatchVehicleList" class="site-list" style="max-height:150px;"></div>
+            <div class="dispatch-vehicle-status" id="dispatchVehicleStatus">NO VEHICLE ASSIGNED</div>
           </div>
           <div id="cityRegionPanel" class="hidden" style="margin-top:8px;">
             <div class="dim">INVESTIGATION LOCATIONS <span id="siteCountLabel"></span></div>
@@ -2830,50 +2805,6 @@ window.addEventListener("load",post);
     }, 12000);
   }
 
-  function renderTeamOperations(){
-    const f=ukFranchises[selectedMapIndex];
-    if(!f)return;
-    ensureSectorState(f);
-    const teams=Array.isArray(f.teams)?f.teams:[];
-    if(activeSubTeamIndex>=teams.length) activeSubTeamIndex=0;
-    const team=teams[activeSubTeamIndex]||null;
-    const loc=$f("teamOpsLocationLabel"),grid=$f("teamOpsGridLabel"),threat=$f("teamOpsThreatLabel"),name=$f("teamOpsNameLabel"),person=$f("teamOpsPersonnelLabel"),status=$f("teamOpsStatusLabel"),ready=$f("teamOpsReadinessLabel"),bar=$f("teamOpsReadinessBar"),list=$f("teamOpsTeamList"),equip=$f("teamOpsEquipmentList"),roster=$f("teamOpsRosterList");
-    if(loc)loc.textContent=locationDisplayName(f);
-    if(grid)grid.textContent=getFullGridRef(f)||getUkGridRef(f)||f.locationId||"--";
-    if(threat)threat.textContent=f.threat||"--";
-    if(list){
-      list.innerHTML=teams.length?teams.map((t,i)=>`<div class="team-card${i===activeSubTeamIndex?" active":""}" data-teamops-index="${i}"><div class="team-card-header"><b>${escapeHtml(t.teamName||`TEAM ${i+1}`)}</b><span>${(t.members||[]).length} OPS</span></div><div class="dim">${escapeHtml((t.members||[]).map(m=>m.name).join(" // ")||"NO OPERATIVES ASSIGNED")}</div></div>`).join(""):"<div class=\"dim\">NO TEAMS CURRENTLY ASSIGNED</div>";
-      list.querySelectorAll("[data-teamops-index]").forEach(el=>el.onclick=()=>{activeSubTeamIndex=+el.dataset.teamopsIndex;renderTeamOperations();renderSelectedLocationTeams(selectedMapIndex);});
-    }
-    if(!team){if(name)name.textContent="NO TEAM SELECTED";if(person)person.textContent="0 / 0";if(status)status.textContent="STANDING BY";if(ready)ready.textContent="0%";if(bar)bar.style.width="0%";if(equip)equip.innerHTML="";if(roster)roster.innerHTML='<div class="dim">SELECT A TEAM TO VIEW PERSONNEL.</div>';return;}
-    const members=Array.isArray(team.members)?team.members:[];
-    const readiness=members.length?100:0;
-    if(name)name.textContent=(team.teamName||`TEAM ${activeSubTeamIndex+1}`).toUpperCase();
-    if(person)person.textContent=`${members.length} / ${members.length}`;
-    if(status)status.textContent=members.length?"READY FOR PRE-FLIGHT":"STANDING BY";
-    if(ready)ready.textContent=`${readiness}%`;
-    if(bar)bar.style.width=`${readiness}%`;
-    if(equip){
-      const eq=[
-        ["PROTON PACKS",members.length],
-        ["PKE METERS",members.length],
-        ["ECTO-GOGGLES",members.length],
-        ["FIELD TRAPS",members.length],
-        ["GIGA-METRE",1]
-      ];
-      equip.innerHTML=eq.map(([label,n])=>`<div class="metric"><span>${label}</span><b>${n} / ${n}</b></div>`).join("");
-    }
-    if(roster)roster.innerHTML=members.length?members.map((m,i)=>`<div class="team-ops-member"><b>${escapeHtml(m.name||`OPERATIVE ${i+1}`)}</b><div class="dim">${escapeHtml(m.role||"FIELD OPERATIVE")}</div></div>`).join(""):'<div class="dim">NO OPERATIVES ASSIGNED TO THIS TEAM.</div>';
-  }
-
-  function openTeamOperations(){
-    if(!ukFranchises[selectedMapIndex])return;
-    renderTeamOperations();
-    document.querySelectorAll(".screen").forEach(sc=>sc.classList.toggle("active",sc.id==="teamops"));
-    document.querySelectorAll("[data-screen]").forEach(nav=>nav.classList.toggle("active",nav.dataset.screen==="teamops"));
-    log(`Opened Team Operations // ${ukFranchises[selectedMapIndex].city} // ${ukFranchises[selectedMapIndex].teams?.[activeSubTeamIndex]?.teamName||"NO TEAM"}.`,"info");
-  }
-
   function renderSelectedLocationTeams(index){
     const list=$f("selectedLocationTeamsList");
     if(!list)return;
@@ -2884,7 +2815,7 @@ window.addEventListener("load",post);
       <div class="team-card-header"><b>${escapeHtml(t.teamName||`TEAM ${i+1}`)}</b><span style="font-size:9px;">${t.members?.length||0} ops</span></div>
       <div style="font-size:9px;color:var(--ui-dim);">${escapeHtml((t.members||[]).map(m=>m.name).join(" // ")||"NO OPERATIVES ASSIGNED")}</div>
     </div>`).join(""):'<div class="dim">NO TEAMS CURRENTLY ASSIGNED TO THIS LOCATION</div>';
-    list.querySelectorAll("[data-location-team]").forEach(card=>card.onclick=()=>{activeSubTeamIndex=+card.dataset.locationTeam;renderSelectedLocationTeams(index);renderTeamRosterModalDetails(index);renderPreflight();updateReadiness();if(document.getElementById("teamops")?.classList.contains("active"))renderTeamOperations();});
+    list.querySelectorAll("[data-location-team]").forEach(card=>card.onclick=()=>{activeSubTeamIndex=+card.dataset.locationTeam;renderSelectedLocationTeams(index);renderTeamRosterModalDetails(index);renderPreflight();updateReadiness();});
   }
 
   function renderUKTeamsSubMenu(){
@@ -3359,13 +3290,6 @@ window.addEventListener("load",post);
     }
 
     const openMapPreflightBtn=$f("openMapPreflightBtn");
-    const openTeamOperationsBtn=$f("openTeamOperationsBtn");
-    if(openTeamOperationsBtn)openTeamOperationsBtn.onclick=openTeamOperations;
-    const teamOpsPreflightBtn=$f("teamOpsPreflightBtn");
-    if(teamOpsPreflightBtn)teamOpsPreflightBtn.onclick=()=>{renderPreflight();updateReadiness();document.querySelectorAll(".screen").forEach(sc=>sc.classList.toggle("active",sc.id==="fieldops"));document.querySelectorAll("[data-screen]").forEach(nav=>nav.classList.toggle("active",nav.dataset.screen==="fieldops"));};
-    const teamOpsViewTeamBtn=$f("teamOpsViewTeamBtn");
-    if(teamOpsViewTeamBtn)teamOpsViewTeamBtn.onclick=()=>{renderTeamRosterModalDetails(selectedMapIndex);const m=$f("teamRosterModal");if(m)m.classList.remove("hidden");};
-
     if(openMapPreflightBtn)openMapPreflightBtn.onclick=()=>{renderPreflight();updateReadiness();document.querySelectorAll(".screen").forEach(sc=>sc.classList.toggle("active",sc.id==="fieldops"));log(`Opened team preflight from threat map // ${ukFranchises[selectedMapIndex]?.city||"CURRENT SECTOR"}.`,"info");};
 
     const sectorActionBtn = $f("sectorActionBtn");
@@ -4109,5 +4033,168 @@ window.addEventListener("load",post);
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
 }
+</script>
+<script>
+/* ECTO OS // ECTO DISPATCH LAYER
+   Isolated dispatch workflow: INCIDENT -> VEHICLE -> TEAM -> PRE-FLIGHT -> DISPATCH.
+   Named vehicles are local franchise data and never alter protected databases. */
+(function(){
+  "use strict";
+  const q=id=>document.getElementById(id);
+  const fleet=[
+    {id:"ecto-response",name:"ECTO RESPONSE",type:"SPORTS CAR",defaultLocation:"Portsmouth [PSM-14]"},
+    {id:"ecto-01",name:"ECTO-01",type:"PRIMARY RESPONSE VEHICLE",defaultLocation:"London HQ [LON-01]"},
+    {id:"ecto-02",name:"ECTO-02",type:"SECONDARY RESPONSE VEHICLE",defaultLocation:"Edinburgh [EDI-02]"},
+    {id:"ecto-03",name:"ECTO-03",type:"FIELD SUPPORT VEHICLE",defaultLocation:"Manchester [MCR-03]"}
+  ];
+  let dispatchBusy=false;
+  let deploymentCheckPassed=false;
+
+  function location(){
+    return (typeof ukFranchises!=="undefined"&&Array.isArray(ukFranchises))?ukFranchises[selectedMapIndex]:null;
+  }
+  function vehiclesForLocation(f){
+    if(!f)return[];
+    const configured=Array.isArray(f.dispatchVehicles)?f.dispatchVehicles:[];
+    if(configured.length)return configured.map((v,i)=>typeof v==="string"?{id:"custom-"+i,name:v,type:"FRANCHISE VEHICLE",status:"AVAILABLE"}:v);
+    const match=fleet.filter(v=>v.defaultLocation===f.city);
+    return match.length?match:[{id:"unassigned",name:"UNASSIGNED VEHICLE",type:"NO VEHICLE REGISTERED FOR THIS LOCATION",status:"UNAVAILABLE"}];
+  }
+  function selectedVehicle(){
+    const f=location(); if(!f||!f.dispatchVehicleId)return null;
+    return vehiclesForLocation(f).find(v=>String(v.id)===String(f.dispatchVehicleId))||null;
+  }
+  function log(msg,type){if(typeof window.log==='function')window.log(msg,type||"info");}
+  function renderVehicles(){
+    const list=q("dispatchVehicleList"),status=q("dispatchVehicleStatus");
+    if(!list||!status)return;
+    const f=location();
+    if(!f){list.innerHTML='<div class="dim">SELECT A FIELD LOCATION FIRST</div>';status.textContent="NO VEHICLE ASSIGNED";return;}
+    const rows=vehiclesForLocation(f), selected=selectedVehicle();
+    list.innerHTML=rows.map(v=>{
+      const busy=String(v.status||"AVAILABLE").toUpperCase()!=="AVAILABLE";
+      const active=selected&&String(selected.id)===String(v.id);
+      return `<div class="dispatch-vehicle-card${active?" active":""}${busy?" busy":""}" data-dispatch-vehicle="${String(v.id).replace(/[^a-zA-Z0-9_-]/g,"")}"><div class="vehicle-name">${escapeHtml(v.name||"UNNAMED VEHICLE")}</div><div class="vehicle-meta">${escapeHtml(v.type||"ECTO VEHICLE")} // ${busy?escapeHtml(v.status):"AVAILABLE"}</div></div>`;
+    }).join("");
+    list.querySelectorAll("[data-dispatch-vehicle]").forEach(card=>card.addEventListener("click",()=>{
+      const v=rows.find(x=>String(x.id).replace(/[^a-zA-Z0-9_-]/g,"")===card.dataset.dispatchVehicle);
+      if(!v||String(v.id)==="unassigned"||String(v.status||"AVAILABLE").toUpperCase()!=="AVAILABLE")return;
+      f.dispatchVehicleId=v.id; f.dispatchVehicleName=v.name; f.dispatchVehicleType=v.type||"ECTO VEHICLE";
+      f.actionHistory=Array.isArray(f.actionHistory)?f.actionHistory:[];
+      f.actionHistory.unshift({time:(typeof window.getNowTime==='function'?window.getNowTime():new Date().toTimeString().slice(0,8)),text:`${v.name} ASSIGNED TO ${f.city}`});
+      deploymentCheckPassed=false;
+      renderVehicles();
+      if(typeof updateMapDossier==='function')updateMapDossier(selectedMapIndex);
+      renderPreflightVehicle();
+      log(`DISPATCH VEHICLE ASSIGNED // ${v.name} // ${f.city}.`,"info");
+      refreshDeployButton();
+    }));
+    status.textContent=selected?`VEHICLE ASSIGNED // ${selected.name} // ${selected.type}`:"NO VEHICLE ASSIGNED // SELECT A VEHICLE BEFORE PRE-FLIGHT";
+  }
+  function renderPreflightVehicle(){
+    const f=location(),v=selectedVehicle(),el=q("dispatchVehiclePreflight");
+    if(el)el.textContent=v?v.name:"NO VEHICLE ASSIGNED";
+    const st=q("dispatchVehiclePreflightStatus");
+    if(st)st.textContent=v?`${v.type||"ECTO VEHICLE"} // READY FOR DISPATCH`:"VEHICLE REQUIRED BEFORE DISPATCH";
+  }
+  function injectPreflightVehicle(){
+    const label=q("preflightTeamLabel");
+    if(!label||q("dispatchVehiclePreflight"))return;
+    const box=document.createElement("div");box.className="dispatch-vehicle-preflight";
+    box.innerHTML='<div class="dim">DISPATCH VEHICLE</div><div class="dispatch-vehicle-value" id="dispatchVehiclePreflight">NO VEHICLE ASSIGNED</div><div class="dim" id="dispatchVehiclePreflightStatus">VEHICLE REQUIRED BEFORE DISPATCH</div>';
+    const metric=label.closest(".metric");
+    if(metric)metric.insertAdjacentElement("afterend",box); else label.parentElement.insertAdjacentElement("afterend",box);
+    renderPreflightVehicle();
+  }
+  function selectedTeam(){
+    const f=location();
+    return f&&Array.isArray(f.teams)?f.teams[activeSubTeamIndex||0]:null;
+  }
+  function preflightReady(){
+    const t=selectedTeam();
+    if(!t||!Array.isArray(t.members)||!t.members.length)return false;
+    return t.members.some(m=>m.preflightSelected&&typeof coreEquipment!=="undefined"&&Array.isArray(coreEquipment)&&coreEquipment.every(eq=>m.preflightChecks?.[eq]));
+  }
+  function dispatchReady(){return !!selectedVehicle()&&preflightReady()&&deploymentCheckPassed&&!dispatchBusy;}
+  function refreshDeployButton(){
+    const b=q("deployTeamWorkflowBtn"); if(!b)return;
+    b.disabled=!dispatchReady();
+    b.textContent=selectedVehicle()? (deploymentCheckPassed?"DISPATCH VEHICLE":"RUN PRE-FLIGHT CHECK") : "SELECT ECTO VEHICLE FIRST";
+  }
+  function showScreen(id){
+    document.querySelectorAll(".screen").forEach(sc=>sc.classList.toggle("active",sc.id===id));
+    document.querySelectorAll("[data-screen]").forEach(n=>n.classList.toggle("active",n.dataset.screen===id));
+  }
+  function addDispatchControls(){
+    const panel=q("fieldops")?.querySelector(".preflight-assignments")?.parentElement;
+    if(!panel||q("deployTeamWorkflowBtn"))return;
+    const row=document.createElement("div");row.className="button-row";row.style.marginTop="7px";
+    row.innerHTML='<button type="button" id="deployTeamWorkflowBtn" disabled style="border-color:#39a9ff;color:#39a9ff;">SELECT ECTO VEHICLE FIRST</button><button type="button" id="returnDispatchBtn">RETURN TO ECTO DISPATCH</button>';
+    const diag=q("runDeploymentDiag");
+    if(diag&&diag.parentElement)diag.parentElement.insertAdjacentElement("afterend",row);
+    q("deployTeamWorkflowBtn")?.addEventListener("click",dispatchVehicle);
+    q("returnDispatchBtn")?.addEventListener("click",()=>showScreen("ukmap"));
+  }
+  function patchPreflightEntry(){
+    const open=q("openMapPreflightBtn");
+    if(open&&!open.__dispatchPatched){
+      open.__dispatchPatched=true;
+      open.addEventListener("click",()=>setTimeout(()=>{injectPreflightVehicle();renderPreflightVehicle();refreshDeployButton();},50));
+    }
+  }
+  function observeDeploymentCheck(){
+    const b=q("runDeploymentDiag");
+    if(!b||b.__dispatchObserved)return;
+    b.__dispatchObserved=true;
+    b.addEventListener("click",()=>{
+      deploymentCheckPassed=false;refreshDeployButton();
+      const delay=900+Math.max(1,selectedTeam()?.members?.filter(m=>m.preflightSelected).length||1)*500;
+      setTimeout(()=>{deploymentCheckPassed=!!selectedVehicle()&&preflightReady();refreshDeployButton();},delay);
+    });
+  }
+  function observeMap(){
+    const teamList=q("selectedLocationTeamsList");
+    if(teamList&&!teamList.__dispatchObserved){
+      teamList.__dispatchObserved=true;
+      teamList.addEventListener("click",()=>setTimeout(()=>{deploymentCheckPassed=false;renderVehicles();refreshDeployButton();},40));
+    }
+    const oldSelect=window.selectSector;
+    if(typeof oldSelect==="function"&&!oldSelect.__dispatchWrapped){
+      const wrapped=function(){const r=oldSelect.apply(this,arguments);setTimeout(()=>{deploymentCheckPassed=false;renderVehicles();renderPreflightVehicle();refreshDeployButton();},50);return r;};
+      wrapped.__dispatchWrapped=true;window.selectSector=wrapped;
+    }
+  }
+  function patchDossier(){
+    const box=q("map-target-dossier");if(!box||box.dataset.dispatchPatch)return;
+    const obs=new MutationObserver(()=>{
+      if(!box.textContent.includes("Dispatch Vehicle:")){
+        const v=selectedVehicle();const line=document.createElement("div");
+        line.innerHTML=`Dispatch Vehicle: <span class="text-blue">${escapeHtml(v?.name||"NOT ASSIGNED")}</span>`;box.appendChild(line);
+      }
+    });
+    obs.observe(box,{childList:true,subtree:true});box.dataset.dispatchPatch="1";
+  }
+  function dispatchVehicle(){
+    if(!dispatchReady())return;
+    const f=location(),t=selectedTeam(),v=selectedVehicle();
+    if(!f||!t||!v)return;
+    dispatchBusy=true;refreshDeployButton();
+    if(typeof window.ensureSectorState==='function')window.ensureSectorState(f);
+    f.dispatchVehicleId=v.id;f.dispatchVehicleName=v.name;f.dispatchVehicleType=v.type||"ECTO VEHICLE";
+    f.responseStage="DEPLOYED";f.responseStatus="ECTO VEHICLE DISPATCHED // EN ROUTE";
+    f.actionHistory=Array.isArray(f.actionHistory)?f.actionHistory:[];
+    f.actionHistory.unshift({time:(typeof window.getNowTime==='function'?window.getNowTime():new Date().toTimeString().slice(0,8)),text:`${v.name} DISPATCHED WITH ${t.teamName} TO ${f.city}`});
+    if(typeof window.upsertCurrentIncident==='function')window.upsertCurrentIncident(selectedMapIndex);
+    log(`ECTO VEHICLE DISPATCHED // ${v.name} // ${t.teamName} // ${f.city}.`,"info");
+    log(`INCIDENT ${f.incidentId||"ACTIVE"} // STATUS: ECTO VEHICLE DISPATCHED // EN ROUTE.` ,"info");
+    showScreen("incidents");
+    setTimeout(()=>{dispatchBusy=false;deploymentCheckPassed=false;refreshDeployButton();},250);
+  }
+  function init(){
+    renderVehicles();injectPreflightVehicle();renderPreflightVehicle();addDispatchControls();patchPreflightEntry();observeDeploymentCheck();observeMap();patchDossier();refreshDeployButton();
+    setInterval(()=>{addDispatchControls();patchPreflightEntry();observeDeploymentCheck();observeMap();renderVehicles();renderPreflightVehicle();refreshDeployButton();},1200);
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
+})();
 </script>
 </body></html>
