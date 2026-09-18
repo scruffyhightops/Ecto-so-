@@ -29,26 +29,6 @@ header{height:58px;border-bottom:1px solid var(--ui-border);display:flex;justify
 .chart-container{position:relative;width:100%;aspect-ratio:4/3;min-height:0;height:auto;background:#020602 url("assets/maps/ecto-uk-map-base.png") center/cover no-repeat;border:1px solid var(--ui-grid);display:block;margin-bottom:8px;overflow:hidden}
 .chart-container canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:pointer;border:none}
 .map-controls{position:absolute;top:8px;right:8px;display:flex;gap:4px;z-index:4;flex-wrap:wrap;justify-content:flex-end}.map-controls button{min-width:42px;min-height:38px;padding:6px 9px;background:rgba(0,0,0,.88);font-size:10px}.map-breadcrumb{position:absolute;top:8px;left:8px;z-index:3;padding:5px 8px;border:1px solid var(--ui-grid);background:rgba(0,0,0,.82);font:10px monospace;color:var(--ui-dim);pointer-events:none}.selected-location-teams{border-top:1px solid var(--ui-grid);padding-top:8px}.selected-location-teams .team-card{margin-top:5px}.location-row.active{border-color:var(--ui-accent)!important;box-shadow:0 0 8px rgba(57,255,128,.10)}.location-selected-badge{display:inline-block;border:1px solid var(--ui-accent);color:var(--ui-accent);font-size:8px;padding:2px 5px;margin-left:5px}.site-list{display:grid;gap:5px;margin-top:8px;max-height:190px;overflow:auto}.site-row{display:grid;grid-template-columns:1fr auto;gap:8px;padding:8px;border:1px solid var(--ui-grid);background:var(--ui-deep);cursor:pointer}.site-row.active{border-color:var(--ui-accent);box-shadow:0 0 8px rgba(57,255,128,.08)}.site-row b{font-size:11px}.site-meta{font-size:9px;color:var(--ui-dim);margin-top:2px}.site-tag{font-size:8px;border:1px solid var(--ui-grid);padding:3px 5px;color:var(--ui-dim);white-space:nowrap}.site-add-note{margin-top:7px;font-size:9px;color:var(--ui-dim);line-height:1.45}
-/* ECTO UI LANGUAGE // REUSABLE SELECTOR */
-.ecto-selector-overlay{position:fixed;inset:0;background:rgba(2,6,2,.88);z-index:130;display:flex;align-items:center;justify-content:center;padding:16px}
-.ecto-selector-overlay.hidden{display:none!important}
-.ecto-selector-box{width:min(560px,100%);max-height:88vh;overflow:auto;background:#030c03;border:1px solid var(--ui-accent);box-shadow:0 0 20px rgba(57,255,128,.14);padding:14px}
-.ecto-selector-head{display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px solid var(--ui-grid);padding-bottom:8px;margin-bottom:8px}
-.ecto-selector-title{color:var(--ui-accent);font:12px monospace;letter-spacing:1px}
-.ecto-selector-code{color:#39a9ff;font:9px monospace}
-.ecto-selector-list{display:grid;gap:6px;max-height:58vh;overflow:auto;margin-top:8px}
-.ecto-selector-item{width:100%;text-align:left;min-height:52px;padding:9px;border:1px solid var(--ui-grid);background:var(--ui-deep);color:var(--ui-text);font:11px monospace}
-.ecto-selector-item:hover,.ecto-selector-item.active{border-color:var(--ui-accent);background:#061206}
-.ecto-selector-item b{display:block;color:var(--ui-accent);letter-spacing:.4px}
-.ecto-selector-item span{display:block;margin-top:4px;color:var(--ui-dim);font-size:9px}
-.ecto-selector-group{color:#ffb000;font:9px monospace;letter-spacing:1px;border-bottom:1px solid var(--ui-grid);padding:7px 2px 4px;margin-top:4px}
-.ecto-selector-actions{display:flex;gap:7px;justify-content:flex-end;margin-top:10px}
-.ecto-selector-actions button{min-width:90px;min-height:40px}
-.ecto-main-selection{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;margin-top:7px}
-.ecto-main-selection-value{border:1px solid var(--ui-grid);background:var(--ui-deep);padding:9px;min-width:0}
-.ecto-main-selection-value b{display:block;color:var(--ui-accent);font-size:11px}
-.ecto-main-selection-value span{display:block;color:var(--ui-dim);font-size:9px;margin-top:3px}
-@media(max-width:700px){.ecto-selector-overlay{align-items:flex-start;padding:calc(10px + env(safe-area-inset-top)) 10px 10px}.ecto-selector-box{max-height:calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 20px);width:100%}.ecto-selector-list{max-height:62vh}}
 .uk-city-sector-picker{position:absolute;left:10px;top:52px;width:min(360px,calc(100% - 20px));max-height:62%;overflow:auto;z-index:6;background:rgba(2,8,2,.96);border:1px solid var(--ui-accent);box-shadow:0 0 14px rgba(57,255,128,.16);padding:9px}
 .uk-picker-head{display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid var(--ui-grid);padding-bottom:6px;margin-bottom:7px;color:var(--ui-accent);font-size:11px;letter-spacing:1px}
 .uk-picker-head button{min-width:38px;min-height:34px;padding:5px 8px}
@@ -1102,25 +1082,26 @@ textarea{
           <div class="button-row" style="margin-bottom:6px;">
             <button id="openRosterModalBtn" style="border-color:#39a9ff;color:#39a9ff;">VIEW TEAM ROSTER</button>
             <button id="openMapPreflightBtn" style="border-color:var(--ui-accent);color:var(--ui-accent);">PRE-FLIGHT</button>
+            <button type="button" id="openDeploymentControlBtn" style="border-color:#39a9ff;color:#39a9ff;">DEPLOYMENT CONTROL</button>
             <button id="sectorActionBtn" style="border-color:#ffb000;color:#ffb000;">FIELD ACTIONS</button>
           </div>
-          <div class="dim" style="margin-top:4px;margin-bottom:2px;">DEPLOYMENT SELECTION</div>
-          <div class="ecto-main-selection" id="dispatchLocationSelection">
-            <div class="ecto-main-selection-value" id="dispatchLocationValue"><b>NO LOCATION SELECTED</b><span>SELECT A FIELD LOCATION</span></div>
-            <button type="button" id="openDispatchLocationBtn">SELECT LOCATION</button>
+          <div class="dim" style="margin-top:4px;margin-bottom:2px;">QUICK SELECT SECTOR:</div>
+          <div class="teams-submenu" id="ukTeamsSubMenu" style="max-height:90px;"></div>
+          <div id="selectedLocationTeamsPanel" class="selected-location-teams" style="margin-top:10px;">
+            <div class="dim">AVAILABLE TEAMS AT SELECTED LOCATION</div>
+            <div id="selectedLocationTeamsList" class="site-list" style="max-height:150px;"></div>
           </div>
-          <div class="ecto-main-selection" id="selectedLocationTeamsPanel" style="margin-top:8px;">
-            <div class="ecto-main-selection-value" id="dispatchTeamValue"><b>NO TEAM SELECTED</b><span>SELECT A TEAM FOR DEPLOYMENT</span></div>
-            <button type="button" id="openDispatchTeamBtn">SELECT TEAM</button>
-          </div>
-          <div class="ecto-main-selection" id="dispatchVehiclePanel" style="margin-top:8px;">
-            <div class="ecto-main-selection-value" id="dispatchVehicleValue"><b>NO VEHICLE ASSIGNED</b><span>SELECT AN AVAILABLE ECTO VEHICLE</span></div>
-            <button type="button" id="openDispatchVehicleBtn">SELECT VEHICLE</button>
+          <div id="dispatchVehiclePanel" class="dispatch-vehicle-panel" style="margin-top:10px;">
+            <div class="dim">ECTO VEHICLE ASSIGNMENT</div>
+            <div class="metric" style="margin-top:5px;"><span>ASSIGNED VEHICLE</span><b id="dispatchVehicleSummary">NOT ASSIGNED</b></div>
+            <div class="button-row" style="margin-top:6px;"><button type="button" id="openVehicleSelectorBtn">SELECT ECTO VEHICLE</button></div>
+            <div class="dispatch-vehicle-status" id="dispatchVehicleStatus">SELECT A LOCATION FIRST</div>
           </div>
           <div id="cityRegionPanel" class="hidden" style="margin-top:8px;">
             <div class="dim">INVESTIGATION LOCATIONS <span id="siteCountLabel"></span></div>
-            <div id="citySiteList" class="site-list"></div>
-            <div class="site-add-note">Real-world places remain the geographic anchors. ECTO Vector references identify individual field locations without exposing exact public-facing street or property positions.</div>
+            <div class="metric" style="margin-top:5px;"><span>SELECTED FIELD LOCATION</span><b id="selectedSiteSummary">CITY REGION</b></div>
+            <div class="button-row" style="margin-top:6px;"><button type="button" id="openSiteSelectorBtn">SELECT INVESTIGATION SITE</button></div>
+            <div class="site-add-note">Investigation sites are selected through the ECTO location selector.</div>
           </div>
         </div>
       </div>
@@ -1128,19 +1109,6 @@ textarea{
   </div>
 </section>
 
-
-<!-- ECTO UI LANGUAGE // REUSABLE SELECTOR -->
-<div id="ectoSelectorOverlay" class="ecto-selector-overlay hidden" aria-hidden="true">
-  <div class="ecto-selector-box" role="dialog" aria-modal="true" aria-labelledby="ectoSelectorTitle">
-    <div class="ecto-selector-head">
-      <div id="ectoSelectorTitle" class="ecto-selector-title">ECTO DATABASE SELECTOR</div>
-      <div id="ectoSelectorCode" class="ecto-selector-code">SEL-000</div>
-    </div>
-    <div id="ectoSelectorHint" class="dim">SELECT A RECORD</div>
-    <div id="ectoSelectorList" class="ecto-selector-list"></div>
-    <div class="ecto-selector-actions"><button type="button" id="closeEctoSelectorBtn">CANCEL</button></div>
-  </div>
-</div>
 
 <!-- GENERIC ECTO SYSTEM DIALOGUE -->
 <div id="ectoDialogOverlay" class="ecto-dialog-overlay hidden" aria-hidden="true">
@@ -4103,6 +4071,97 @@ window.addEventListener("load",post);
 
 })();
 </script>
+<style>
+/* V2.2.36/37 // ECTO UI LANGUAGE // DISPATCH SELECTORS */
+.ecto-ui-popup-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:12000;display:flex;align-items:center;justify-content:center;padding:14px;box-sizing:border-box}
+.ecto-ui-popup{width:min(680px,100%);max-height:86vh;display:flex;flex-direction:column;background:var(--ui-panel);border:1px solid var(--ui-accent);box-shadow:0 0 0 1px var(--ui-grid);}
+.ecto-ui-popup-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-bottom:1px solid var(--ui-border);flex:0 0 auto}
+.ecto-ui-popup-head b{letter-spacing:1px;color:var(--ui-accent)}
+.ecto-ui-popup-body{padding:10px;overflow:auto;min-height:0}
+.ecto-ui-popup-foot{display:flex;gap:8px;justify-content:flex-end;padding:9px 10px;border-top:1px solid var(--ui-border);flex:0 0 auto;flex-wrap:wrap}
+.ecto-ui-record{width:100%;box-sizing:border-box;text-align:left;border:1px solid var(--ui-grid);background:var(--ui-deep);color:var(--ui-accent);padding:11px;min-height:52px;margin-bottom:6px;cursor:pointer;font:inherit}
+.ecto-ui-record.active{border-color:var(--ui-accent);background:rgba(115,255,128,.07);box-shadow:inset 3px 0 0 var(--ui-accent)}
+.ecto-ui-record.disabled{opacity:.45;cursor:not-allowed}
+.ecto-ui-record-title{display:block;font-weight:bold;letter-spacing:.7px}.ecto-ui-record-meta{display:block;color:var(--ui-dim);font-size:10px;margin-top:3px}
+.ecto-ui-group{color:var(--ui-blue);font-size:10px;letter-spacing:1px;margin:12px 0 6px;border-bottom:1px solid var(--ui-grid);padding-bottom:4px}
+@media(max-width:600px){.ecto-ui-popup-backdrop{padding:8px}.ecto-ui-popup{max-height:92vh}.ecto-ui-popup-foot button{flex:1 1 140px;min-height:48px}}
+</style>
+<div id="ectoUiPopupRoot" class="hidden"></div>
+<script>
+/* V2.2.36/37 // ECTO UI LANGUAGE // REUSABLE DATABASE SELECTOR */
+(function(){
+  "use strict";
+  const root=document.getElementById("ectoUiPopupRoot"); if(!root)return;
+  const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+  let current=null;
+  function close(){root.classList.add("hidden");root.innerHTML="";current=null;}
+  function open(title,subtitle,groups,onSelect){
+    current={selected:null,onSelect};
+    root.className="ecto-ui-popup-backdrop";
+    root.innerHTML=`<div class="ecto-ui-popup" role="dialog" aria-modal="true"><div class="ecto-ui-popup-head"><div><b>${esc(title)}</b><div class="dim" style="margin-top:3px;">${esc(subtitle||"")}</div></div><button type="button" id="ectoUiClose">X</button></div><div class="ecto-ui-popup-body" id="ectoUiPopupBody"></div><div class="ecto-ui-popup-foot"><button type="button" id="ectoUiCancel">CANCEL</button><button type="button" id="ectoUiSelect" disabled>SELECT</button></div></div>`;
+    const body=document.getElementById("ectoUiPopupBody");
+    groups.forEach(g=>{
+      const h=document.createElement("div");h.className="ecto-ui-group";h.textContent=g.label;body.appendChild(h);
+      (g.items||[]).forEach(item=>{
+        const b=document.createElement("button");b.type="button";b.className="ecto-ui-record"+(item.disabled?" disabled":"");b.disabled=!!item.disabled;
+        b.innerHTML=`<span class="ecto-ui-record-title">${esc(item.title)}</span><span class="ecto-ui-record-meta">${esc(item.meta||"")}</span>`;
+        b.addEventListener("click",()=>{if(item.disabled)return;current.selected=item;body.querySelectorAll(".ecto-ui-record").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.getElementById("ectoUiSelect").disabled=false;});
+        body.appendChild(b);
+      });
+    });
+    document.getElementById("ectoUiClose").onclick=close;document.getElementById("ectoUiCancel").onclick=close;
+    document.getElementById("ectoUiSelect").onclick=()=>{if(current?.selected){const fn=current.onSelect;const item=current.selected;close();if(fn)fn(item);}};
+  }
+  window.ectoUiLanguage={open,close};
+  root.addEventListener("click",e=>{if(e.target===root)close();});
+
+  function activeLocation(){return Array.isArray(window.ukFranchises)?window.ukFranchises[window.selectedMapIndex??0]:null;}
+  function locationIndex(){return Number.isInteger(window.selectedMapIndex)?window.selectedMapIndex:0;}
+  function showDeployment(){
+    const b=document.getElementById("openDeploymentControlBtn"); if(b)b.onclick=()=>{document.querySelectorAll(".screen").forEach(sc=>sc.classList.toggle("active",sc.id==="fieldops"));document.querySelectorAll("[data-screen]").forEach(n=>n.classList.toggle("active",n.dataset.screen==="fieldops"));if(typeof window.renderPreflight==="function")window.renderPreflight();};
+  }
+  function showVehicleSelector(){
+    const b=document.getElementById("openVehicleSelectorBtn"); if(!b||b.__ectoBound)return; b.__ectoBound=true;
+    b.onclick=()=>{
+      const f=activeLocation(); if(!f){return;}
+      const fleet=window.ectoDispatchFleet?.get?.()||[];
+      const rows=fleet.filter(v=>String(v.defaultLocation||"").split(" [")[0]===String(f.city||"") && String(v.status||"").toUpperCase()==="AVAILABLE");
+      const items=rows.length?rows.map(v=>({title:v.name,meta:`${v.type||"ECTO VEHICLE"} // ${v.callsign||v.id}`,value:v})): [{title:"NO VEHICLE REGISTERED",meta:"ADD AN ECTO VEHICLE IN CONFIGURATION",disabled:true}];
+      window.ectoUiLanguage.open("ECTO VEHICLE DATABASE",`${String(f.city||"").toUpperCase()} // AVAILABLE VEHICLES`,[{label:"AVAILABLE ECTO VEHICLES",items}],item=>{
+        f.dispatchVehicleId=item.value.id;f.dispatchVehicleName=item.value.name;f.dispatchVehicleType=item.value.type||"ECTO VEHICLE";
+        if(typeof window.ectoDispatchFleet?.refresh==='function')window.ectoDispatchFleet.refresh();
+      });
+    };
+  }
+  function showSiteSelector(){
+    const b=document.getElementById("openSiteSelectorBtn"); if(!b||b.__ectoBound)return; b.__ectoBound=true;
+    b.onclick=()=>{
+      const f=activeLocation(); if(!f)return;
+      const sites=Array.isArray(f.sites)?f.sites:[];
+      const items=sites.length?sites.map((s,i)=>({title:s.name,meta:`${s.siteId||"SITE"} // ${s.status||"MONITORING"} // ${s.threat||"LOW"}`,value:{site:s,index:i}})):[{title:"NO INVESTIGATION SITES",meta:"ADD SITES THROUGH LOCATION MANAGEMENT",disabled:true}];
+      window.ectoUiLanguage.open("ECTO LOCATION DATABASE",`${String(f.city||"").toUpperCase()} // INVESTIGATION SITES`,[{label:"REGISTERED FIELD LOCATIONS",items}],item=>{window.selectedSiteIndex=item.value.index;if(typeof window.renderCitySites==='function')window.renderCitySites();if(typeof window.updateMapDossier==='function')window.updateMapDossier(locationIndex());});
+    };
+  }
+  function updateSummaries(){
+    const f=activeLocation(); if(!f)return;
+    const v=(window.ectoDispatchFleet?.get?.()||[]).find(x=>String(x.id)===String(f.dispatchVehicleId));
+    const vs=document.getElementById("dispatchVehicleSummary");if(vs)vs.textContent=v?.name||f.dispatchVehicleName||"NOT ASSIGNED";
+    const ss=document.getElementById("selectedSiteSummary"),s=Array.isArray(f.sites)?f.sites[window.selectedSiteIndex??0]:null;if(ss)ss.textContent=s?.name||"CITY REGION";
+    const st=document.getElementById("dispatchVehicleStatus");if(st)st.textContent=v?`VEHICLE ASSIGNED // ${v.name}`:"NO VEHICLE ASSIGNED";
+  }
+  function sitePopupAfterLocation(){
+    const list=document.getElementById("ukCitySectorList");if(!list||list.__ectoSiteBound)return;list.__ectoSiteBound=true;
+    list.addEventListener("click",()=>setTimeout(()=>{const f=activeLocation();if(!f)return;updateSummaries();const sites=Array.isArray(f.sites)?f.sites:[];if(!sites.length)return;showSiteSelector();const items=sites.map((s,i)=>({title:s.name,meta:`${s.siteId||"SITE"} // ${s.status||"MONITORING"} // ${s.threat||"LOW"}`,value:{site:s,index:i}}));window.ectoUiLanguage.open("ECTO LOCATION DATABASE",`${String(f.city||"").toUpperCase()} // INVESTIGATION SITES`,[{label:"REGISTERED FIELD LOCATIONS",items}],item=>{window.selectedSiteIndex=item.value.index;if(typeof window.renderCitySites==='function')window.renderCitySites();if(typeof window.updateMapDossier==='function')window.updateMapDossier(locationIndex());updateSummaries();});},80));
+  }
+  function patchDeploymentSummary(){
+    const field=document.getElementById("fieldops");if(!field||field.__ectoBound)return;field.__ectoBound=true;
+    const obs=new MutationObserver(updateSummaries);obs.observe(field,{subtree:true,childList:true});
+  }
+  function init(){showDeployment();showVehicleSelector();showSiteSelector();sitePopupAfterLocation();patchDeploymentSummary();updateSummaries();}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
+  setInterval(()=>{showDeployment();showVehicleSelector();showSiteSelector();sitePopupAfterLocation();updateSummaries();},1000);
+})();
+</script>
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
@@ -4133,13 +4192,12 @@ if ('serviceWorker' in navigator) {
   function location(){
     return (typeof ukFranchises!=="undefined"&&Array.isArray(ukFranchises))?ukFranchises[selectedMapIndex]:null;
   }
-  function locationKey(v){return String(v||"").split(" [")[0].trim().toUpperCase();}
   function vehiclesForLocation(f){
     if(!f)return[];
     const configured=Array.isArray(f.dispatchVehicles)?f.dispatchVehicles:[];
     if(configured.length)return configured.map((v,i)=>typeof v==="string"?{id:"custom-"+i,name:v,type:"FRANCHISE VEHICLE",status:"AVAILABLE"}:v);
-    const match=fleet.filter(v=>locationKey(v.defaultLocation)===locationKey(f.city));
-    return match.length?match:[{id:"unassigned",name:"NO VEHICLE ASSIGNED",type:"ASSIGN A VEHICLE IN CONFIGURATION",status:"UNAVAILABLE"}];
+    const match=fleet.filter(v=>String(v.defaultLocation||"").split(" [")[0]===String(f.city||""));
+    return match.length?match:[{id:"unassigned",name:"UNASSIGNED VEHICLE",type:"NO VEHICLE REGISTERED FOR THIS LOCATION",status:"UNAVAILABLE"}];
   }
   function selectedVehicle(){
     const f=location(); if(!f||!f.dispatchVehicleId)return null;
@@ -4148,36 +4206,29 @@ if ('serviceWorker' in navigator) {
   function log(msg,type){if(typeof window.log==='function')window.log(msg,type||"info");}
   function renderVehicles(){
     const list=q("dispatchVehicleList"),status=q("dispatchVehicleStatus");
-    const value=q("dispatchVehicleValue");
-    const f=location(), rows=f?vehiclesForLocation(f):[], selected=selectedVehicle();
-    if(value){value.innerHTML=selected?`<b>${escapeHtml(selected.name||"UNNAMED VEHICLE")}</b><span>${escapeHtml(selected.type||"ECTO VEHICLE")} // ${escapeHtml(selected.status||"AVAILABLE")}</span>`:`<b>NO VEHICLE ASSIGNED</b><span>${f?"SELECT AN AVAILABLE ECTO VEHICLE":"SELECT A FIELD LOCATION FIRST"}</span>`;}
-    if(status)status.textContent=selected?`VEHICLE ASSIGNED // ${selected.name} // ${selected.type}`:"NO VEHICLE ASSIGNED";
-    if(list)list.innerHTML="";
-  }
-  function closeSelector(){const o=q("ectoSelectorOverlay");if(o){o.classList.add("hidden");o.setAttribute("aria-hidden","true");}}
-  function openSelector(kind){
-    const o=q("ectoSelectorOverlay"),list=q("ectoSelectorList"),title=q("ectoSelectorTitle"),hint=q("ectoSelectorHint"),code=q("ectoSelectorCode");
-    if(!o||!list)return;
-    list.innerHTML="";
-    if(kind==="location"){
-      title.textContent="ECTO LOCATION DATABASE"; code.textContent="SEL-LOC"; hint.textContent=`${ukFranchises.length} REGISTERED FIELD LOCATION${ukFranchises.length===1?"":"S"} // SELECT DEPLOYMENT TARGET`;
-      const groups={}; ukFranchises.forEach((f,i)=>{const g=typeof getUkGridRef==='function'?getUkGridRef(f):"UK NETWORK";(groups[g]??=[]).push({f,i});});
-      Object.keys(groups).sort().forEach(g=>{const h=document.createElement("div");h.className="ecto-selector-group";h.textContent=`UK SECTOR // ${g}`;list.appendChild(h);groups[g].forEach(({f,i})=>{const b=document.createElement("button");b.type="button";b.className="ecto-selector-item";b.innerHTML=`<b>${escapeHtml(locationDisplayName(f).toUpperCase())}</b><span>${escapeHtml(typeof getCityGridRef==='function'?getCityGridRef(f):"")} // ${escapeHtml(f.region||"UK")} // ${escapeHtml(f.locationId||"")}</span>`;b.onclick=()=>{selectSector(i);closeSelector();renderDispatchSelection();};list.appendChild(b);});});
-    }else if(kind==="team"){
-      const f=location(); title.textContent="ECTO TEAM DATABASE"; code.textContent="SEL-TEAM"; const teams=f&&Array.isArray(f.teams)?f.teams:[]; hint.textContent=teams.length?`${teams.length} TEAM${teams.length===1?"":"S"} AVAILABLE AT ${String(f.city||"").toUpperCase()}`:"NO TEAMS CURRENTLY ASSIGNED TO THIS LOCATION";
-      teams.forEach((t,i)=>{const b=document.createElement("button");b.type="button";b.className=`ecto-selector-item${i===activeSubTeamIndex?" active":""}`;b.innerHTML=`<b>${escapeHtml(t.teamName||`TEAM ${i+1}`)}</b><span>${t.members?.length||0} OPERATIVES // ${escapeHtml((t.members||[]).map(m=>m.name).join(" // ")||"NO OPERATIVES")}</span>`;b.onclick=()=>{activeSubTeamIndex=i;renderSelectedLocationTeams(selectedMapIndex);renderPreflight();updateReadiness();renderDispatchSelection();closeSelector();};list.appendChild(b);});
-    }else if(kind==="vehicle"){
-      const f=location(), rows=f?vehiclesForLocation(f):[]; title.textContent="ECTO VEHICLE FLEET"; code.textContent="SEL-VEH"; hint.textContent=f?`${rows.filter(v=>String(v.status||"AVAILABLE").toUpperCase()==="AVAILABLE").length} AVAILABLE VEHICLE${rows.filter(v=>String(v.status||"AVAILABLE").toUpperCase()==="AVAILABLE").length===1?"":"S"} // ${String(f.city||"").toUpperCase()}`:"SELECT A FIELD LOCATION FIRST";
-      rows.forEach(v=>{const available=String(v.status||"AVAILABLE").toUpperCase()==="AVAILABLE"&&String(v.id)!=="unassigned";const b=document.createElement("button");b.type="button";b.className=`ecto-selector-item${selectedVehicle()&&String(selectedVehicle().id)===String(v.id)?" active":""}`;b.disabled=!available;b.innerHTML=`<b>${escapeHtml(v.name||"UNNAMED VEHICLE")}</b><span>${escapeHtml(v.type||"ECTO VEHICLE")} // ${escapeHtml(v.status||"AVAILABLE")}</span>`;if(available)b.onclick=()=>{f.dispatchVehicleId=v.id;f.dispatchVehicleName=v.name;f.dispatchVehicleType=v.type||"ECTO VEHICLE";f.actionHistory=Array.isArray(f.actionHistory)?f.actionHistory:[];f.actionHistory.unshift({time:(typeof window.getNowTime==='function'?window.getNowTime():new Date().toTimeString().slice(0,8)),text:`${v.name} ASSIGNED TO ${f.city}`});deploymentCheckPassed=false;renderVehicles();if(typeof updateMapDossier==='function')updateMapDossier(selectedMapIndex);renderPreflightVehicle();refreshDeployButton();renderDispatchSelection();log(`DISPATCH VEHICLE ASSIGNED // ${v.name} // ${f.city}.`,"info");closeSelector();};list.appendChild(b);});
-    }
-    o.classList.remove("hidden"); o.setAttribute("aria-hidden","false");
-  }
-  function renderDispatchSelection(){
-    const f=location(),team=selectedTeam(),vehicle=selectedVehicle();
-    const lv=q("dispatchLocationValue"),tv=q("dispatchTeamValue"),vv=q("dispatchVehicleValue");
-    if(lv)lv.innerHTML=f?`<b>${escapeHtml(locationDisplayName(f).toUpperCase())}</b><span>${escapeHtml(typeof getUkGridRef==='function'?getUkGridRef(f):"")} // ${escapeHtml(typeof getCityGridRef==='function'?getCityGridRef(f):"")}</span>`:`<b>NO LOCATION SELECTED</b><span>SELECT A FIELD LOCATION</span>`;
-    if(tv)tv.innerHTML=team?`<b>${escapeHtml(team.teamName||"UNNAMED TEAM")}</b><span>${team.members?.length||0} OPERATIVES // TEAM ${activeSubTeamIndex+1}</span>`:`<b>NO TEAM SELECTED</b><span>${f?"SELECT A TEAM FOR DEPLOYMENT":"SELECT A FIELD LOCATION FIRST"}</span>`;
-    if(vv)vv.innerHTML=vehicle?`<b>${escapeHtml(vehicle.name||"UNNAMED VEHICLE")}</b><span>${escapeHtml(vehicle.type||"ECTO VEHICLE")} // ${escapeHtml(vehicle.status||"AVAILABLE")}</span>`:`<b>NO VEHICLE ASSIGNED</b><span>${f?"SELECT AN AVAILABLE ECTO VEHICLE":"SELECT A FIELD LOCATION FIRST"}`;
+    if(!list||!status)return;
+    const f=location();
+    if(!f){list.innerHTML='<div class="dim">SELECT A FIELD LOCATION FIRST</div>';status.textContent="NO VEHICLE ASSIGNED";return;}
+    const rows=vehiclesForLocation(f), selected=selectedVehicle();
+    list.innerHTML=rows.map(v=>{
+      const busy=String(v.status||"AVAILABLE").toUpperCase()!=="AVAILABLE";
+      const active=selected&&String(selected.id)===String(v.id);
+      return `<div class="dispatch-vehicle-card${active?" active":""}${busy?" busy":""}" data-dispatch-vehicle="${String(v.id).replace(/[^a-zA-Z0-9_-]/g,"")}"><div class="vehicle-name">${escapeHtml(v.name||"UNNAMED VEHICLE")}</div><div class="vehicle-meta">${escapeHtml(v.type||"ECTO VEHICLE")} // ${busy?escapeHtml(v.status):"AVAILABLE"}</div></div>`;
+    }).join("");
+    list.querySelectorAll("[data-dispatch-vehicle]").forEach(card=>card.addEventListener("click",()=>{
+      const v=rows.find(x=>String(x.id).replace(/[^a-zA-Z0-9_-]/g,"")===card.dataset.dispatchVehicle);
+      if(!v||String(v.id)==="unassigned"||String(v.status||"AVAILABLE").toUpperCase()!=="AVAILABLE")return;
+      f.dispatchVehicleId=v.id; f.dispatchVehicleName=v.name; f.dispatchVehicleType=v.type||"ECTO VEHICLE";
+      f.actionHistory=Array.isArray(f.actionHistory)?f.actionHistory:[];
+      f.actionHistory.unshift({time:(typeof window.getNowTime==='function'?window.getNowTime():new Date().toTimeString().slice(0,8)),text:`${v.name} ASSIGNED TO ${f.city}`});
+      deploymentCheckPassed=false;
+      renderVehicles();
+      if(typeof updateMapDossier==='function')updateMapDossier(selectedMapIndex);
+      renderPreflightVehicle();
+      log(`DISPATCH VEHICLE ASSIGNED // ${v.name} // ${f.city}.`,"info");
+      refreshDeployButton();
+    }));
+    status.textContent=selected?`VEHICLE ASSIGNED // ${selected.name} // ${selected.type}`:"NO VEHICLE ASSIGNED // SELECT A VEHICLE BEFORE PRE-FLIGHT";
   }
   function renderPreflightVehicle(){
     const f=location(),v=selectedVehicle(),el=q("dispatchVehiclePreflight");
@@ -4280,13 +4331,8 @@ if ('serviceWorker' in navigator) {
   }
   window.ectoDispatchFleet={get:()=>fleet,refresh:()=>{renderVehicles();renderPreflightVehicle();refreshDeployButton();},save:saveFleet};
   function init(){
-    renderVehicles();renderDispatchSelection();injectPreflightVehicle();renderPreflightVehicle();addDispatchControls();patchPreflightEntry();observeDeploymentCheck();observeMap();patchDossier();refreshDeployButton();
-    q("openDispatchLocationBtn")?.addEventListener("click",()=>openSelector("location"));
-    q("openDispatchTeamBtn")?.addEventListener("click",()=>openSelector("team"));
-    q("openDispatchVehicleBtn")?.addEventListener("click",()=>openSelector("vehicle"));
-    q("closeEctoSelectorBtn")?.addEventListener("click",closeSelector);
-    q("ectoSelectorOverlay")?.addEventListener("click",e=>{if(e.target===q("ectoSelectorOverlay"))closeSelector();});
-    setInterval(()=>{addDispatchControls();patchPreflightEntry();observeDeploymentCheck();observeMap();renderVehicles();renderDispatchSelection();renderPreflightVehicle();refreshDeployButton();},1200);
+    renderVehicles();injectPreflightVehicle();renderPreflightVehicle();addDispatchControls();patchPreflightEntry();observeDeploymentCheck();observeMap();patchDossier();refreshDeployButton();
+    setInterval(()=>{addDispatchControls();patchPreflightEntry();observeDeploymentCheck();observeMap();renderVehicles();renderPreflightVehicle();refreshDeployButton();},1200);
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
