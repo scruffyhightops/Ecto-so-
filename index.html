@@ -431,6 +431,9 @@ main{
 .equipment-status{font-size:9px;font-weight:bold;color:#ffb000;letter-spacing:1px}.equipment-item.equipped .equipment-status{color:var(--ui-accent)}
 .giga-box{margin-top:8px;border:1px solid #39a9ff;background:#030b12;padding:8px}.giga-box .equipment-item{border-color:#1d5570;background:#02080c}.giga-box .equipment-item.equipped{border-color:#39a9ff;background:#06121a}
 .giga-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;color:#39a9ff;font-size:10px;letter-spacing:1px}
+.primary-loadout{margin-bottom:8px;border:1px solid var(--ui-border);background:var(--ui-deep);padding:8px}.primary-loadout-label{display:flex;justify-content:space-between;gap:8px;align-items:center;color:var(--ui-accent);font-size:10px;letter-spacing:1px;margin-bottom:6px}.primary-loadout-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}.primary-loadout-option{appearance:none;border:1px solid var(--ui-grid);background:#030a03;color:var(--ui-accent);padding:8px;min-height:42px;text-align:left;font:inherit;font-size:10px;letter-spacing:.6px;cursor:pointer}.primary-loadout-option:hover{border-color:var(--ui-accent)}.primary-loadout-option.selected{border-color:var(--ui-accent);background:#061506;box-shadow:inset 3px 0 0 var(--ui-accent)}.primary-loadout-option span{display:block}.primary-loadout-option .primary-state{margin-top:3px;font-size:9px;color:var(--ui-dim)}.primary-loadout-option.selected .primary-state{color:var(--ui-accent)}
+@media(max-width:600px){.primary-loadout-options{grid-template-columns:1fr}}
+
 @media(max-width:900px){.preflight-assignments{grid-template-columns:1fr}.preflight-member-selector{max-height:220px}}
 
 :root{--ui-accent:#73ff80;--ui-border:#1c6924;--ui-dim:#4e9b57;--ui-panel:#040e04;--ui-deep:#010401;--ui-grid:#164c1c;--ui-blue:#39a9ff}
@@ -1726,14 +1729,20 @@ window.addEventListener("load",post);
     document.addEventListener("DOMContentLoaded",()=>{initEctoSelectSystem();initEctoAdminSelectionPanels();},{once:true});
   }else{initEctoSelectSystem();initEctoAdminSelectionPanels();}
 
-  const coreEquipment=["Proton Pack","PKE Meter","Ghost Trap","Ecto Goggles"];
+  const primaryEquipment=["Proton Pack","Slime Blower"];
+  const standardEquipment=["PKE Meter","Ghost Trap","Ecto Goggles"];
+  const coreEquipment=[...standardEquipment];
   const optionalEquipment="Giga-Metre";
-  const equipmentCatalog=[...coreEquipment,optionalEquipment];
+  const equipmentCatalog=[...primaryEquipment,...standardEquipment,optionalEquipment];
   const ensureMemberPreflight=(member)=>{
-    member.preflightEquipment=[...coreEquipment];
+    if(!member.primaryEquipment || !primaryEquipment.includes(member.primaryEquipment)){
+      member.primaryEquipment = (member.preflightChecks && member.preflightChecks["Slime Blower"]) ? "Slime Blower" : "Proton Pack";
+    }
     if(!member.preflightChecks || typeof member.preflightChecks!=="object") member.preflightChecks={};
-    equipmentCatalog.forEach(eq=>{if(member.preflightChecks[eq]===undefined) member.preflightChecks[eq]=false;});
+    standardEquipment.forEach(eq=>{if(member.preflightChecks[eq]===undefined) member.preflightChecks[eq]=false;});
+    primaryEquipment.forEach(eq=>{if(member.preflightChecks[eq]===undefined) member.preflightChecks[eq]=false;});
     if(member.preflightSelected===undefined) member.preflightSelected=true;
+    member.preflightEquipment=[member.primaryEquipment,...standardEquipment.filter(eq=>member.preflightChecks[eq]),...(member.preflightChecks[optionalEquipment]?[optionalEquipment]:[])];
   };
   let selectedMapIndex = 0;
   let activeSubTeamIndex = 0;
@@ -2195,16 +2204,19 @@ window.addEventListener("load",post);
     });
     const selected=team.members.filter(m=>m.preflightSelected);
     assignments.innerHTML=selected.length ? selected.map(m=>{
-      const readyCount=coreEquipment.filter(eq=>m.preflightChecks[eq]).length, complete=readyCount===coreEquipment.length;
-      const coreHtml=coreEquipment.map(eq=>`<div class="equipment-item${m.preflightChecks[eq]?" equipped":""}" data-member="${team.members.indexOf(m)}" data-equipment="${eq}"><span>${eq}</span><span class="equipment-status">${m.preflightChecks[eq]?"EQUIPPED":"EQUIP"}</span></div>`).join("");
-      return `<div class="preflight-card${complete?" ready":""}"><div class="preflight-card-header"><b>${m.name}</b><span class="dim">${readyCount}/4 STANDARD EQUIPPED</span></div><div class="dim" style="margin-bottom:6px;">${m.role} // STANDARD FIELD LOADOUT</div><div class="equipment-list">${coreHtml}</div><div class="giga-box"><div class="giga-label"><span>OPTIONAL EQUIPMENT</span><span>SEPARATE LOADOUT</span></div><div class="equipment-item${m.preflightChecks[optionalEquipment]?" equipped":""}" data-member="${team.members.indexOf(m)}" data-equipment="${optionalEquipment}"><span>${optionalEquipment}</span><span class="equipment-status">${m.preflightChecks[optionalEquipment]?"EQUIPPED":"OPTIONAL"}</span></div></div></div>`;
+      const standardCount=standardEquipment.filter(eq=>m.preflightChecks[eq]).length;
+      const complete=!!m.primaryEquipment && standardCount===standardEquipment.length;
+      const primaryHtml=primaryEquipment.map(eq=>`<button type="button" class="primary-loadout-option${m.primaryEquipment===eq?" selected":""}" data-member="${team.members.indexOf(m)}" data-primary-equipment="${eq}"><span>${eq}</span><span class="primary-state">${m.primaryEquipment===eq?"PRIMARY UNIT SELECTED":"SELECT AS PRIMARY"}</span></button>`).join("");
+      const coreHtml=standardEquipment.map(eq=>`<div class="equipment-item${m.preflightChecks[eq]?" equipped":""}" data-member="${team.members.indexOf(m)}" data-equipment="${eq}"><span>${eq}</span><span class="equipment-status">${m.preflightChecks[eq]?"EQUIPPED":"EQUIP"}</span></div>`).join("");
+      return `<div class="preflight-card${complete?" ready":""}"><div class="preflight-card-header"><b>${m.name}</b><span class="dim">${complete?"PREFLIGHT READY":`${standardCount}/3 STANDARD EQUIPPED`}</span></div><div class="dim" style="margin-bottom:6px;">${m.role} // TEAM MEMBER LOADOUT</div><div class="primary-loadout"><div class="primary-loadout-label"><span>PRIMARY FIELD UNIT</span><span>SELECT ONE</span></div><div class="primary-loadout-options">${primaryHtml}</div></div><div class="equipment-list">${coreHtml}</div><div class="giga-box"><div class="giga-label"><span>OPTIONAL EQUIPMENT</span><span>SEPARATE LOADOUT</span></div><div class="equipment-item${m.preflightChecks[optionalEquipment]?" equipped":""}" data-member="${team.members.indexOf(m)}" data-equipment="${optionalEquipment}"><span>${optionalEquipment}</span><span class="equipment-status">${m.preflightChecks[optionalEquipment]?"EQUIPPED":"OPTIONAL"}</span></div></div></div>`;
     }).join("") : '<div class="dim" style="padding:10px;border:1px solid var(--ui-grid);background:var(--ui-deep);">NO OPERATIVES SELECTED // CHOOSE AT LEAST ONE TEAM MEMBER ABOVE</div>';
-    assignments.querySelectorAll("[data-equipment]").forEach(item=>item.onclick=()=>{const m=team.members[+item.dataset.member],eq=item.dataset.equipment;m.preflightChecks[eq]=!m.preflightChecks[eq];renderPreflight();updateReadiness();log(`${m.name}: ${eq} ${m.preflightChecks[eq]?"EQUIPPED":"REMOVED FROM LOADOUT"}.`,m.preflightChecks[eq]?"info":"warn");});
+    assignments.querySelectorAll("[data-primary-equipment]").forEach(item=>item.onclick=()=>{const m=team.members[+item.dataset.member],eq=item.dataset.primaryEquipment;m.primaryEquipment=eq;ensureMemberPreflight(m);renderPreflight();updateReadiness();log(`${m.name}: PRIMARY FIELD UNIT // ${eq}.`,"info");});
+    assignments.querySelectorAll("[data-equipment]").forEach(item=>item.onclick=()=>{const m=team.members[+item.dataset.member],eq=item.dataset.equipment;m.preflightChecks[eq]=!m.preflightChecks[eq];ensureMemberPreflight(m);renderPreflight();updateReadiness();log(`${m.name}: ${eq} ${m.preflightChecks[eq]?"EQUIPPED":"REMOVED FROM LOADOUT"}.`,m.preflightChecks[eq]?"info":"warn");});
   }
   function updateReadiness(){
     const r=$f("readiness"), diagBtn=$f("runDeploymentDiag"), team=getActivePreflightTeam(); if(!r||!diagBtn||!team)return;
     team.members.forEach(ensureMemberPreflight); const selected=team.members.filter(m=>m.preflightSelected);
-    const readyMembers=selected.filter(m=>coreEquipment.every(eq=>m.preflightChecks[eq])); const ready=selected.length>0&&readyMembers.length===selected.length;
+    const readyMembers=selected.filter(m=>!!m.primaryEquipment&&standardEquipment.every(eq=>m.preflightChecks[eq])); const ready=selected.length>0&&readyMembers.length===selected.length;
     r.textContent=!selected.length?"SELECT OPERATIVES":ready?`READY // ${selected.length} OPERATIVE${selected.length===1?"":"S"}`:`${readyMembers.length}/${selected.length} OPERATIVES READY`;
     r.style.color=ready?"var(--ui-accent)":selected.length?"#ffb000":"#ff5555"; if(ready)diagBtn.removeAttribute("disabled");else diagBtn.setAttribute("disabled","true");
   }
@@ -3336,7 +3348,7 @@ window.addEventListener("load",post);
       if(!team || !team.members.length) return false;
       team.members.forEach(ensureMemberPreflight);
       const selected=team.members.filter(m=>m.preflightSelected);
-      return selected.length>0 && selected.every(m=>coreEquipment.every(eq=>m.preflightChecks[eq]));
+      return selected.length>0 && selected.every(m=>!!m.primaryEquipment&&standardEquipment.every(eq=>m.preflightChecks[eq]));
     }
 
     function renderSectorActionHistory(index){
@@ -4146,7 +4158,7 @@ if ('serviceWorker' in navigator) {
   function preflightReady(){
     const t=selectedTeam();
     if(!t||!Array.isArray(t.members)||!t.members.length)return false;
-    return t.members.some(m=>m.preflightSelected&&typeof coreEquipment!=="undefined"&&Array.isArray(coreEquipment)&&coreEquipment.every(eq=>m.preflightChecks?.[eq]));
+    return t.members.some(m=>m.preflightSelected&&!!m.primaryEquipment&&typeof standardEquipment!=="undefined"&&Array.isArray(standardEquipment)&&standardEquipment.every(eq=>m.preflightChecks?.[eq]));
   }
   function dispatchReady(){return !!selectedVehicle()&&preflightReady()&&deploymentCheckPassed&&!dispatchBusy;}
   function refreshDeployButton(){
