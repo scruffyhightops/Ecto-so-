@@ -789,6 +789,16 @@ textarea{
 .screen#ukmap .dispatch-vehicle-status{margin-top:7px;padding:6px;border:1px dashed var(--ui-grid);font-size:9px;color:var(--ui-accent);letter-spacing:.6px;}
 .dispatch-vehicle-preflight{margin-top:7px;border:1px solid var(--ui-grid);padding:8px;}
 .dispatch-vehicle-preflight .dispatch-vehicle-value{color:var(--ui-accent);font-weight:bold;letter-spacing:.7px;}
+
+/* V2.2.33 ECTO vehicle fleet management */
+.vehicle-admin-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,.9fr);gap:12px;margin-top:10px}
+.vehicle-admin-list,.vehicle-admin-editor{border:1px solid var(--ui-grid);padding:10px;background:var(--ui-deep);min-width:0}
+.vehicle-admin-card{border:1px solid var(--ui-grid);padding:9px;margin-bottom:7px;cursor:pointer;min-height:44px}
+.vehicle-admin-card.active{border-color:var(--ui-accent);box-shadow:inset 0 0 0 1px var(--ui-accent)}
+.vehicle-admin-card .vname{font-weight:bold;letter-spacing:.7px}.vehicle-admin-card .vmeta{font-size:9px;color:var(--ui-dim);margin-top:3px;line-height:1.45}
+.vehicle-admin-field{display:block;margin:9px 0}.vehicle-admin-field>input{width:100%;margin-top:5px}
+.vehicle-admin-editor .ecto-choice-row{margin-top:5px}
+@media(max-width:720px){.vehicle-admin-grid{grid-template-columns:1fr}}
 </style>
 </head><body>
 <section id="boot"><div class="ecto-boot-frame"><div class="ecto-boot-top"><div class="ecto-boot-title">ECTO OS</div><div>PARANORMAL FIELD OPERATIONS COMPUTER</div><div>BOOT // V2.2.5</div></div><div class="ecto-boot-content"><div class="ecto-boot-panel"><div class="ecto-boot-panel-title">SYSTEM BOOT DIALOGUE</div><div id="post" class="ecto-boot-log"></div></div><div class="ecto-boot-panel"><div class="ecto-boot-panel-title">SYSTEM INITIALISATION</div><div class="ecto-boot-logo-space"><span>LOGO RESERVE<br><span class="dim">ECTO SYSTEM IDENTIFICATION</span></span></div><div class="ecto-boot-row"><span>FIELD COMPUTER</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>PKE SENSOR ARRAY</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>CONTAINMENT GRID</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>SPECTRAL DATABASE</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>UK THREAT NETWORK</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>AUDIO SYSTEM</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>CONFIGURATION INTERFACE</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-bar"><div id="ectoBootFill" class="ecto-boot-fill"></div></div><div class="ecto-boot-percent"><span>LOADING ECTO OS...</span><span id="ectoBootPercent">0%</span></div><div class="ecto-boot-status"><div>ALL SYSTEMS NOMINAL</div><div class="ecto-boot-ready">ECTO OS READY</div></div></div></div><div id="loginPanel" class="login hidden"><div class="login-title">SECURITY KERNEL // ACCESS REQUIRED</div><div class="row"><input id="accessCode" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="ENTER CLEARANCE CODE"><button id="authorise" type="button">AUTHORISE</button></div><div id="error"></div><div class="hint">ENTER = AUTHORISE // ESC = CLEAR // TRY: FIELD-1984 / GM-051 / AUTHOR</div><div id="verified" class="verified hidden"></div></div></div></section>
@@ -1243,6 +1253,23 @@ textarea{
         <div class="rgb-row"><label>G <input id="rgbG" type="range" min="0" max="255" value="255"><b id="rgbGVal">255</b></label></div>
         <div class="rgb-row"><label>B <input id="rgbB" type="range" min="0" max="255" value="128"><b id="rgbBVal">128</b></label></div>
         <button id="applyRgbBtn" type="button">APPLY RGB PROFILE</button>
+      </div>
+    </div>
+    <div class="panel" style="grid-column: span 2;" id="vehicleFleetManagementPanel">
+      <div class="panel-title">ECTO VEHICLE FLEET MANAGEMENT <span class="dim">[DISPATCH VEHICLE REGISTER]</span></div>
+      <div class="config-note">Register named ECTO vehicles used by the franchise network. Assign each vehicle to a field location so it appears in ECTO DISPATCH.</div>
+      <div class="vehicle-admin-grid">
+        <div class="vehicle-admin-list" id="vehicleAdminList"><div class="dim">NO VEHICLES REGISTERED.</div></div>
+        <div class="vehicle-admin-editor" id="vehicleAdminEditor">
+          <div class="panel-title">VEHICLE RECORD <span class="dim">[NEW / EDIT]</span></div>
+          <label class="vehicle-admin-field">VEHICLE NAME<input id="vehicleAdminName" type="text" autocapitalize="characters" autocomplete="off" placeholder="E.G. ECTO RESPONSE"></label>
+          <label class="vehicle-admin-field">VEHICLE TYPE<input id="vehicleAdminType" type="text" autocapitalize="characters" autocomplete="off" placeholder="E.G. SPORTS CAR"></label>
+          <label class="vehicle-admin-field">CALLSIGN / ID<input id="vehicleAdminCallsign" type="text" autocapitalize="characters" autocomplete="off" placeholder="E.G. ECTO-01"></label>
+          <div class="vehicle-admin-field"><div class="dim">HOME LOCATION</div><div class="ecto-choice-row" id="vehicleAdminLocationChoices"></div></div>
+          <div class="vehicle-admin-field"><div class="dim">VEHICLE STATUS</div><div class="ecto-choice-row" id="vehicleAdminStatusChoices"><button type="button" data-value="AVAILABLE">AVAILABLE</button><button type="button" data-value="STANDBY">STANDBY</button><button type="button" data-value="OUT OF SERVICE">OUT OF SERVICE</button></div></div>
+          <div class="button-row"><button type="button" id="saveVehicleAdminBtn">SAVE VEHICLE</button><button type="button" id="newVehicleAdminBtn">NEW VEHICLE</button><button type="button" id="deleteVehicleAdminBtn" disabled>DELETE VEHICLE</button></div>
+          <div id="vehicleAdminStatus" class="config-note" aria-live="polite"></div>
+        </div>
       </div>
     </div>
     <div class="panel" style="grid-column: span 2;">
@@ -4041,12 +4068,18 @@ if ('serviceWorker' in navigator) {
 (function(){
   "use strict";
   const q=id=>document.getElementById(id);
-  const fleet=[
-    {id:"ecto-response",name:"ECTO RESPONSE",type:"SPORTS CAR",defaultLocation:"Portsmouth [PSM-14]"},
-    {id:"ecto-01",name:"ECTO-01",type:"PRIMARY RESPONSE VEHICLE",defaultLocation:"London HQ [LON-01]"},
-    {id:"ecto-02",name:"ECTO-02",type:"SECONDARY RESPONSE VEHICLE",defaultLocation:"Edinburgh [EDI-02]"},
-    {id:"ecto-03",name:"ECTO-03",type:"FIELD SUPPORT VEHICLE",defaultLocation:"Manchester [MCR-03]"}
+  const DEFAULT_FLEET=[
+    {id:"ecto-response",name:"ECTO RESPONSE",type:"SPORTS CAR",callsign:"ECTO RESPONSE",defaultLocation:"Portsmouth [PSM-14]",status:"AVAILABLE"},
+    {id:"ecto-01",name:"ECTO-01",type:"PRIMARY RESPONSE VEHICLE",callsign:"ECTO-01",defaultLocation:"London HQ [LON-01]",status:"AVAILABLE"},
+    {id:"ecto-02",name:"ECTO-02",type:"SECONDARY RESPONSE VEHICLE",callsign:"ECTO-02",defaultLocation:"Edinburgh [EDI-02]",status:"STANDBY"},
+    {id:"ecto-03",name:"ECTO-03",type:"FIELD SUPPORT VEHICLE",callsign:"ECTO-03",defaultLocation:"Manchester [MCR-03]",status:"AVAILABLE"}
   ];
+  const VEHICLE_DB_KEY="ecto-os-vehicle-fleet-v1";
+  let fleet=[];
+  let fleetAdminSelectedId=null;
+  function loadFleet(){try{const raw=localStorage.getItem(VEHICLE_DB_KEY);const parsed=raw?JSON.parse(raw):null;fleet=Array.isArray(parsed)&&parsed.length?parsed:DEFAULT_FLEET.map(v=>({...v}));}catch(e){fleet=DEFAULT_FLEET.map(v=>({...v}));}}
+  function saveFleet(){try{localStorage.setItem(VEHICLE_DB_KEY,JSON.stringify(fleet));}catch(e){}}
+  loadFleet();
   let dispatchBusy=false;
   let deploymentCheckPassed=false;
 
@@ -4057,7 +4090,7 @@ if ('serviceWorker' in navigator) {
     if(!f)return[];
     const configured=Array.isArray(f.dispatchVehicles)?f.dispatchVehicles:[];
     if(configured.length)return configured.map((v,i)=>typeof v==="string"?{id:"custom-"+i,name:v,type:"FRANCHISE VEHICLE",status:"AVAILABLE"}:v);
-    const match=fleet.filter(v=>v.defaultLocation===f.city);
+    const match=fleet.filter(v=>String(v.defaultLocation||"").split(" [")[0]===String(f.city||""));
     return match.length?match:[{id:"unassigned",name:"UNASSIGNED VEHICLE",type:"NO VEHICLE REGISTERED FOR THIS LOCATION",status:"UNAVAILABLE"}];
   }
   function selectedVehicle(){
@@ -4190,10 +4223,42 @@ if ('serviceWorker' in navigator) {
     showScreen("incidents");
     setTimeout(()=>{dispatchBusy=false;deploymentCheckPassed=false;refreshDeployButton();},250);
   }
+  window.ectoDispatchFleet={get:()=>fleet,refresh:()=>{renderVehicles();renderPreflightVehicle();refreshDeployButton();},save:saveFleet};
   function init(){
     renderVehicles();injectPreflightVehicle();renderPreflightVehicle();addDispatchControls();patchPreflightEntry();observeDeploymentCheck();observeMap();patchDossier();refreshDeployButton();
     setInterval(()=>{addDispatchControls();patchPreflightEntry();observeDeploymentCheck();observeMap();renderVehicles();renderPreflightVehicle();refreshDeployButton();},1200);
   }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
+})();
+</script>
+<script>
+/* ECTO OS // ECTO VEHICLE FLEET MANAGEMENT
+   Isolated CRUD register for named franchise vehicles. */
+(function(){
+  "use strict";
+  const q=id=>document.getElementById(id);
+  const KEY="ecto-os-vehicle-fleet-v1";
+  const fallback=[
+    {id:"ecto-response",name:"ECTO RESPONSE",type:"SPORTS CAR",callsign:"ECTO RESPONSE",defaultLocation:"Portsmouth [PSM-14]",status:"AVAILABLE"},
+    {id:"ecto-01",name:"ECTO-01",type:"PRIMARY RESPONSE VEHICLE",callsign:"ECTO-01",defaultLocation:"London HQ [LON-01]",status:"AVAILABLE"},
+    {id:"ecto-02",name:"ECTO-02",type:"SECONDARY RESPONSE VEHICLE",callsign:"ECTO-02",defaultLocation:"Edinburgh [EDI-02]",status:"STANDBY"},
+    {id:"ecto-03",name:"ECTO-03",type:"FIELD SUPPORT VEHICLE",callsign:"ECTO-03",defaultLocation:"Manchester [MCR-03]",status:"AVAILABLE"}
+  ];
+  let records=[],selected=null,selectedLocation="",selectedStatus="AVAILABLE";
+  const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+  function load(){try{const r=JSON.parse(localStorage.getItem(KEY)||"null");records=Array.isArray(r)&&r.length?r:fallback.map(x=>({...x}));}catch(e){records=fallback.map(x=>({...x}));}}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(records));}catch(e){}}
+  function locations(){return Array.isArray(window.ukFranchises)?window.ukFranchises.map(f=>f.city).filter(Boolean):fallback.map(f=>f.defaultLocation.split(" [")[0]);}
+  function renderLocationChoices(){const box=q("vehicleAdminLocationChoices");if(!box)return;const vals=[...new Set(locations())];box.innerHTML=vals.map(v=>`<button type="button" data-vloc="${esc(v)}">${esc(v)}</button>`).join("");box.querySelectorAll("[data-vloc]").forEach(b=>b.addEventListener("click",()=>{selectedLocation=b.dataset.vloc;paintChoices(box,"vloc",selectedLocation)}));paintChoices(box,"vloc",selectedLocation);}
+  function paintChoices(box,attr,val){box.querySelectorAll(`[data-${attr}]`).forEach(b=>b.classList.toggle("active",b.getAttribute(`data-${attr}`)===val));}
+  function renderStatusChoices(){const box=q("vehicleAdminStatusChoices");if(!box)return;box.querySelectorAll("[data-value]").forEach(b=>b.addEventListener("click",()=>{selectedStatus=b.dataset.value;paintChoices(box,"value",selectedStatus)}));paintChoices(box,"value",selectedStatus);}
+  function renderList(){const box=q("vehicleAdminList");if(!box)return;if(!records.length){box.innerHTML='<div class="dim">NO VEHICLES REGISTERED.</div>';return;}box.innerHTML=records.map(v=>`<div class="vehicle-admin-card${v.id===selected?" active":""}" data-vid="${esc(v.id)}"><div class="vname">${esc(v.name||"UNNAMED VEHICLE")}</div><div class="vmeta">${esc(v.callsign||"NO CALLSIGN")} // ${esc(v.type||"ECTO VEHICLE")}<br>${esc(v.defaultLocation||"NO HOME LOCATION")} // ${esc(v.status||"AVAILABLE")}</div></div>`).join("");box.querySelectorAll("[data-vid]").forEach(c=>c.addEventListener("click",()=>edit(c.dataset.vid)));}
+  function setMessage(t){const el=q("vehicleAdminStatus");if(el)el.textContent=t||"";}
+  function clearEditor(){selected=null;selectedLocation="";selectedStatus="AVAILABLE";q("vehicleAdminName").value="";q("vehicleAdminType").value="";q("vehicleAdminCallsign").value="";q("deleteVehicleAdminBtn").disabled=true;renderLocationChoices();renderStatusChoices();renderList();setMessage("NEW VEHICLE RECORD // ENTER DETAILS AND SAVE.");}
+  function edit(id){const v=records.find(x=>x.id===id);if(!v)return;selected=id;selectedLocation=v.defaultLocation||"";selectedStatus=String(v.status||"AVAILABLE").toUpperCase();q("vehicleAdminName").value=v.name||"";q("vehicleAdminType").value=v.type||"";q("vehicleAdminCallsign").value=v.callsign||"";q("deleteVehicleAdminBtn").disabled=false;renderLocationChoices();renderStatusChoices();renderList();setMessage(`EDITING VEHICLE // ${v.name||id}`);}
+  function saveRecord(){const name=q("vehicleAdminName").value.trim().toUpperCase();if(!name){setMessage("VEHICLE NAME REQUIRED.");q("vehicleAdminName").focus();return;}const type=q("vehicleAdminType").value.trim().toUpperCase()||"ECTO VEHICLE";const callsign=q("vehicleAdminCallsign").value.trim().toUpperCase()||name;const loc=selectedLocation||"UNASSIGNED";if(selected){const v=records.find(x=>x.id===selected);if(v)Object.assign(v,{name,type,callsign,defaultLocation:loc,status:selectedStatus});}else{const id="vehicle-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,7);records.push({id,name,type,callsign,defaultLocation:loc,status:selectedStatus});selected=id;}save();renderList();if(window.ectoDispatchFleet?.refresh)window.ectoDispatchFleet.refresh();setMessage(`VEHICLE REGISTERED // ${name} // ${loc}`);}
+  function remove(){if(!selected)return;const v=records.find(x=>x.id===selected);if(!v)return;records=records.filter(x=>x.id!==selected);save();clearEditor();if(window.ectoDispatchFleet?.refresh)window.ectoDispatchFleet.refresh();setMessage(`VEHICLE REMOVED // ${v.name}`);}
+  function init(){load();renderList();renderLocationChoices();renderStatusChoices();q("saveVehicleAdminBtn")?.addEventListener("click",saveRecord);q("newVehicleAdminBtn")?.addEventListener("click",clearEditor);q("deleteVehicleAdminBtn")?.addEventListener("click",remove);q("vehicleAdminName")?.addEventListener("keydown",e=>{if(e.key==="Enter")saveRecord();});}
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
 </script>
