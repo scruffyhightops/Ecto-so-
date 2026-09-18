@@ -21,6 +21,10 @@ header{height:58px;border-bottom:1px solid var(--ui-border);display:flex;justify
 .logline{margin-bottom:4px}
 .logline.warn{color:#ffb000}.logline.alert{color:#ff5555}
 
+
+.containment-status-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.containment-status-grid .metric{min-width:0}.cg-error{color:#ff5555!important}.cg-warn{color:#ffb000!important}.cg-good{color:var(--ui-accent)!important}.cg-test-pass{color:var(--ui-accent)}.cg-test-warn{color:#ffb000}.cg-test-error{color:#ff5555}.cg-report{background:#fff;color:#000;padding:10px;font-family:monospace;line-height:1.5}.cg-report .rule{border-top:1px solid #000;margin:8px 0}.cg-report b{color:#000}.cg-stability-status{letter-spacing:1px}@media(max-width:720px){.containment-status-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media print{body.cg-printing>*:not(#containmentPrintReport){display:none!important}body.cg-printing{margin:0!important;padding:0!important;background:#fff!important;color:#000!important}body.cg-printing #containmentPrintReport{display:block!important;visibility:visible!important;width:180mm;margin:0 auto;background:#fff;color:#000;font-family:monospace;font-size:10pt;line-height:1.45;padding:8mm;box-sizing:border-box}body.cg-printing #containmentPrintReport *{color:#000!important;background:#fff!important;border-color:#000!important;box-shadow:none!important}}
+
 /* TACTICAL UK MAP COMPONENT STYLES */
 .tactical-map-wrapper{background:var(--ui-panel);color:var(--ui-accent);font-family:monospace;display:grid;grid-template-columns:minmax(0,1.7fr) minmax(300px,1fr);gap:12px;width:100%;box-sizing:border-box}
 .tactical-panel{background:#030c03;border:1px solid var(--ui-border);padding:12px;display:flex;flex-direction:column;position:relative;overflow:hidden}
@@ -831,30 +835,85 @@ textarea{
 </section>
 
 <section id="containment" class="screen">
-  <h1>CONTAINMENT & THERMAL</h1>
+  <h1>CONTAINMENT GRID // CENTRAL MONITOR</h1>
   <div class="grid">
-    <div class="panel">
-      <div class="panel-title">CONTAINMENT STATUS</div>
-      PRIMARY: <b>96%</b><br>SECONDARY: <b>91%</b><br>BUFFER: <b>98%</b><br>LEAKAGE: <b>0.7%</b>
-    </div>
-    <div class="panel">
-      <div class="panel-title">THERMAL SYSTEM</div>
-      CORE TEMPERATURE: <b>61°C</b><br>COOLANT: <b>93%</b><br>HEAT EXCHANGER: <b>89%</b>
-    </div>
-    
-    <!-- CONTAINMENT GRID ANALYSIS -->
-    <div class="panel" style="grid-column: span 2;">
-      <div class="panel-title">CONTAINMENT GRID ANALYSIS <span class="dim">[EMF / GRID STABILITY / FIELD SIMULATION]</span></div>
-      <div class="containment-readouts" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:8px;">
-        <div class="metric"><span>EMF LEVEL</span><b id="gridEmf">184.7 mG</b></div>
-        <div class="metric"><span>GRID STABILITY</span><b id="gridStability">96.2%</b></div>
-        <div class="metric"><span>FIELD SIMULATION</span><b id="fieldSimulation">NOMINAL</b></div>
+    <div class="panel" style="grid-column:span 2;">
+      <div class="panel-title">GRID SYSTEM STATUS <span class="dim">[CENTRAL CONTAINMENT CONTROL]</span></div>
+      <div class="containment-status-grid">
+        <div class="metric"><span>SYSTEM STATUS</span><b id="cgSystemStatus">ONLINE</b></div>
+        <div class="metric"><span>CONTAINMENT</span><b id="cgContainmentStatus">STABLE</b></div>
+        <div class="metric"><span>GRID LOAD</span><b id="cgGridLoad">68%</b></div>
+        <div class="metric"><span>FIELD INTEGRITY</span><b id="cgFieldIntegrity">94%</b></div>
+        <div class="metric"><span>EM FIELD</span><b id="cgEmField">NOMINAL</b></div>
+        <div class="metric"><span>POWER RESERVE</span><b id="cgPowerReserve">82%</b></div>
       </div>
-      <div class="containment-grid-description dim" style="font-size:10px;line-height:1.45;margin-bottom:8px;">Monitors electromagnetic activity, containment-grid stability and simulated field response. Detects fluctuations in the containment field and identifies unstable grid conditions before a potential breach.</div>
-      <canvas class="field-canvas" id="gridCanvas"></canvas>
     </div>
 
-    <!-- PKE SPECTRUM ANALYSIS PANEL -->
+    <div class="panel">
+      <div class="panel-title">EM FIELD // SPECTRUM</div>
+      <canvas class="field-canvas" id="ectoCanvas"></canvas>
+      <div class="metric"><span>EM RESPONSE</span><b id="cgEmResponse">NOMINAL</b></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">FIELD INTEGRITY // TRIANGLE WAVE</div>
+      <canvas class="field-canvas" id="gridCanvas"></canvas>
+      <div class="metric"><span>FIELD INTEGRITY</span><b id="cgFieldIntegrity2">94%</b></div>
+    </div>
+
+    <div class="panel" style="grid-column:span 2;">
+      <div class="panel-title">GRID STABILITY <span id="cgGridStabilityLabel" class="dim">[NOMINAL]</span></div>
+      <canvas class="field-canvas" id="cgStabilityCanvas"></canvas>
+      <div class="metric"><span>GRID STABILITY</span><b id="cgGridStability">91%</b></div>
+      <div class="metric"><span>FIELD VARIANCE</span><b id="cgFieldVariance">+02%</b></div>
+      <div class="metric"><span>CONTAINMENT DRIFT</span><b id="cgContainmentDrift">00.4%</b></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">CONTAINMENT LOAD</div>
+      <div class="big" id="cgLoadBig">68%</div>
+      <div class="bar"><i id="cgLoadBar" style="width:68%"></i></div>
+      <div class="metric"><span>ACTIVE CELLS</span><b id="cgActiveCells">06 / 12</b></div>
+      <div class="metric"><span>AVAILABLE</span><b id="cgAvailableCells">06</b></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">SYSTEM RECOVERY</div>
+      <div class="dim" id="cgRecoveryText">GRID STATUS GREEN // NOMINAL OPERATION</div>
+      <div class="button-row">
+        <button id="cgRunTest" type="button">RUN GRID TEST</button>
+        <button id="cgReset" type="button" disabled>RESET GRID</button>
+      </div>
+      <div class="button-row">
+        <button id="cgAnalysis" type="button">FIELD ANALYSIS</button>
+        <button id="cgReports" type="button">REPORTS</button>
+      </div>
+    </div>
+
+    <div class="panel" style="grid-column:span 2;">
+      <div class="panel-title">CONTAINMENT GRID // SYSTEM LOG</div>
+      <div id="cgSystemLog" class="logbox" aria-live="polite"></div>
+    </div>
+
+    <div class="panel hidden" id="cgTestPanel" style="grid-column:span 2;">
+      <div class="panel-title">CONTAINMENT GRID // SYSTEM TEST</div>
+      <div id="cgTestOutput" class="logbox"></div>
+      <div class="button-row"><button id="cgCloseTest" type="button">CLOSE TEST</button></div>
+    </div>
+
+    <div class="panel hidden" id="cgAnalysisPanel" style="grid-column:span 2;">
+      <div class="panel-title">CONTAINMENT GRID // FIELD ANALYSIS</div>
+      <div id="cgAnalysisOutput" class="logbox"></div>
+      <div class="button-row"><button id="cgCloseAnalysis" type="button">CLOSE ANALYSIS</button></div>
+    </div>
+
+    <div class="panel hidden" id="cgReportsPanel" style="grid-column:span 2;">
+      <div class="panel-title">CONTAINMENT GRID // REPORTS</div>
+      <div id="cgReportOutput" class="logbox"></div>
+      <div class="button-row"><button id="cgGenerateReport" type="button">GENERATE STATUS REPORT</button><button id="cgPrintReport" type="button">PRINT REPORT</button><button id="cgCloseReports" type="button">CLOSE REPORTS</button></div>
+    </div>
+
+    <!-- Existing PKE monitor retained below the central grid system. -->
     <div class="panel" id="pkeAnalysisPanel">
       <div class="panel-title">PKE SPECTRUM ANALYSIS <span class="dim">[PSYCHOKINETIC MONITOR]</span></div>
       <canvas class="field-canvas" id="pkeCanvas"></canvas>
@@ -865,19 +924,6 @@ textarea{
         <audio id="pkeScanAudio" controls playsinline preload="auto" src="./sounds/pke-scan.mp3" aria-label="PKE spectrum scan sound"></audio>
       </div>
     </div>
-
-    <!-- ELECTROMAGNETIC ANALYSIS PANEL -->
-    <div class="panel" id="ectoAnalysisPanel">
-      <div class="panel-title">ELECTROMAGNETIC ANALYSIS <span class="dim">[ECTO-FIELD FLUX]</span></div>
-      <canvas class="field-canvas" id="ectoCanvas"></canvas>
-      <div class="metric"><span>INDUCTION RATE</span><b>14.2 Tesla/s</b></div>
-      <div class="metric"><span>PACK CORE TEMP</span><b id="ectoTemp">88.4 °C</b></div>
-      <div class="native-button-audio-test" id="ectoScanAudioWrap">
-        <button id="ectoScan">EXECUTE ELECTROMAGNETIC SCAN</button>
-        <audio id="ectoScanAudio" controls playsinline preload="auto" src="./sounds/ecto-scan.mp3" aria-label="Electromagnetic scan sound"></audio>
-      </div>
-    </div>
-
   </div>
 </section>
 
@@ -3117,7 +3163,10 @@ window.addEventListener("load",post);
         ctx.beginPath();
         for(let x = 0; x < w; x++){
           let y = h / 2;
-          if(kind === "grid") y += Math.sin(x * 0.028 + t * 0.003) * 18 + Math.sin(x * 0.19 + t * 0.006) * 5;
+          if(kind === "grid"){
+            const period=72, phase=(x + t*0.035) % period, tri=phase < period/2 ? (phase/(period/2))*2-1 : 1-((phase-period/2)/(period/2))*2;
+            y += tri * 27;
+          }
           if(kind === "diag") y += Math.sin(x * 0.05 + t * 0.006) * 30 + Math.cos(x * 0.02 + t * 0.003) * 14;
           x ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
         }
@@ -3881,9 +3930,101 @@ window.addEventListener("load",post);
     renderTeamRosterModalDetails(0);
     updateMapDossier(0);
 
+
+    // CENTRAL CONTAINMENT GRID MONITOR
+    (function(){
+      const cg={status:"GREEN",stability:91,field:94,load:68,power:82,emf:184.7,variance:2,drift:0.4,active:6,total:12,testRunning:false};
+      const q=id=>$f(id);
+      function cgLog(text,kind="info"){
+        const box=q("cgSystemLog"); if(!box)return;
+        const d=document.createElement("div"); d.className="logline"+(kind==="warn"?" warn":kind==="alert"?" alert":""); d.textContent=`[${getNowTime()}] ${text}`; box.prepend(d);
+        while(box.children.length>16)box.removeChild(box.lastChild);
+      }
+      function setState(status){
+        cg.status=status;
+        const label=q("cgGridStabilityLabel"), sys=q("cgSystemStatus"), cont=q("cgContainmentStatus"), reset=q("cgReset"), rec=q("cgRecoveryText");
+        const els=[label,sys,cont,rec];
+        els.forEach(e=>{if(e)e.classList.remove("cg-good","cg-warn","cg-error");});
+        if(status==="GREEN"){
+          if(label){label.textContent="[NOMINAL]";label.classList.add("cg-good");}
+          if(sys){sys.textContent="ONLINE";sys.classList.add("cg-good");}
+          if(cont){cont.textContent="STABLE";cont.classList.add("cg-good");}
+          if(rec){rec.textContent="GRID STATUS GREEN // NOMINAL OPERATION";rec.classList.add("cg-good");}
+          if(reset)reset.disabled=true;
+        }else if(status==="ORANGE"){
+          if(label){label.textContent="[VARIANCE DETECTED]";label.classList.add("cg-warn");}
+          if(sys){sys.textContent="ONLINE / WATCH";sys.classList.add("cg-warn");}
+          if(cont){cont.textContent="MONITOR";cont.classList.add("cg-warn");}
+          if(rec){rec.textContent="GRID STATUS ORANGE // INVESTIGATION ADVISED";rec.classList.add("cg-warn");}
+          if(reset)reset.disabled=false;
+        }else{
+          if(label){label.textContent="[ERROR]";label.classList.add("cg-error");}
+          if(sys){sys.textContent="FAULT";sys.classList.add("cg-error");}
+          if(cont){cont.textContent="UNSTABLE";cont.classList.add("cg-error");}
+          if(rec){rec.textContent="GRID STATUS RED // SYSTEM RECOVERY AVAILABLE";rec.classList.add("cg-error");}
+          if(reset)reset.disabled=false;
+        }
+      }
+      function update(){
+        if(cg.status!=="RED"){
+          cg.stability=Math.max(82,Math.min(98,cg.stability+(Math.random()*2-1)));
+          cg.field=Math.max(86,Math.min(99,cg.field+(Math.random()*1.4-.7)));
+          cg.load=Math.max(48,Math.min(82,cg.load+(Math.random()*3-1.5)));
+          cg.power=Math.max(70,Math.min(94,cg.power+(Math.random()*1.2-.6)));
+          cg.emf=Math.max(170,Math.min(205,cg.emf+(Math.random()*4-2)));
+          cg.variance=Math.max(0,Math.min(12,cg.variance+(Math.random()*1.2-.6)));
+          cg.drift=Math.max(0,Math.min(4,cg.drift+(Math.random()*.15-.075)));
+          if(cg.status==="GREEN" && cg.stability<88){setState("ORANGE");cgLog("GRID STABILITY VARIANCE DETECTED // SYSTEM PLACED ON WATCH","warn");}
+          if(cg.status==="ORANGE" && cg.stability>93 && cg.variance<4){setState("GREEN");cgLog("GRID STABILITY RECOVERED // NOMINAL MONITORING RESTORED","info");}
+        }else{
+          cg.stability=Math.max(18,Math.min(52,cg.stability+(Math.random()*6-3)));
+          cg.field=Math.max(35,Math.min(72,cg.field+(Math.random()*4-2)));
+          cg.load=Math.max(62,Math.min(96,cg.load+(Math.random()*5-2.5)));
+          cg.emf=Math.max(205,Math.min(260,cg.emf+(Math.random()*8-4)));
+          cg.variance=Math.min(30,cg.variance+(Math.random()*2));
+          cg.drift=Math.min(9,cg.drift+(Math.random()*.3));
+        }
+        q("cgGridStability")&&(q("cgGridStability").textContent=Math.round(cg.stability)+"%");
+        q("cgFieldIntegrity")&&(q("cgFieldIntegrity").textContent=Math.round(cg.field)+"%");
+        q("cgFieldIntegrity2")&&(q("cgFieldIntegrity2").textContent=Math.round(cg.field)+"%");
+        q("cgGridLoad")&&(q("cgGridLoad").textContent=Math.round(cg.load)+"%");
+        q("cgLoadBig")&&(q("cgLoadBig").textContent=Math.round(cg.load)+"%");
+        q("cgLoadBar")&&(q("cgLoadBar").style.width=Math.round(cg.load)+"%");
+        q("cgPowerReserve")&&(q("cgPowerReserve").textContent=Math.round(cg.power)+"%");
+        q("cgEmField")&&(q("cgEmField").textContent=cg.status==="RED"?"ERRATIC":cg.status==="ORANGE"?"VARIANT":"NOMINAL");
+        q("cgEmResponse")&&(q("cgEmResponse").textContent=cg.status==="RED"?"UNSTABLE":cg.status==="ORANGE"?"VARIANCE":"NOMINAL");
+        q("cgFieldVariance")&&(q("cgFieldVariance").textContent=`+${cg.variance.toFixed(0).padStart(2,"0")}%`);
+        q("cgContainmentDrift")&&(q("cgContainmentDrift").textContent=cg.drift.toFixed(1).padStart(4,"0")+"%");
+        q("cgActiveCells")&&(q("cgActiveCells").textContent=`${String(cg.active).padStart(2,"0")} / ${cg.total}`);
+        q("cgAvailableCells")&&(q("cgAvailableCells").textContent=String(cg.total-cg.active).padStart(2,"0"));
+        [q("cgGridStability"),q("cgFieldIntegrity"),q("cgFieldIntegrity2"),q("cgGridLoad"),q("cgPowerReserve"),q("cgEmField"),q("cgEmResponse")].forEach(e=>{if(!e)return;e.classList.remove("cg-good","cg-warn","cg-error");if(cg.status==="RED")e.classList.add("cg-error");else if(cg.status==="ORANGE")e.classList.add("cg-warn");else e.classList.add("cg-good");});
+      }
+      function runTest(){
+        const panel=q("cgTestPanel"),out=q("cgTestOutput"); if(!panel||!out)return;
+        panel.classList.remove("hidden");
+        const tests=["POWER REGULATION","GRID COILS","CELL NETWORK","FIELD GENERATORS","EM FIELD RESPONSE","CONTAINMENT BOUNDARY","STABILITY MONITOR"];
+        out.innerHTML="<div>INITIALISING TEST SEQUENCE...</div>";
+        tests.forEach((name,i)=>setTimeout(()=>{out.innerHTML+=`<div class="cg-test-pass">${name.padEnd(30,".")} PASS</div>`;},220*(i+1)));
+        setTimeout(()=>{out.innerHTML+=`<div style="margin-top:8px">TEST COMPLETE</div><div>GRID STATUS       ${cg.status==="RED"?"FAULT":"NOMINAL"}</div><div>FIELD INTEGRITY   ${Math.round(cg.field)}%</div><div>GRID STABILITY    ${Math.round(cg.stability)}%</div>`;cgLog("FULL GRID TEST COMPLETE // RESULTS STORED IN SESSION LOG");},220*(tests.length+1));
+      }
+      function analysis(){const p=q("cgAnalysisPanel"),o=q("cgAnalysisOutput");if(!p||!o)return;p.classList.remove("hidden");o.innerHTML=`<div>FIELD ANALYSIS // LIVE</div><div>EM FIELD              ${cg.emf.toFixed(1)} mG</div><div>FIELD INTEGRITY       ${Math.round(cg.field)}%</div><div>GRID STABILITY        ${Math.round(cg.stability)}%</div><div>FIELD VARIANCE        +${cg.variance.toFixed(0)}%</div><div>CONTAINMENT DRIFT     ${cg.drift.toFixed(1)}%</div><div>POWER RESERVE         ${Math.round(cg.power)}%</div><div>ACTIVE CELLS          ${String(cg.active).padStart(2,"0")} / ${cg.total}</div>`;}
+      function report(){const p=q("cgReportsPanel"),o=q("cgReportOutput");if(!p||!o)return;p.classList.remove("hidden");o.innerHTML=`<div class="cg-report" id="cgReportPreview"><div style="text-align:center;font-weight:bold">ECTO CONTAINMENT GRID</div><div style="text-align:center">CENTRAL SYSTEM STATUS REPORT</div><div class="rule"></div><div>REPORT: CG-${new Date().getFullYear().toString().slice(-2)}-${String(Math.floor(Math.random()*9999)).padStart(4,"0")}</div><div>DATE: ${getNowDate()}</div><div>TIME: ${getNowTime()}</div><div class="rule"></div><div>SYSTEM STATUS: ${cg.status}</div><div>GRID STABILITY: ${Math.round(cg.stability)}%</div><div>FIELD INTEGRITY: ${Math.round(cg.field)}%</div><div>CONTAINMENT LOAD: ${Math.round(cg.load)}%</div><div>EM FIELD: ${cg.status==="RED"?"ERRATIC":cg.status==="ORANGE"?"VARIANT":"NOMINAL"}</div><div>POWER RESERVE: ${Math.round(cg.power)}%</div><div>ACTIVE CELLS: ${String(cg.active).padStart(2,"0")} / ${cg.total}</div><div>FIELD VARIANCE: +${cg.variance.toFixed(0)}%</div><div>CONTAINMENT DRIFT: ${cg.drift.toFixed(1)}%</div><div class="rule"></div><div>ASSESSMENT: ${cg.status==="GREEN"?"NO CORRECTIVE ACTION REQUIRED.":cg.status==="ORANGE"?"INVESTIGATION ADVISED.":"SYSTEM RECOVERY REQUIRED."}</div><div class="rule"></div><div style="text-align:center">ECTO FIELD OPERATIONS // CENTRAL GRID</div></div>`;}
+      function printReport(){const preview=q("cgReportPreview"),box=q("containmentPrintReport");if(!preview||!box)return;box.innerHTML=preview.innerHTML;document.body.classList.add("cg-printing");const cleanup=()=>{document.body.classList.remove("cg-printing");window.removeEventListener("afterprint",cleanup);};window.addEventListener("afterprint",cleanup);window.print();}
+      function reset(){cg.status="GREEN";cg.stability=96;cg.field=96;cg.load=62;cg.power=86;cg.emf=184.7;cg.variance=1;cg.drift=.2;setState("GREEN");cgLog("GRID RESET AUTHORISED // SYSTEM RECOVERY COMPLETE");update();}
+      q("cgRunTest")&&(q("cgRunTest").onclick=runTest);q("cgAnalysis")&&(q("cgAnalysis").onclick=analysis);q("cgReports")&&(q("cgReports").onclick=()=>{report();});q("cgGenerateReport")&&(q("cgGenerateReport").onclick=report);q("cgPrintReport")&&(q("cgPrintReport").onclick=printReport);q("cgReset")&&(q("cgReset").onclick=reset);
+      q("cgCloseTest")&&(q("cgCloseTest").onclick=()=>q("cgTestPanel").classList.add("hidden"));q("cgCloseAnalysis")&&(q("cgCloseAnalysis").onclick=()=>q("cgAnalysisPanel").classList.add("hidden"));q("cgCloseReports")&&(q("cgCloseReports").onclick=()=>q("cgReportsPanel").classList.add("hidden"));
+      setState("GREEN");cgLog("CENTRAL CONTAINMENT GRID MONITOR ONLINE");cgLog("GRID STATUS GREEN // NOMINAL OPERATION");update();
+      setInterval(update,1800);
+      // Occasional simulated fault; never changes user data or incident database.
+      setInterval(()=>{if(cg.status==="GREEN" && Math.random()<0.035){cg.stability=48;cg.field=66;setState("RED");cgLog("SIMULATED GRID ERROR // SYSTEM RECOVERY AVAILABLE","alert");update();}else if(cg.status==="GREEN" && Math.random()<0.06){cg.stability=84;cg.variance=8;setState("ORANGE");cgLog("SIMULATED GRID VARIANCE // MONITORING ELEVATED","warn");}},12000);
+    })();
+
     setupWave("pkeCanvas","pke");
     setupWave("gridCanvas","grid");
     setupWave("ectoCanvas","ecto");
+    // Separate stability waveform with colour driven by grid state.
+    (function(){const c=$f("cgStabilityCanvas");if(!c)return;const ctx=c.getContext("2d");let t0=0,w0=0,h0=0;function frame(t){const w=c.clientWidth||300,h=c.clientHeight||155,d=devicePixelRatio||1;if(w!==w0||h!==h0){c.width=w*d;c.height=h*d;w0=w;h0=h;}ctx.setTransform(d,0,0,d,0,0);ctx.clearRect(0,0,w,h);ctx.strokeStyle="var(--ui-grid)";ctx.lineWidth=1;for(let y=20;y<h;y+=25){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}const st=(($f("cgGridStability")?.textContent||"91").replace(/[^0-9.]/g,"")*1)||91;ctx.strokeStyle=st<70?"#ff5555":st<90?"#ffb000":"var(--ui-accent)";ctx.lineWidth=1.8;ctx.beginPath();for(let x=0;x<w;x++){const phase=(x+t*0.025)%84;const tri=phase<42?(phase/42)*2-1:1-((phase-42)/42)*2;const wob=st<70?Math.sin(x*.16+t*.008)*10:st<90?Math.sin(x*.09+t*.004)*4:Math.sin(x*.03+t*.002)*1.5;const y=h/2+tri*24+wob;x?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.stroke();requestAnimationFrame(frame);}requestAnimationFrame(frame);})();
+
     
     
     window.addEventListener('beforeunload',()=>{saveLocationDatabase();saveIncidentDatabase();saveEctoSettings();});
@@ -4017,4 +4158,5 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
 }
 </script>
+<div id="containmentPrintReport" aria-hidden="true" style="display:none"></div>
 </body></html>
