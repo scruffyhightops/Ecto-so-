@@ -4682,3 +4682,53 @@ if ('serviceWorker' in navigator) {
 /* Keep the old injected vehicle selector suppressed even if a legacy refresh recreates it. */
 #fieldops .dispatch-vehicle-preflight{display:none!important}
 </style>
+
+<script id="ecto-v258-phase1-fleet-test">
+/* ECTO OS V2.2.58 // PHASE 1 FLEET REGISTER TEST
+   Purpose: prove whether Dispatch can consume a newly-created Configuration vehicle.
+   This is deliberately isolated and does not alter the Dispatch layout. */
+(function(){
+  "use strict";
+  const KEY="ecto-os-vehicle-fleet-v1";
+  const q=id=>document.getElementById(id);
+  const clean=s=>String(s||"").replace(/\s*\[[^\]]+\]/g,"").trim().toUpperCase();
+  const fleet=()=>{try{const p=JSON.parse(localStorage.getItem(KEY)||"null");return Array.isArray(p)?p:[];}catch(e){return[];}};
+  const location=()=>{
+    try{
+      const a=Array.isArray(window.ukFranchises)?window.ukFranchises:[];
+      const i=Number.isInteger(window.selectedMapIndex)?window.selectedMapIndex:0;
+      return a[i]||null;
+    }catch(e){return null;}
+  };
+  const home=v=>clean(v?.defaultLocation||v?.homeLocation||v?.homeLocationName||v?.homeLocationId||v?.locationId||"");
+  const available=f=>fleet().filter(v=>home(v)===clean(f?.city)&&String(v.status||"AVAILABLE").toUpperCase()==="AVAILABLE"&&String(v.deploymentState||"").toUpperCase()!=="DEPLOYED");
+  function install(){
+    const f=location();
+    if(!f)return;
+    const rows=available(f);
+    ["v239VehicleBtn","v240VehicleBtn"].forEach(id=>{
+      const b=q(id); if(!b||b.__v258Phase1)return;
+      b.__v258Phase1=true;
+      b.addEventListener("click",function(e){
+        e.preventDefault();e.stopImmediatePropagation();
+        const now=location(); if(!now)return;
+        const vehicles=available(now);
+        const items=vehicles.length?vehicles.map(v=>({title:v.name||"UNNAMED VEHICLE",meta:`${v.type||"ECTO VEHICLE"} // ${v.callsign||v.id}`,value:v.id})):[{title:"NO AVAILABLE VEHICLES",meta:"CREATE A NEW VEHICLE IN CONFIGURATION",disabled:true}];
+        if(window.ectoUiLanguage?.open){
+          window.ectoUiLanguage.open("ECTO VEHICLE DATABASE",`${clean(now.city)} // FLEET REGISTER`,[{label:"AVAILABLE VEHICLES",items}],item=>{
+            if(!item||item.disabled)return;
+            const fs=fleet(),v=fs.find(x=>String(x.id)===String(item.value)); if(!v)return;
+            now.dispatchVehicleId=v.id; now.dispatchVehicleName=v.name||""; now.dispatchVehicleType=v.type||"ECTO VEHICLE";
+            try{localStorage.setItem(KEY,JSON.stringify(fs));}catch(err){}
+            window.renderPreflight?.();
+            document.querySelectorAll("#v239Vehicle,#v240Vehicle").forEach(el=>el.textContent=v.name||"NO ECTO VEHICLE SELECTED");
+            document.querySelectorAll("#v239Meta,#v240Meta").forEach(el=>el.textContent=`${available(now).length} AVAILABLE // FLEET REGISTER`);
+          });
+        }
+      },true);
+    });
+    document.querySelectorAll("#v239Meta,#v240Meta").forEach(el=>el.textContent=`${rows.length} AVAILABLE // FLEET REGISTER`);
+  }
+  install(); setInterval(install,500);
+})();
+</script>
