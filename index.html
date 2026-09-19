@@ -4671,3 +4671,85 @@ if ('serviceWorker' in navigator) {
 .v238-actions{display:flex;gap:8px;margin-top:9px;flex-wrap:wrap}.v238-actions button{flex:1 1 220px;min-height:46px}.v238-ready.ok{border-color:var(--ui-accent);color:var(--ui-accent)}
 @media(max-width:700px){.v238-grid{grid-template-columns:1fr}.v238-head{flex-direction:column}.v238-status{white-space:normal}}
 </style>
+<script>
+/* ECTO OS V2.2.42 // PRE-FLIGHT VEHICLE LOCATION MATCH FIX */
+(function(){
+  "use strict";
+  const KEY="ecto-os-vehicle-fleet-v1";
+  const q=id=>document.getElementById(id);
+  const cityName=v=>String(v||"").replace(/\s*\[[^\]]+\]/," ").trim().toUpperCase();
+  function fleet(){
+    try{const raw=localStorage.getItem(KEY);const p=raw?JSON.parse(raw):[];return Array.isArray(p)?p:[];}catch(e){return[];}
+  }
+  function currentLocation(){
+    try{return Array.isArray(window.ukFranchises)?window.ukFranchises[Number(window.selectedMapIndex)||0]:null;}catch(e){return null;}
+  }
+  function vehiclesForLocation(f){
+    if(!f)return[];
+    const configured=Array.isArray(f.dispatchVehicles)?f.dispatchVehicles:[];
+    if(configured.length)return configured.map((v,i)=>typeof v==="string"?{id:"custom-"+i,name:v,type:"FRANCHISE VEHICLE",status:"AVAILABLE"}:v);
+    const target=cityName(f.city);
+    return fleet().filter(v=>{
+      const home=v&&((v.homeLocationId||v.locationId||v.defaultLocation)||"");
+      return cityName(home)===target;
+    });
+  }
+  function selectedVehicle(f){
+    if(!f||!f.dispatchVehicleId)return null;
+    return vehiclesForLocation(f).find(v=>String(v.id)===String(f.dispatchVehicleId))||null;
+  }
+  function inject(){
+    const field=q("fieldops");
+    if(!field)return;
+    let box=q("dispatchVehiclePreflight")?.closest(".dispatch-vehicle-preflight");
+    if(!box){
+      const label=q("preflightTeamLabel");
+      if(!label)return;
+      box=document.createElement("div");
+      box.className="dispatch-vehicle-preflight";
+      box.innerHTML='<div class="dim">DISPATCH VEHICLE // ASSIGN BEFORE FINAL PREFLIGHT</div><div class="dispatch-vehicle-value" id="dispatchVehiclePreflight">NO VEHICLE ASSIGNED</div><div class="dim" id="dispatchVehiclePreflightStatus">VEHICLE REQUIRED BEFORE DISPATCH</div><div class="dispatch-preflight-vehicle-list" id="dispatchVehiclePreflightList"></div>';
+      const metric=label.closest(".metric");
+      if(metric)metric.insertAdjacentElement("afterend",box);else label.parentElement?.insertAdjacentElement("afterend",box);
+    }
+    render();
+  }
+  function render(){
+    const f=currentLocation();
+    const value=q("dispatchVehiclePreflight"),status=q("dispatchVehiclePreflightStatus"),list=q("dispatchVehiclePreflightList");
+    if(!value||!status||!list)return;
+    const chosen=selectedVehicle(f);
+    value.textContent=chosen?.name||"NO VEHICLE ASSIGNED";
+    status.textContent=chosen?`${chosen.type||"ECTO VEHICLE"} // READY FOR DISPATCH`:"VEHICLE REQUIRED BEFORE DISPATCH";
+    const rows=vehiclesForLocation(f).filter(v=>String(v.status||"AVAILABLE").toUpperCase()==="AVAILABLE" && String(v.deploymentState||"").toUpperCase()!=="DEPLOYED");
+    if(!rows.length){list.innerHTML='<div class="dim">NO DEPLOYABLE VEHICLES REGISTERED FOR THIS LOCATION</div>';return;}
+    list.innerHTML=rows.map(v=>{
+      const active=chosen&&String(chosen.id)===String(v.id);
+      const id=String(v.id).replace(/[^a-zA-Z0-9_-]/g,"");
+      return `<button type="button" class="dispatch-preflight-vehicle${active?" selected":""}" data-v241-preflight-vehicle="${id}"><span><b>${window.escapeHtml?window.escapeHtml(v.name||"UNNAMED VEHICLE"):String(v.name||"UNNAMED VEHICLE")}</b><small>${window.escapeHtml?window.escapeHtml(v.type||"ECTO VEHICLE"):String(v.type||"ECTO VEHICLE")} // ${window.escapeHtml?window.escapeHtml(v.callsign||v.id||""):String(v.callsign||v.id||"")}</small></span><strong>${active?"SELECTED":"SELECT"}</strong></button>`;
+    }).join("");
+    list.querySelectorAll("[data-v241-preflight-vehicle]").forEach(btn=>btn.addEventListener("click",()=>{
+      const raw=btn.dataset.v241PreflightVehicle;
+      const chosen=rows.find(v=>String(v.id).replace(/[^a-zA-Z0-9_-]/g,"")===raw);
+      if(!chosen||!f)return;
+      f.dispatchVehicleId=chosen.id;f.dispatchVehicleName=chosen.name;f.dispatchVehicleType=chosen.type||"ECTO VEHICLE";
+      try{window.dispatchVehicleId=chosen.id;}catch(e){}
+      render();
+      document.getElementById("dispatchVehicleList")?.dispatchEvent(new Event("change"));
+      if(typeof window.ectoDispatchFleet?.refresh==="function")window.ectoDispatchFleet.refresh();
+      document.getElementById("dispatchVehicleStatus")?.replaceChildren(document.createTextNode(`VEHICLE ASSIGNED // ${chosen.name} // ${chosen.type||"ECTO VEHICLE"}`));
+      if(typeof window.log==="function")window.log(`PRE-FLIGHT VEHICLE SELECTED // ${chosen.name} // ${f.city}.`,"info");
+    }));
+  }
+  function active(){
+    const field=q("fieldops");
+    if(field?.classList.contains("active")){inject();}
+  }
+  function init(){
+    active();
+    const field=q("fieldops");
+    if(field&&!field.__v242Observed){field.__v242Observed=true;new MutationObserver(active).observe(field,{attributes:true,attributeFilter:["class"]});}
+    setInterval(active,500);
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
+})();
+</script>
