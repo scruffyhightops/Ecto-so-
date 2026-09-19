@@ -4940,3 +4940,113 @@ if ('serviceWorker' in navigator) {
 /* Keep the old injected vehicle selector suppressed even if a legacy refresh recreates it. */
 #fieldops .dispatch-vehicle-preflight{display:none!important}
 </style>
+
+
+<!-- ECTO OS V2.2.49 // OPERATIONAL DEPLOYMENT TIMELINE + VEHICLE LINK REPAIR -->
+<style>
+#commandconsole .v249-deploybar{border:1px solid var(--ui-grid);padding:10px;margin-top:8px;display:grid;gap:7px}
+#commandconsole .v249-row{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+#commandconsole .v249-eta{font-size:18px;letter-spacing:1px;color:var(--ui-accent);font-weight:bold}
+#commandconsole .v249-stage{color:var(--ui-accent);letter-spacing:.8px}
+#commandconsole .v249-sub{color:var(--ui-dim);font-size:10px;letter-spacing:.5px}
+#commandconsole .v249-active{border-color:var(--ui-accent)!important;color:var(--ui-accent)!important}
+#commandconsole .v249-locked{opacity:.35!important}
+</style>
+<script>
+(function(){
+  "use strict";
+  const FLEET_KEY="ecto-os-vehicle-fleet-v1", LOCATION_KEY="ecto-os-location-database-v1";
+  const root=document.getElementById("commandconsole");
+  const q=id=>document.getElementById(id);
+  if(!root)return;
+  let timer=null, containmentTimer=null, returnTimer=null;
+  const COMMANDS=["DISPATCH TEAM","HOLD POSITION","ADVANCE TO SITE","BEGIN INVESTIGATION","REQUEST PKE SWEEP","DEPLOY TRAP","INITIATE CONTAINMENT","REQUEST BACKUP","RETURN TO VEHICLE","ABORT OPERATION"];
+  function fleet(){try{const x=JSON.parse(localStorage.getItem(FLEET_KEY)||"[]");return Array.isArray(x)?x:[]}catch(e){return[]}}
+  function saveFleet(a){try{localStorage.setItem(FLEET_KEY,JSON.stringify(a))}catch(e){}}
+  function franchise(){const fs=window.ukFranchises||[];const i=Number.isInteger(window.selectedMapIndex)?window.selectedMapIndex:0;return fs[i]||null}
+  function team(f){const i=Number.isInteger(window.activeSubTeamIndex)?window.activeSubTeamIndex:0;return (f?.teams||[])[i]||null}
+  function cityName(v){return String(v??"").replace(/\s*\[[^\]]+\]/g,"").trim().toUpperCase()}
+  function vehicleMatches(v,f){
+    if(!v||!f)return false;
+    const fid=String(f.locationId||f.id||"").toUpperCase();
+    const ids=[v.homeLocationId,v.locationId].filter(Boolean).map(x=>String(x).toUpperCase());
+    if(fid&&ids.includes(fid))return true;
+    const home=cityName(v.defaultLocation||v.homeLocation||"");
+    const city=cityName(f.city||"");
+    return !!home&&!!city&&home===city;
+  }
+  function selectedVehicle(f){return f?.dispatchVehicleId?fleet().find(v=>String(v.id)===String(f.dispatchVehicleId))||null:null}
+  function logLine(text){const box=q("eccLog");if(!box)return;box.textContent+=(box.textContent?"\n\n":"")+"["+new Date().toLocaleTimeString("en-GB")+"] "+text;box.scrollTop=box.scrollHeight}
+  function status(text){const box=q("eccStatus");if(box)box.textContent=text}
+  function persist(f){try{localStorage.setItem(LOCATION_KEY,JSON.stringify(window.ukFranchises||[]))}catch(e){};try{const i=Number.isInteger(window.selectedMapIndex)?window.selectedMapIndex:0;if(typeof window.upsertCurrentIncident==="function")window.upsertCurrentIncident(i)}catch(e){}}
+  function minsSecs(ms){const s=Math.max(0,Math.ceil(ms/1000));return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")}
+  function ensureTimeline(f){if(!f)return null;if(!f.ectoTimeline)f.ectoTimeline={stage:f.responseStage||"STANDING BY",etaEnd:0,returnEnd:0,containmentEnd:0};return f.ectoTimeline}
+  function stage(f,name,reply){f.responseStage=name;f.responseStatus=reply;ensureTimeline(f).stage=name;persist(f);render()}
+  function renderBar(){
+    const f=franchise(),t=team(f),v=selectedVehicle(f),tl=ensureTimeline(f);if(!f||!tl)return;
+    let bar=document.getElementById("v249DeployBar");
+    if(!bar){bar=document.createElement("div");bar.id="v249DeployBar";bar.className="v249-deploybar";root.querySelector(".grid")?.appendChild(bar)||root.insertBefore(bar,root.firstChild)}
+    let eta="--:--",sub="NO ACTIVE DEPLOYMENT";
+    if(tl.stage==="EN ROUTE"&&tl.etaEnd){eta=minsSecs(tl.etaEnd-Date.now());sub="ARRIVAL COUNTDOWN // ASSIGNED LOCATION"}
+    else if(tl.stage==="RETURNING"&&tl.returnEnd){eta=minsSecs(tl.returnEnd-Date.now());sub="RETURN TO HQ COUNTDOWN"}
+    else if(tl.stage==="CONTAINMENT"&&tl.containmentEnd){eta=minsSecs(tl.containmentEnd-Date.now());sub="CONTAINMENT SEQUENCE // FIELD STABILISING"}
+    else if(tl.stage==="AT HQ")sub="CREW STANDING DOWN // VEHICLE AVAILABLE";
+    else sub=String(tl.stage||"STANDING BY").replaceAll("_"," ");
+    bar.innerHTML=`<div class="v249-row"><span class="v249-stage">${String(tl.stage||"STANDING BY")}</span><span class="v249-eta">ETA ${eta}</span></div><div class="v249-row"><span class="v249-sub">${sub}</span><span class="v249-sub">${String(v?.name||"NO VEHICLE ASSIGNED")} // ${String(t?.teamName||"NO TEAM")}</span></div>`;
+    const dep=q("eccDeployment");if(dep)dep.textContent=`LOCATION: ${f.city||"UNASSIGNED"}\nSITE: ${f.dispatchSiteId||"SITE NOT SELECTED"}\nTEAM: ${t?.teamName||"UNASSIGNED"}\nVEHICLE: ${v?.name||"NO VEHICLE ASSIGNED"}\nSTAGE: ${tl.stage||"STANDING BY"}`;
+  }
+  function commandButtons(){
+    const area=q("eccCommands");if(!area)return;
+    const f=franchise(),tl=ensureTimeline(f),v=selectedVehicle(f);
+    const st=tl?.stage||"STANDING BY";
+    const allowed=new Set();
+    if(st==="STANDING BY"||st==="READY FOR DEPLOYMENT")allowed.add("DISPATCH TEAM").add("HOLD POSITION");
+    if(st==="EN ROUTE")allowed.add("HOLD POSITION").add("ABORT OPERATION");
+    if(st==="ON SITE")allowed.add("BEGIN INVESTIGATION").add("REQUEST BACKUP").add("ABORT OPERATION");
+    if(st==="INVESTIGATING")allowed.add("REQUEST PKE SWEEP").add("DEPLOY TRAP").add("REQUEST BACKUP").add("ABORT OPERATION");
+    if(st==="TRAP DEPLOYED")allowed.add("INITIATE CONTAINMENT").add("REQUEST PKE SWEEP").add("ABORT OPERATION");
+    if(st==="CONTAINMENT")allowed.add("HOLD POSITION");
+    if(st==="CONTAINMENT CONFIRMED")allowed.add("RETURN TO VEHICLE");
+    if(st==="RETURNING")allowed.add("HOLD POSITION");
+    if(!v)allowed.clear();
+    area.querySelectorAll("button").forEach(b=>{const n=(b.textContent||"").trim();b.disabled=!allowed.has(n);b.classList.toggle("v249-locked",b.disabled);b.classList.toggle("v249-active",allowed.has(n));});
+  }
+  function render(){renderBar();commandButtons()}
+  function announce(text){status(text);logLine(text)}
+  function dispatchAuthoritative(){
+    const f=franchise(),t=team(f);if(!f||!t||!f.dispatchSiteId)return;
+    const fs=fleet(),v=selectedVehicle(f);
+    if(!v){announce("DISPATCH FAILED\nSELECT AN ECTO VEHICLE IN DISPATCH FIRST.");return}
+    v.deploymentState="DEPLOYED";v.deploymentIncidentId=f.incidentId||"";v.deploymentLocationId=f.locationId||f.id||"";v.deploymentSiteId=f.dispatchSiteId;v.deploymentTeamId=t.id||t.teamId||t.teamName||"";
+    const tl=ensureTimeline(f);tl.stage="EN ROUTE";tl.etaEnd=Date.now()+60000;tl.returnEnd=0;tl.containmentEnd=0;
+    f.responseStage="EN ROUTE";f.responseStatus="ECTO VEHICLE DISPATCHED // EN ROUTE";f.actionHistory=Array.isArray(f.actionHistory)?f.actionHistory:[];f.actionHistory.unshift({time:new Date().toTimeString().slice(0,8),text:`${v.name||v.id} DEPARTED HQ // ETA 01:00`});
+    saveFleet(fs);persist(f);announce(`COMMAND RECEIVED\n${v.name||v.id} DEPARTED HQ.\nTEAM: ${t.teamName||"RESPONSE TEAM"}\nETA: 01:00`);startTimer();
+  }
+  function arrive(){const f=franchise(),t=team(f),v=selectedVehicle(f);if(!f)return;const tl=ensureTimeline(f);tl.stage="ON SITE";tl.etaEnd=0;f.responseStage="ON SITE";f.responseStatus="TEAM ON SITE // INVESTIGATION READY";f.actionHistory.unshift({time:new Date().toTimeString().slice(0,8),text:`${t?.teamName||"RESPONSE TEAM"} ARRIVED ON SITE`});persist(f);announce(`ARRIVAL TRANSMISSION\nCOMMAND, ${t?.teamName||"RESPONSE TEAM"}. WE'RE ON SITE.\n${v?.name||"ECTO VEHICLE"} PARKED.\nBEGINNING FIELD OPERATIONS.`);render()}
+  function beginInvestigation(){const f=franchise(),t=team(f);if(!f)return;const tl=ensureTimeline(f);tl.stage="INVESTIGATING";f.responseStage="INVESTIGATING";f.responseStatus="INVESTIGATION IN PROGRESS";f.actionHistory.unshift({time:new Date().toTimeString().slice(0,8),text:"INVESTIGATION COMMENCED"});persist(f);announce(`TEAM TRANSMISSION\n${t?.teamName||"RESPONSE TEAM"}: ON SITE. BEGINNING INITIAL INVESTIGATION.`);render()}
+  function deployTrap(){const f=franchise(),t=team(f);if(!f)return;const tl=ensureTimeline(f);tl.stage="TRAP DEPLOYED";f.trapState="DEPLOYED";f.responseStage="TRAP DEPLOYED";f.responseStatus="TRAP DEPLOYED // AWAITING CONTAINMENT";f.actionHistory.unshift({time:new Date().toTimeString().slice(0,8),text:"TRAP DEPLOYED"});persist(f);announce(`TEAM TRANSMISSION\n${t?.teamName||"RESPONSE TEAM"}: TRAP DEPLOYED. STAND CLEAR.`);render()}
+  function contain(){const f=franchise(),t=team(f);if(!f)return;const tl=ensureTimeline(f);tl.stage="CONTAINMENT";tl.containmentEnd=Date.now()+20000;f.responseStage="CONTAINMENT";f.responseStatus="CONTAINMENT FIELD INITIALISING";f.actionHistory.unshift({time:new Date().toTimeString().slice(0,8),text:"CONTAINMENT SEQUENCE INITIATED"});persist(f);announce(`CONTAINMENT SEQUENCE INITIATED\nTRAP // DEPLOYMENT CONFIRMED\nCONTAINMENT GRID // FIELD INITIALISING\nTEAM: ${t?.teamName||"RESPONSE TEAM"} // HOLD POSITION`);startTimer()}
+  function containmentSuccess(){const f=franchise(),t=team(f);if(!f)return;const tl=ensureTimeline(f);tl.stage="CONTAINMENT CONFIRMED";tl.containmentEnd=0;f.responseStage="CONTAINMENT CONFIRMED";f.responseStatus="CONTAINMENT SUCCESSFUL // ENTITY SECURED";f.actionHistory.unshift({time:new Date().toTimeString().slice(0,8),text:"CONTAINMENT SUCCESSFUL // ENTITY SECURED"});persist(f);announce(`CONTAINMENT TRANSMISSION\nCOMMAND, CONTAINMENT SUCCESSFUL.\nENTITY SECURED.\n${t?.teamName||"RESPONSE TEAM"} STANDING BY FOR RETURN ORDER.`);render()}
+  function returnToVehicle(){const f=franchise(),t=team(f),v=selectedVehicle(f);if(!f||!v)return;const tl=ensureTimeline(f);tl.stage="RETURNING";tl.returnEnd=Date.now()+45000;f.responseStage="RETURNING";f.responseStatus="TEAM RETURNING TO HQ";f.actionHistory.unshift({time:new Date().toTimeString().slice(0,8),text:`${t?.teamName||"RESPONSE TEAM"} RETURNING TO HQ`});persist(f);announce(`RETURN ORDER ACKNOWLEDGED\n${t?.teamName||"RESPONSE TEAM"}: RETURNING TO ${v.name||"ECTO VEHICLE"}.\nHQ ETA: 00:45`);startTimer()}
+  function atHQ(){const f=franchise(),t=team(f),v=selectedVehicle(f);if(!f)return;const tl=ensureTimeline(f);tl.stage="AT HQ";tl.returnEnd=0;f.responseStage="AT HQ";f.responseStatus="ECTO VEHICLE BACK AT HQ // CREW STANDING DOWN";f.actionHistory.unshift({time:new Date().toTimeString().slice(0,8),text:`${v?.name||"ECTO VEHICLE"} RETURNED TO HQ`});const fs=fleet();const x=fs.find(z=>v&&String(z.id)===String(v.id));if(x){x.deploymentState="AVAILABLE";delete x.deploymentIncidentId;delete x.deploymentLocationId;delete x.deploymentSiteId;delete x.deploymentTeamId}saveFleet(fs);persist(f);announce(`HQ TRANSMISSION\nCOMMAND, ${v?.name||"ECTO VEHICLE"} BACK AT HQ.\n${t?.teamName||"RESPONSE TEAM"} CREW SECURED.\nSTANDING DOWN.`);render()}
+  function hold(){const f=franchise(),t=team(f);announce(`TEAM RESPONSE\n${t?.teamName||"RESPONSE TEAM"}: HOLDING POSITION. AWAITING FURTHER INSTRUCTION.`)}
+  function backup(){const f=franchise(),t=team(f);announce(`COMMAND RECEIVED\nBACKUP REQUEST TRANSMITTED FROM ${f?.city||"FIELD LOCATION"}.\n${t?.teamName||"RESPONSE TEAM"}: ACKNOWLEDGED.`)}
+  function abort(){const f=franchise(),t=team(f);if(!f)return;const tl=ensureTimeline(f);tl.stage="RETURNING";tl.returnEnd=Date.now()+30000;f.responseStage="RETURNING";f.responseStatus="OPERATION ABORTED // RETURNING TO HQ";persist(f);announce(`ABORT ORDER\n${t?.teamName||"RESPONSE TEAM"}: OPERATION ABORTED. RETURNING TO HQ.`);startTimer()}
+  function pke(){
+    const f=franchise(),t=team(f);if(!f)return;
+    let pke=100+Math.floor(Math.random()*900);f.lastPke=pke;f.pkeHistory=Array.isArray(f.pkeHistory)?f.pkeHistory:[];f.pkeHistory.unshift({time:new Date().toTimeString().slice(0,8),value:pke});
+    const band=pke>=850?"EXTREME":pke>=700?"SEVERE":pke>=500?"HIGH":pke>=300?"ELEVATED":"LOW";
+    f.actionHistory=Array.isArray(f.actionHistory)?f.actionHistory:[];f.actionHistory.unshift({time:new Date().toTimeString().slice(0,8),text:`PKE SWEEP // ${pke} PKE // ${band} ACTIVITY`});f.responseStatus="PKE SCAN COMPLETE";persist(f);announce(`PKE SWEEP COMPLETE\n${t?.teamName||"RESPONSE TEAM"}: COMMAND, WE'RE GETTING A ${band.toLowerCase()} READING HERE. ${pke} PKE.`);render()
+  }
+  function startTimer(){clearInterval(timer);timer=setInterval(()=>{const f=franchise(),tl=ensureTimeline(f);if(!tl){clearInterval(timer);return}if(tl.stage==="EN ROUTE"&&tl.etaEnd&&Date.now()>=tl.etaEnd){clearInterval(timer);arrive();return}if(tl.stage==="CONTAINMENT"&&tl.containmentEnd&&Date.now()>=tl.containmentEnd){clearInterval(timer);containmentSuccess();return}if(tl.stage==="RETURNING"&&tl.returnEnd&&Date.now()>=tl.returnEnd){clearInterval(timer);atHQ();return}render()},250);render()}
+  function bind(){
+    const vb=q("v240VehicleBtn");
+    if(vb&&!vb.dataset.v249){vb.dataset.v249="1";vb.onclick=function(){const f=franchise();if(!f)return;const rows=fleet().filter(v=>vehicleMatches(v,f)&&String(v.status||"AVAILABLE").toUpperCase()==="AVAILABLE"&&String(v.deploymentState||"").toUpperCase()!=="DEPLOYED");const groups=[{label:"AVAILABLE ECTO VEHICLES",items:rows.length?rows.map(v=>({title:v.name||v.id,meta:`${v.type||"ECTO VEHICLE"} // ${v.callsign||v.id}`,value:String(v.id)})):[{title:"NO DEPLOYABLE VEHICLES",meta:"CHECK VEHICLE REGISTER HOME LOCATION / STATUS",disabled:true}]}];window.ectoUiLanguage?.open?.("ECTO VEHICLE DATABASE",`${String(f.city||"").toUpperCase()} // SELECT VEHICLE`,groups,item=>{const fs=fleet(),x=fs.find(z=>String(z.id)===String(item.value));if(!x)return;f.dispatchVehicleId=x.id;f.dispatchVehicleName=x.name||x.id;f.dispatchVehicleType=x.type||"ECTO VEHICLE";f.actionHistory=Array.isArray(f.actionHistory)?f.actionHistory:[];f.actionHistory.unshift({time:new Date().toTimeString().slice(0,8),text:`${f.dispatchVehicleName} ASSIGNED TO ${f.city||"LOCATION"}`});persist(f);render()})}}
+    const db=q("v239DispatchBtn")||q("v240DispatchBtn");if(db&&!db.dataset.v249){db.dataset.v249="1";db.onclick=dispatchAuthoritative}
+    const area=q("eccCommands");if(area&&!area.dataset.v249){area.dataset.v249="1";area.querySelectorAll("button").forEach(b=>{const c=b.cloneNode(true);b.replaceWith(c);});area.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{const n=(b.textContent||"").trim();if(n==="DISPATCH TEAM")dispatchAuthoritative();else if(n==="HOLD POSITION")hold();else if(n==="BEGIN INVESTIGATION")beginInvestigation();else if(n==="REQUEST PKE SWEEP")pke();else if(n==="DEPLOY TRAP")deployTrap();else if(n==="INITIATE CONTAINMENT")contain();else if(n==="REQUEST BACKUP")backup();else if(n==="RETURN TO VEHICLE")returnToVehicle();else if(n==="ABORT OPERATION")abort();else if(n==="ADVANCE TO SITE")announce("TEAM RESPONSE\n"+(team(franchise())?.teamName||"RESPONSE TEAM")+": ADVANCING TO ASSIGNED INVESTIGATION SITE.");}));}
+    render();
+  }
+  function init(){bind();startTimer();setInterval(bind,1000)}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
+})();
+</script>
