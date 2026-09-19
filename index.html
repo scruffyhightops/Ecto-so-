@@ -5050,3 +5050,474 @@ if ('serviceWorker' in navigator) {
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
 </script>
+
+<!-- ECTO OS V2.2.50 // VEHICLE CONNECTION AUTHORITY FIX -->
+<style>
+#dispatchVehiclePreflightList{display:none!important}
+.dispatch-vehicle-preflight{display:block!important}
+</style>
+<script>
+(function(){
+  'use strict';
+  const FLEET_KEY='ecto-os-vehicle-fleet-v1';
+  const q=id=>document.getElementById(id);
+  const fleet=()=>{try{const x=JSON.parse(localStorage.getItem(FLEET_KEY)||'[]');return Array.isArray(x)?x:[]}catch(e){return[]}};
+  const saveFleet=a=>{try{localStorage.setItem(FLEET_KEY,JSON.stringify(a))}catch(e){}};
+  const franchise=()=>{const fs=window.ukFranchises||[];const i=Number.isInteger(window.selectedMapIndex)?window.selectedMapIndex:0;return fs[i]||null};
+  const city=v=>String(v||'').replace(/\s*\[[^\]]+\]/g,'').trim().toUpperCase();
+  function matches(v,f){
+    if(!v||!f)return false;
+    const fid=String(f.locationId||f.id||'').trim().toUpperCase();
+    const ids=[v.homeLocationId,v.locationId].filter(Boolean).map(x=>String(x).trim().toUpperCase());
+    if(fid && ids.includes(fid)) return true;
+    const a=city(v.defaultLocation||v.homeLocation||'');
+    const b=city(f.city||'');
+    return !!a && !!b && a===b;
+  }
+  function selected(f){
+    if(!f?.dispatchVehicleId)return null;
+    return fleet().find(v=>String(v.id)===String(f.dispatchVehicleId))||null;
+  }
+  function updateConnection(){
+    const f=franchise(); if(!f)return;
+    const v=selected(f);
+    const value=q('dispatchVehiclePreflight'),st=q('dispatchVehiclePreflightStatus');
+    if(value)value.textContent=v?(v.name||v.id):'NO VEHICLE ASSIGNED';
+    if(st)st.textContent=v?`${v.type||'ECTO VEHICLE'} // CONNECTED // READY FOR DISPATCH`:'VEHICLE REQUIRED BEFORE DISPATCH';
+    const summary=q('dispatchVehicleStatus');
+    if(summary)summary.textContent=v?`VEHICLE CONNECTED // ${v.name||v.id} // ${v.type||'ECTO VEHICLE'}`:'NO VEHICLE ASSIGNED // SELECT A VEHICLE BEFORE PRE-FLIGHT';
+  }
+  function bindVehicle(){
+    const b=q('v240VehicleBtn'); if(!b)return;
+    if(b.dataset.v250==='1')return;
+    b.dataset.v250='1';
+    b.onclick=function(){
+      const f=franchise(); if(!f)return;
+      const all=fleet();
+      let rows=all.filter(v=>matches(v,f)&&String(v.status||'AVAILABLE').toUpperCase()==='AVAILABLE'&&String(v.deploymentState||'').toUpperCase()!=='DEPLOYED');
+      if(!rows.length) rows=all.filter(v=>String(v.status||'AVAILABLE').toUpperCase()==='AVAILABLE'&&String(v.deploymentState||'').toUpperCase()!=='DEPLOYED');
+      const items=rows.length?rows.map(v=>({title:v.name||v.id,meta:`${v.type||'ECTO VEHICLE'} // ${v.callsign||v.id}${matches(v,f)?' // HOME LOCATION MATCH':' // AVAILABLE FLEET'}`,value:String(v.id)})):[{title:'NO AVAILABLE ECTO VEHICLES',meta:'CHECK VEHICLE REGISTER',disabled:true}];
+      if(window.ectoUiLanguage?.open){
+        window.ectoUiLanguage.open('ECTO VEHICLE DATABASE',`${String(f.city||'').toUpperCase()} // SELECT VEHICLE`,[{label:'AVAILABLE ECTO VEHICLES',items}],item=>{
+          const fs=fleet(),v=fs.find(x=>String(x.id)===String(item.value)); if(!v)return;
+          f.dispatchVehicleId=v.id;f.dispatchVehicleName=v.name||v.id;f.dispatchVehicleType=v.type||'ECTO VEHICLE';
+          f.actionHistory=Array.isArray(f.actionHistory)?f.actionHistory:[];
+          f.actionHistory.unshift({time:new Date().toTimeString().slice(0,8),text:`${f.dispatchVehicleName} CONNECTED TO ${f.city||'LOCATION'}`});
+          try{localStorage.setItem('ecto-os-vehicle-fleet-v1',JSON.stringify(fs))}catch(e){}
+          updateConnection();
+          if(typeof window.renderPreflight==='function')window.renderPreflight();
+          if(typeof window.updateMapDossier==='function')window.updateMapDossier(window.selectedMapIndex||0);
+          if(typeof window.renderPreflight==='function')setTimeout(window.renderPreflight,30);
+        });
+      }
+    };
+  }
+  function neutralisePreflightVehicle(){
+    const box=q('dispatchVehiclePreflight');
+    const list=q('dispatchVehiclePreflightList');
+    if(list)list.innerHTML='';
+    if(box){box.textContent='';const p=box.parentElement;p?.classList?.add('v250-connected');}
+  }
+  function bridge(){
+    const f=franchise(),v=selected(f);
+    if(f&&v){f.dispatchVehicleName=v.name||f.dispatchVehicleName||v.id;f.dispatchVehicleType=v.type||f.dispatchVehicleType||'ECTO VEHICLE';}
+    updateConnection();
+    bindVehicle();
+    neutralisePreflightVehicle();
+  }
+  bridge();
+  setInterval(bridge,500);
+})();
+</script>
+
+</body></html><script>
+/* V2.2.39 // ECTO DISPATCH SIDE CONTROL + DEPLOYMENT LINK */
+(function(){
+  "use strict";
+  const q=id=>document.getElementById(id), esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+  const FLEET_KEY="ecto-os-vehicle-fleet-v1";
+  let fleet=[];
+  const defaults=[
+    {id:"ecto-response",name:"ECTO RESPONSE",type:"SPORTS CAR",callsign:"ECTO RESPONSE",defaultLocation:"Portsmouth [PSM-14]",status:"AVAILABLE"},
+    {id:"ecto-01",name:"ECTO-01",type:"PRIMARY RESPONSE VEHICLE",callsign:"ECTO-01",defaultLocation:"London HQ [LON-01]",status:"AVAILABLE"},
+    {id:"ecto-02",name:"ECTO-02",type:"SECONDARY RESPONSE VEHICLE",callsign:"ECTO-02",defaultLocation:"Edinburgh [EDI-02]",status:"STANDBY"},
+    {id:"ecto-03",name:"ECTO-03",type:"FIELD SUPPORT VEHICLE",callsign:"ECTO-03",defaultLocation:"Manchester [MCR-03]",status:"AVAILABLE"}
+  ];
+  const loadFleet=()=>{try{const raw=localStorage.getItem(FLEET_KEY);const p=raw?JSON.parse(raw):null;fleet=Array.isArray(p)&&p.length?p:defaults.map(v=>({...v}));}catch(e){fleet=defaults.map(v=>({...v}));}};
+  const saveFleet=()=>{try{localStorage.setItem(FLEET_KEY,JSON.stringify(fleet));}catch(e){}};
+  loadFleet();
+
+  const franchise=()=>Array.isArray(window.ukFranchises)?window.ukFranchises[Number.isInteger(window.selectedMapIndex)?window.selectedMapIndex:0]:null;
+  const city=f=>String(f?.city||"");
+  const locId=f=>String(f?.locationId||f?.id||`${f?.sector||f?.ukSector||"UK"}-${f?.gridRef||f?.cityGrid||f?.city||"LOCATION"}`).toUpperCase();
+  const teamAt=(f=franchise())=>f&&Array.isArray(f.teams)?f.teams[Number.isInteger(window.activeSubTeamIndex)?window.activeSubTeamIndex:0]:null;
+  const teamId=(t,i)=>String(t?.id||t?.teamId||t?.teamCode||`${String(city(franchise())).replace(/[^A-Z0-9]+/gi,"-")}-TEAM-${i+1}`).toUpperCase();
+  const sitesAt=f=>Array.isArray(f?.investigationSites)?f.investigationSites:(Array.isArray(f?.sites)?f.sites:[]);
+  const siteLabel=s=>typeof s==="string"?s:String(s?.name||s?.siteName||s?.title||"UNNAMED SITE");
+  const siteId=(s,i,f=franchise())=>String(s?.id||s?.siteId||`${locId(f)}-SITE-${siteLabel(s).replace(/[^A-Z0-9]+/gi,"-").replace(/^-|-$/g,"")||i+1}`).toUpperCase();
+  const selectedSite=()=>franchise()?.dispatchSiteId||"";
+  const selectedVehicle=()=>{const f=franchise();return f?.dispatchVehicleId?fleet.find(v=>String(v.id)===String(f.dispatchVehicleId))||null:null;};
+  const deployed=v=>String(v?.deploymentState||"").toUpperCase()==="DEPLOYED";
+  const vehiclesFor=f=>{
+    if(!f)return[];
+    const c=city(f).trim().toUpperCase();
+    return fleet.filter(v=>String(v.defaultLocation||"").split(" [")[0].trim().toUpperCase()===c && String(v.status||"").toUpperCase()==="AVAILABLE" && !deployed(v));
+  };
+  const preflightReady=()=>{
+    const t=teamAt(); if(!t||!Array.isArray(t.members)||!t.members.length)return false;
+    const selected=t.members.filter(m=>m.preflightSelected!==false);
+    if(!selected.length)return false;
+    return selected.every(m=>!!m.primaryEquipment && (!window.standardEquipment||window.standardEquipment.every(eq=>m.preflightChecks?.[eq])));
+  };
+  const syncFleetFromRegister=()=>{loadFleet();};
+
+  function openPopup(title,subtitle,groups,cb){if(window.ectoUiLanguage?.open){window.ectoUiLanguage.open(title,subtitle,groups,cb);return true;}return false;}
+  function clearDownstream(from){
+    const f=franchise(); if(!f)return;
+    if(from<1){delete f.dispatchSiteId;}
+    if(from<2){delete f.dispatchVehicleId;delete f.dispatchVehicleName;}
+    if(from<3){window.activeSubTeamIndex=0;}
+  }
+  function setLocation(i){
+    if(typeof window.selectSector==="function")window.selectSector(i);else window.selectedMapIndex=i;
+    clearDownstream(0);
+    setTimeout(()=>{syncFleetFromRegister();refresh();},80);
+  }
+  function selectLocation(){
+    const groups={};
+    (window.ukFranchises||[]).forEach((f,i)=>{const key=String(f.sector||f.ukSector||"UK FIELD NETWORK");(groups[key] ||= []).push({title:f.city||`LOCATION ${i+1}`,meta:`${f.gridRef||f.cityGrid||"FIELD LOCATION"} // ${sitesAt(f).length} SITE${sitesAt(f).length===1?"":"S"}`,value:i});});
+    openPopup("ECTO LOCATION DATABASE","SELECT DEPLOYMENT LOCATION",Object.entries(groups).map(([label,items])=>({label,items})),item=>setLocation(item.value));
+  }
+  function selectSite(){
+    const f=franchise(); if(!f)return;
+    const sites=sitesAt(f);
+    if(!sites.length){openPopup("INVESTIGATION SITE DATABASE",city(f),[{label:"REGISTERED FIELD SITES",items:[{title:"NO INVESTIGATION SITES REGISTERED",meta:"ADD SITES IN LOCATION MANAGEMENT",disabled:true}]}],null);return;}
+    openPopup("INVESTIGATION SITE DATABASE",city(f),[{label:"REGISTERED FIELD SITES",items:sites.map((s,i)=>({title:siteLabel(s),meta:String(s?.gridRef||s?.reference||"REGISTERED INVESTIGATION SITE"),value:siteId(s,i,f)}))}],item=>{f.dispatchSiteId=item.value;delete f.dispatchVehicleId;delete f.dispatchVehicleName;refresh();});
+  }
+  function selectTeam(){
+    const f=franchise(); if(!f)return;
+    const teams=Array.isArray(f.teams)?f.teams:[];
+    openPopup("ECTO TEAM DATABASE",city(f),[{label:"REGISTERED RESPONSE TEAMS",items:teams.map((t,i)=>({title:t.teamName||`TEAM ${i+1}`,meta:`${(t.members||[]).length} MEMBERS`,value:i}))}],item=>{window.activeSubTeamIndex=item.value;delete f.dispatchVehicleId;delete f.dispatchVehicleName;refresh();if(typeof window.renderPreflight==="function")window.renderPreflight();});
+  }
+  function selectVehicle(){
+    const f=franchise(); if(!f)return;
+    if(!selectedSite()){openPopup("ECTO VEHICLE DATABASE","SELECT AN INVESTIGATION SITE FIRST",[{label:"DEPLOYMENT SEQUENCE",items:[{title:"SITE SELECTION REQUIRED",meta:"LOCATION → SITE → TEAM → VEHICLE",disabled:true}]}],null);return;}
+    const rows=vehiclesFor(f);
+    const items=rows.map(v=>({title:v.name||"UNNAMED VEHICLE",meta:`${v.type||"ECTO VEHICLE"} // ${v.callsign||v.id}`,value:v.id}));
+    openPopup("ECTO VEHICLE DATABASE","AVAILABLE FOR "+city(f).toUpperCase(),[{label:"AVAILABLE VEHICLES",items:items.length?items:[{title:"NO DEPLOYABLE VEHICLES",meta:"CHECK VEHICLE REGISTER HOME LOCATION / STATUS",disabled:true}]}],item=>{f.dispatchVehicleId=item.value;f.dispatchVehicleName=(fleet.find(v=>String(v.id)===String(item.value))||{}).name||"";f.actionHistory=Array.isArray(f.actionHistory)?f.actionHistory:[];f.actionHistory.unshift({time:new Date().toTimeString().slice(0,8),text:`${f.dispatchVehicleName} ASSIGNED TO ${city(f)}`});refresh();});
+  }
+  function openPreflight(){
+    if(!franchise()||!teamAt()){return;}
+    if(typeof window.renderPreflight==="function")window.renderPreflight();
+    if(typeof show==="function")show("fieldops");else{document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("active",s.id==="fieldops"));}
+  }
+  function returnVehicle(){
+    const f=franchise(),v=selectedVehicle();if(!v)return;
+    v.deploymentState="AVAILABLE";delete v.deploymentIncidentId;delete v.deploymentLocationId;delete v.deploymentTeamId;
+    delete f.dispatchVehicleId;delete f.dispatchVehicleName;
+    saveFleet();refresh();
+  }
+  function dispatch(){
+    const f=franchise(),t=teamAt(),v=selectedVehicle();
+    if(!f||!selectedSite()||!t||!v||!preflightReady())return;
+    v.deploymentState="DEPLOYED";
+    v.deploymentIncidentId=f.incidentId||"";
+    v.deploymentLocationId=locId(f);
+    v.deploymentSiteId=selectedSite();
+    v.deploymentTeamId=teamId(t,window.activeSubTeamIndex||0);
+    f.responseStage="DEPLOYED";
+    f.responseStatus="ECTO VEHICLE DISPATCHED // EN ROUTE";
+    f.dispatchVehicleId=v.id;f.dispatchVehicleName=v.name;
+    f.actionHistory=Array.isArray(f.actionHistory)?f.actionHistory:[];
+    f.actionHistory.unshift({time:new Date().toTimeString().slice(0,8),text:`${v.name} DISPATCHED WITH ${t.teamName||"SELECTED TEAM"}`});
+    saveFleet();
+    if(typeof window.upsertCurrentIncident==="function")window.upsertCurrentIncident(Number.isInteger(window.selectedMapIndex)?window.selectedMapIndex:0);
+    refresh();
+  }
+  function render(){
+    const f=franchise(),t=teamAt(),v=selectedVehicle(),site=selectedSite();
+    const locationEl=q("v239Location"),siteEl=q("v239Site"),teamEl=q("v239Team"),vehicleEl=q("v239Vehicle"),meta=q("v239Meta"),status=q("v239Ready"),dispatchBtn=q("v239DispatchBtn"),returnBtn=q("v239ReturnBtn");
+    if(locationEl)locationEl.textContent=f?`${f.city||"UNNAMED"} ${f.gridRef?"["+f.gridRef+"]":""}`:"SELECT LOCATION";
+    if(siteEl){const ss=sitesAt(f);const found=ss.find((s,i)=>siteId(s,i,f)===site);siteEl.textContent=found?siteLabel(found):"NO INVESTIGATION SITE SELECTED";}
+    if(teamEl)teamEl.textContent=t?.teamName||"NO TEAM SELECTED";
+    if(vehicleEl)vehicleEl.textContent=v?.name||"NO VEHICLE ASSIGNED";
+    if(meta){const available=vehiclesFor(f);meta.textContent=f?`${available.length} DEPLOYABLE VEHICLE${available.length===1?"":"S"} // ${city(f).toUpperCase()}`:"SELECT LOCATION FIRST";}
+    const ready=!!f&&!!site&&!!t&&!!v&&preflightReady()&&!deployed(v);
+    if(status){status.textContent=ready?"READY FOR DEPLOYMENT":(v&&deployed(v)?"VEHICLE DEPLOYED":"DEPLOYMENT INCOMPLETE");status.className=ready?"v239-status ok":"v239-status";}
+    if(dispatchBtn)dispatchBtn.disabled=!ready;
+    if(returnBtn){returnBtn.classList.toggle("hidden",!(v&&deployed(v)));returnBtn.disabled=!(v&&deployed(v));}
+  }
+  function refresh(){syncFleetFromRegister();render();}
+  function install(){
+    const old=q("ukmap");if(!old)return;
+    if(q("v239Core")){refresh();return;}
+    const legacy=old.querySelectorAll(".uk-city-sector-picker,.map-controls,.grid-ref-entry,.button-row,#ukTeamsSubMenu,#selectedLocationTeamsPanel,#dispatchVehiclePanel,#cityRegionPanel");legacy.forEach(x=>x.classList.add("v239-hide"));
+    const dossier=old.querySelector("#map-target-dossier");if(dossier)dossier.closest(".tactical-panel")?.classList.add("v239-hide");
+    const mapPanel=old.querySelector(".tactical-map-wrapper > .tactical-panel:first-child");if(!mapPanel)return;
+    const wrap=document.createElement("aside");wrap.id="v239Core";wrap.className="v239-core";
+    wrap.innerHTML=`<div class="v239-head"><div><b>ECTO DISPATCH CONTROL</b><div class="dim">DEPLOYMENT SEQUENCE</div></div><div class="v239-status" id="v239Ready">DEPLOYMENT INCOMPLETE</div></div>
+      <div class="v239-step"><span class="v239-num">01</span><div><span class="dim">LOCATION</span><strong id="v239Location">SELECT LOCATION</strong></div><button type="button" id="v239LocationBtn">CHANGE</button></div>
+      <div class="v239-step"><span class="v239-num">02</span><div><span class="dim">INVESTIGATION SITE</span><strong id="v239Site">NO INVESTIGATION SITE SELECTED</strong></div><button type="button" id="v239SiteBtn">SELECT</button></div>
+      <div class="v239-step"><span class="v239-num">03</span><div><span class="dim">RESPONSE TEAM</span><strong id="v239Team">NO TEAM SELECTED</strong></div><button type="button" id="v239TeamBtn">SELECT</button></div>
+      <div class="v239-step"><span class="v239-num">04</span><div><span class="dim">ECTO VEHICLE</span><strong id="v239Vehicle">NO VEHICLE ASSIGNED</strong><span class="dim" id="v239Meta">SELECT LOCATION FIRST</span></div><button type="button" id="v239VehicleBtn">SELECT</button></div>
+      <div class="v239-actions"><button type="button" id="v239PreflightBtn">OPEN TEAM PRE-FLIGHT</button><button type="button" id="v239DispatchBtn" disabled>DISPATCH ECTO VEHICLE</button><button type="button" id="v239ReturnBtn" class="hidden">RETURN VEHICLE TO SERVICE</button></div>`;
+    mapPanel.parentNode.insertBefore(wrap,mapPanel.nextSibling);
+    q("v239LocationBtn").onclick=selectLocation;q("v239SiteBtn").onclick=selectSite;q("v239TeamBtn").onclick=selectTeam;q("v239VehicleBtn").onclick=selectVehicle;q("v239PreflightBtn").onclick=openPreflight;q("v239DispatchBtn").onclick=dispatch;q("v239ReturnBtn").onclick=returnVehicle;
+    refresh();
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});else install();
+  setInterval(install,1200);
+})();
+
+</script><style>
+.v239-hide{display:none!important}
+.screen#ukmap .tactical-map-wrapper{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,360px);gap:10px;align-items:start}
+.screen#ukmap .v239-core{border:1px solid var(--ui-grid);background:var(--ui-deep);padding:10px;box-sizing:border-box;min-width:0;position:sticky;top:8px}
+.v239-head{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;border-bottom:1px solid var(--ui-grid);padding-bottom:8px;margin-bottom:8px}.v239-head b{letter-spacing:1px;color:var(--ui-accent);font-size:12px}.v239-status{border:1px solid #ffb000;color:#ffb000;padding:5px 7px;font-size:9px;letter-spacing:.7px;text-align:right}.v239-status.ok{border-color:var(--ui-accent);color:var(--ui-accent)}
+.v239-step{display:grid;grid-template-columns:28px minmax(0,1fr) 66px;gap:7px;align-items:center;border:1px solid var(--ui-grid);padding:8px;margin-top:7px}.v239-num{color:var(--ui-dim);font-size:10px;letter-spacing:.5px}.v239-step strong{display:block;color:var(--ui-accent);font-size:11px;letter-spacing:.5px;overflow-wrap:anywhere;margin-top:3px}.v239-step button{min-height:40px;padding:6px}.v239-actions{display:grid;grid-template-columns:1fr;gap:7px;margin-top:9px}.v239-actions button{min-height:44px}.v239-actions button:disabled{opacity:.42;cursor:not-allowed}
+@media(max-width:900px){.screen#ukmap .tactical-map-wrapper{grid-template-columns:1fr}.screen#ukmap .v239-core{position:static}.v239-step{grid-template-columns:28px minmax(0,1fr) 72px}}
+</style>
+.v238-hide{display:none!important}
+#ukmap .v238-core{margin-top:12px;border:1px solid var(--ui-grid);background:var(--ui-deep);padding:12px;box-sizing:border-box}
+.v238-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;border-bottom:1px solid var(--ui-grid);padding-bottom:9px;margin-bottom:10px}.v238-head b{letter-spacing:1px;color:var(--ui-accent)}
+.v238-status{border:1px solid #ffb000;color:#ffb000;padding:6px 8px;font-size:10px;letter-spacing:.8px;white-space:nowrap}.v238-status.ok{border-color:var(--ui-accent);color:var(--ui-accent)}
+.v238-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.v238-card{border:1px solid var(--ui-grid);padding:10px;min-width:0}.v238-card strong{display:block;margin:5px 0 8px;color:var(--ui-accent);letter-spacing:.6px;overflow-wrap:anywhere}.v238-card button{width:100%;min-height:42px}
+.v238-actions{display:flex;gap:8px;margin-top:9px;flex-wrap:wrap}.v238-actions button{flex:1 1 220px;min-height:46px}.v238-ready.ok{border-color:var(--ui-accent);color:var(--ui-accent)}
+@media(max-width:700px){.v238-grid{grid-template-columns:1fr}.v238-head{flex-direction:column}.v238-status{white-space:normal}}
+</style>
+<script>
+/* ECTO OS V2.2.42 // PRE-FLIGHT VEHICLE LOCATION MATCH FIX */
+(function(){
+  "use strict";
+  const KEY="ecto-os-vehicle-fleet-v1";
+  const q=id=>document.getElementById(id);
+  const cityName=v=>String(v||"").replace(/\s*\[[^\]]+\]/," ").trim().toUpperCase();
+  function fleet(){
+    try{const raw=localStorage.getItem(KEY);const p=raw?JSON.parse(raw):[];return Array.isArray(p)?p:[];}catch(e){return[];}
+  }
+  function currentLocation(){
+    try{return Array.isArray(window.ukFranchises)?window.ukFranchises[Number(window.selectedMapIndex)||0]:null;}catch(e){return null;}
+  }
+  function vehiclesForLocation(f){
+    if(!f)return[];
+    const configured=Array.isArray(f.dispatchVehicles)?f.dispatchVehicles:[];
+    if(configured.length)return configured.map((v,i)=>typeof v==="string"?{id:"custom-"+i,name:v,type:"FRANCHISE VEHICLE",status:"AVAILABLE"}:v);
+    const target=cityName(f.city);
+    return fleet().filter(v=>{
+      const home=v&&((v.homeLocationId||v.locationId||v.defaultLocation)||"");
+      return cityName(home)===target;
+    });
+  }
+  function selectedVehicle(f){
+    if(!f||!f.dispatchVehicleId)return null;
+    return vehiclesForLocation(f).find(v=>String(v.id)===String(f.dispatchVehicleId))||null;
+  }
+  function inject(){
+    const field=q("fieldops");
+    if(!field)return;
+    let box=q("dispatchVehiclePreflight")?.closest(".dispatch-vehicle-preflight");
+    if(!box){
+      const label=q("preflightTeamLabel");
+      if(!label)return;
+      box=document.createElement("div");
+      box.className="dispatch-vehicle-preflight";
+      box.innerHTML='<div class="dim">DISPATCH VEHICLE // ASSIGN BEFORE FINAL PREFLIGHT</div><div class="dispatch-vehicle-value" id="dispatchVehiclePreflight">NO VEHICLE ASSIGNED</div><div class="dim" id="dispatchVehiclePreflightStatus">VEHICLE REQUIRED BEFORE DISPATCH</div><div class="dispatch-preflight-vehicle-list" id="dispatchVehiclePreflightList"></div>';
+      const metric=label.closest(".metric");
+      if(metric)metric.insertAdjacentElement("afterend",box);else label.parentElement?.insertAdjacentElement("afterend",box);
+    }
+    render();
+  }
+  function render(){
+    const f=currentLocation();
+    const value=q("dispatchVehiclePreflight"),status=q("dispatchVehiclePreflightStatus"),list=q("dispatchVehiclePreflightList");
+    if(!value||!status||!list)return;
+    const chosen=selectedVehicle(f);
+    value.textContent=chosen?.name||"NO VEHICLE ASSIGNED";
+    status.textContent=chosen?`${chosen.type||"ECTO VEHICLE"} // READY FOR DISPATCH`:"VEHICLE REQUIRED BEFORE DISPATCH";
+    const rows=vehiclesForLocation(f).filter(v=>String(v.status||"AVAILABLE").toUpperCase()==="AVAILABLE" && String(v.deploymentState||"").toUpperCase()!=="DEPLOYED");
+    if(!rows.length){list.innerHTML='<div class="dim">NO DEPLOYABLE VEHICLES REGISTERED FOR THIS LOCATION</div>';return;}
+    list.innerHTML=rows.map(v=>{
+      const active=chosen&&String(chosen.id)===String(v.id);
+      const id=String(v.id).replace(/[^a-zA-Z0-9_-]/g,"");
+      return `<button type="button" class="dispatch-preflight-vehicle${active?" selected":""}" data-v241-preflight-vehicle="${id}"><span><b>${window.escapeHtml?window.escapeHtml(v.name||"UNNAMED VEHICLE"):String(v.name||"UNNAMED VEHICLE")}</b><small>${window.escapeHtml?window.escapeHtml(v.type||"ECTO VEHICLE"):String(v.type||"ECTO VEHICLE")} // ${window.escapeHtml?window.escapeHtml(v.callsign||v.id||""):String(v.callsign||v.id||"")}</small></span><strong>${active?"SELECTED":"SELECT"}</strong></button>`;
+    }).join("");
+    list.querySelectorAll("[data-v241-preflight-vehicle]").forEach(btn=>btn.addEventListener("click",()=>{
+      const raw=btn.dataset.v241PreflightVehicle;
+      const chosen=rows.find(v=>String(v.id).replace(/[^a-zA-Z0-9_-]/g,"")===raw);
+      if(!chosen||!f)return;
+      f.dispatchVehicleId=chosen.id;f.dispatchVehicleName=chosen.name;f.dispatchVehicleType=chosen.type||"ECTO VEHICLE";
+      try{window.dispatchVehicleId=chosen.id;}catch(e){}
+      render();
+      document.getElementById("dispatchVehicleList")?.dispatchEvent(new Event("change"));
+      if(typeof window.ectoDispatchFleet?.refresh==="function")window.ectoDispatchFleet.refresh();
+      document.getElementById("dispatchVehicleStatus")?.replaceChildren(document.createTextNode(`VEHICLE ASSIGNED // ${chosen.name} // ${chosen.type||"ECTO VEHICLE"}`));
+      if(typeof window.log==="function")window.log(`PRE-FLIGHT VEHICLE SELECTED // ${chosen.name} // ${f.city}.`,"info");
+    }));
+  }
+  function active(){
+    const field=q("fieldops");
+    if(field?.classList.contains("active")){inject();}
+  }
+  function init(){
+    active();
+    const field=q("fieldops");
+    if(field&&!field.__v242Observed){field.__v242Observed=true;new MutationObserver(active).observe(field,{attributes:true,attributeFilter:["class"]});}
+    setInterval(active,500);
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
+})();
+</script>
+
+<script>
+/* ECTO OS V2.2.45 // FOCUSED PRE-FLIGHT SIMPLIFICATION
+   Vehicle selection belongs to ECTO DISPATCH. Pre-Flight only prepares the team.
+   This layer deliberately removes the legacy/injected Pre-Flight vehicle selector and
+   the duplicate Field Ops dispatch button, leaving the existing team/equipment checks intact. */
+(function(){
+  "use strict";
+  const q=id=>document.getElementById(id);
+  function clean(){
+    const field=q("fieldops");
+    if(!field)return;
+    field.querySelectorAll(".dispatch-vehicle-preflight,[id^=dispatchVehiclePreflight]").forEach(el=>{
+      const box=el.classList?.contains("dispatch-vehicle-preflight")?el:el.closest?.(".dispatch-vehicle-preflight");
+      if(box)box.remove(); else el.remove();
+    });
+    const deploy=q("deployTeamWorkflowBtn");
+    if(deploy){
+      const row=deploy.closest(".button-row");
+      if(row)row.remove(); else deploy.remove();
+    }
+    const ret=q("returnDispatchBtn");
+    if(ret){
+      const row=ret.closest(".button-row");
+      if(row)row.remove(); else ret.remove();
+    }
+  }
+  function init(){
+    clean();
+    const field=q("fieldops");
+    if(field&&!field.__v245Observed){
+      field.__v245Observed=true;
+      new MutationObserver(clean).observe(field,{childList:true,subtree:true});
+    }
+    setInterval(clean,800);
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
+})();
+</script>
+<style>
+/* Keep the old injected vehicle selector suppressed even if a legacy refresh recreates it. */
+#fieldops .dispatch-vehicle-preflight{display:none!important}
+</style>
+
+
+<!-- ECTO OS V2.2.49 // OPERATIONAL DEPLOYMENT TIMELINE + VEHICLE LINK REPAIR -->
+<style>
+#commandconsole .v249-deploybar{border:1px solid var(--ui-grid);padding:10px;margin-top:8px;display:grid;gap:7px}
+#commandconsole .v249-row{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+#commandconsole .v249-eta{font-size:18px;letter-spacing:1px;color:var(--ui-accent);font-weight:bold}
+#commandconsole .v249-stage{color:var(--ui-accent);letter-spacing:.8px}
+#commandconsole .v249-sub{color:var(--ui-dim);font-size:10px;letter-spacing:.5px}
+#commandconsole .v249-active{border-color:var(--ui-accent)!important;color:var(--ui-accent)!important}
+#commandconsole .v249-locked{opacity:.35!important}
+</style>
+<script>
+(function(){
+  "use strict";
+  const FLEET_KEY="ecto-os-vehicle-fleet-v1", LOCATION_KEY="ecto-os-location-database-v1";
+  const root=document.getElementById("commandconsole");
+  const q=id=>document.getElementById(id);
+  if(!root)return;
+  let timer=null, containmentTimer=null, returnTimer=null;
+  const COMMANDS=["DISPATCH TEAM","HOLD POSITION","ADVANCE TO SITE","BEGIN INVESTIGATION","REQUEST PKE SWEEP","DEPLOY TRAP","INITIATE CONTAINMENT","REQUEST BACKUP","RETURN TO VEHICLE","ABORT OPERATION"];
+  function fleet(){try{const x=JSON.parse(localStorage.getItem(FLEET_KEY)||"[]");return Array.isArray(x)?x:[]}catch(e){return[]}}
+  function saveFleet(a){try{localStorage.setItem(FLEET_KEY,JSON.stringify(a))}catch(e){}}
+  function franchise(){const fs=window.ukFranchises||[];const i=Number.isInteger(window.selectedMapIndex)?window.selectedMapIndex:0;return fs[i]||null}
+  function team(f){const i=Number.isInteger(window.activeSubTeamIndex)?window.activeSubTeamIndex:0;return (f?.teams||[])[i]||null}
+  function cityName(v){return String(v??"").replace(/\s*\[[^\]]+\]/g,"").trim().toUpperCase()}
+  function vehicleMatches(v,f){
+    if(!v||!f)return false;
+    const fid=String(f.locationId||f.id||"").toUpperCase();
+    const ids=[v.homeLocationId,v.locationId].filter(Boolean).map(x=>String(x).toUpperCase());
+    if(fid&&ids.includes(fid))return true;
+    const home=cityName(v.defaultLocation||v.homeLocation||"");
+    const city=cityName(f.city||"");
+    return !!home&&!!city&&home===city;
+  }
+  function selectedVehicle(f){return f?.dispatchVehicleId?fleet().find(v=>String(v.id)===String(f.dispatchVehicleId))||null:null}
+  function logLine(text){const box=q("eccLog");if(!box)return;box.textContent+=(box.textContent?"\n\n":"")+"["+new Date().toLocaleTimeString("en-GB")+"] "+text;box.scrollTop=box.scrollHeight}
+  function status(text){const box=q("eccStatus");if(box)box.textContent=text}
+  function persist(f){try{localStorage.setItem(LOCATION_KEY,JSON.stringify(window.ukFranchises||[]))}catch(e){};try{const i=Number.isInteger(window.selectedMapIndex)?window.selectedMapIndex:0;if(typeof window.upsertCurrentIncident==="function")window.upsertCurrentIncident(i)}catch(e){}}
+  function minsSecs(ms){const s=Math.max(0,Math.ceil(ms/1000));return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")}
+  function ensureTimeline(f){if(!f)return null;if(!f.ectoTimeline)f.ectoTimeline={stage:f.responseStage||"STANDING BY",etaEnd:0,returnEnd:0,containmentEnd:0};return f.ectoTimeline}
+  function stage(f,name,reply){f.responseStage=name;f.responseStatus=reply;ensureTimeline(f).stage=name;persist(f);render()}
+  function renderBar(){
+    const f=franchise(),t=team(f),v=selectedVehicle(f),tl=ensureTimeline(f);if(!f||!tl)return;
+    let bar=document.getElementById("v249DeployBar");
+    if(!bar){bar=document.createElement("div");bar.id="v249DeployBar";bar.className="v249-deploybar";root.querySelector(".grid")?.appendChild(bar)||root.insertBefore(bar,root.firstChild)}
+    let eta="--:--",sub="NO ACTIVE DEPLOYMENT";
+    if(tl.stage==="EN ROUTE"&&tl.etaEnd){eta=minsSecs(tl.etaEnd-Date.now());sub="ARRIVAL COUNTDOWN // ASSIGNED LOCATION"}
+    else if(tl.stage==="RETURNING"&&tl.returnEnd){eta=minsSecs(tl.returnEnd-Date.now());sub="RETURN TO HQ COUNTDOWN"}
+    else if(tl.stage==="CONTAINMENT"&&tl.containmentEnd){eta=minsSecs(tl.containmentEnd-Date.now());sub="CONTAINMENT SEQUENCE // FIELD STABILISING"}
+    else if(tl.stage==="AT HQ")sub="CREW STANDING DOWN // VEHICLE AVAILABLE";
+    else sub=String(tl.stage||"STANDING BY").replaceAll("_"," ");
+    bar.innerHTML=`<div class="v249-row"><span class="v249-stage">${String(tl.stage||"STANDING BY")}</span><span class="v249-eta">ETA ${eta}</span></div><div class="v249-row"><span class="v249-sub">${sub}</span><span class="v249-sub">${String(v?.name||"NO VEHICLE ASSIGNED")} // ${String(t?.teamName||"NO TEAM")}</span></div>`;
+    const dep=q("eccDeployment");if(dep)dep.textContent=`LOCATION: ${f.city||"UNASSIGNED"}\nSITE: ${f.dispatchSiteId||"SITE NOT SELECTED"}\nTEAM: ${t?.teamName||"UNASSIGNED"}\nVEHICLE: ${v?.name||"NO VEHICLE ASSIGNED"}\nSTAGE: ${tl.stage||"STANDING BY"}`;
+  }
+  function commandButtons(){
+    const area=q("eccCommands");if(!area)return;
+    const f=franchise(),tl=ensureTimeline(f),v=selectedVehicle(f);
+    const st=tl?.stage||"STANDING BY";
+    const allowed=new Set();
+    if(st==="STANDING BY"||st==="READY FOR DEPLOYMENT")allowed.add("DISPATCH TEAM").add("HOLD POSITION");
+    if(st==="EN ROUTE")allowed.add("HOLD POSITION").add("ABORT OPERATION");
+    if(st==="ON SITE")allowed.add("BEGIN INVESTIGATION").add("REQUEST BACKUP").add("ABORT OPERATION");
+    if(st==="INVESTIGATING")allowed.add("REQUEST PKE SWEEP").add("DEPLOY TRAP").add("REQUEST BACKUP").add("ABORT OPERATION");
+    if(st==="TRAP DEPLOYED")allowed.add("INITIATE CONTAINMENT").add("REQUEST PKE SWEEP").add("ABORT OPERATION");
+    if(st==="CONTAINMENT")allowed.add("HOLD POSITION");
+    if(st==="CONTAINMENT CONFIRMED")allowed.add("RETURN TO VEHICLE");
+    if(st==="RETURNING")allowed.add("HOLD POSITION");
+    if(!v)allowed.clear();
+    area.querySelectorAll("button").forEach(b=>{const n=(b.textContent||"").trim();b.disabled=!allowed.has(n);b.classList.toggle("v249-locked",b.disabled);b.classList.toggle("v249-active",allowed.has(n));});
+  }
+  function render(){renderBar();commandButtons()}
+  function announce(text){status(text);logLine(text)}
+  function dispatchAuthoritative(){
+    const f=franchise(),t=team(f);if(!f||!t||!f.dispatchSiteId)return;
+    const fs=fleet(),v=selectedVehicle(f);
+    if(!v){announce("DISPATCH FAILED\nSELECT AN ECTO VEHICLE IN DISPATCH FIRST.");return}
+    v.deploymentState="DEPLOYED";v.deploymentIncidentId=f.incidentId||"";v.deploymentLocationId=f.locationId||f.id||"";v.deploymentSiteId=f.dispatchSiteId;v.deploymentTeamId=t.id||t.teamId||t.teamName||"";
+    const tl=ensureTimeline(f);tl.stage="EN ROUTE";tl.etaEnd=Date.now()+60000;tl.returnEnd=0;tl.containmentEnd=0;
+    f.responseStage="EN ROUTE";f.responseStatus="ECTO VEHICLE DISPATCHED // EN ROUTE";f.actionHistory=Array.isArray(f.actionHistory)?f.actionHistory:[];f.actionHistory.unshift({time:new Date().toTimeString().slice(0,8),text:`${v.name||v.id} DEPARTED HQ // ETA 01:00`});
+    saveFleet(fs);persist(f);announce(`COMMAND RECEIVED\n${v.name||v.id} DEPARTED HQ.\nTEAM: ${t.teamName||"RESPONSE TEAM"}\nETA: 01:00`);startTimer();
+  }
+  function arrive(){const f=franchise(),t=team(f),v=selectedVehicle(f);if(!f)return;const tl=ensureTimeline(f);tl.stage="ON SITE";tl.etaEnd=0;f.responseStage="ON SITE";f.responseStatus="TEAM ON SITE // INVESTIGATION READY";f.actionHistory.unshift({time:new Date().toTimeString().slice(0,8),text:`${t?.teamName||"RESPONSE TEAM"} ARRIVED ON SITE`});persist(f);announce(`ARRIVAL TRANSMISSION\nCOMMAND, ${t?.teamName||"RESPONSE TEAM"}. WE'RE ON SITE.\n${v?.name||"ECTO VEHICLE"} PARKED.\nBEGINNING FIELD OPERATIONS.`);render()}
+  function beginInvestigation(){const f=franchise(),t=team(f);if(!f)return;const tl=ensureTimeline(f);tl.stage="INVESTIGATING";f.responseStage="INVESTIGATING";f.responseStatus="INVESTIGATION IN PROGRESS";f.actionHistory.unshift({time:new Date().toTimeString().slice(0,8),text:"INVESTIGATION COMMENCED"});persist(f);announce(`TEAM TRANSMISSION\n${t?.teamName||"RESPONSE TEAM"}: ON SITE. BEGINNING INITIAL INVESTIGATION.`);render()}
+  function deployTrap(){const f=franchise(),t=team(f);if(!f)return;const tl=ensureTimeline(f);tl.stage="TRAP DEPLOYED";f.trapState="DEPLOYED";f.responseStage="TRAP DEPLOYED";f.responseStatus="TRAP DEPLOYED // AWAITING CONTAINMENT";f.actionHistory.unshift({time:new Date().toTimeString().slice(0,8),text:"TRAP DEPLOYED"});persist(f);announce(`TEAM TRANSMISSION\n${t?.teamName||"RESPONSE TEAM"}: TRAP DEPLOYED. STAND CLEAR.`);render()}
+  function contain(){const f=franchise(),t=team(f);if(!f)return;const tl=ensureTimeline(f);tl.stage="CONTAINMENT";tl.containmentEnd=Date.now()+20000;f.responseStage="CONTAINMENT";f.responseStatus="CONTAINMENT FIELD INITIALISING";f.actionHistory.unshift({time:new Date().toTimeString().slice(0,8),text:"CONTAINMENT SEQUENCE INITIATED"});persist(f);announce(`CONTAINMENT SEQUENCE INITIATED\nTRAP // DEPLOYMENT CONFIRMED\nCONTAINMENT GRID // FIELD INITIALISING\nTEAM: ${t?.teamName||"RESPONSE TEAM"} // HOLD POSITION`);startTimer()}
+  function containmentSuccess(){const f=franchise(),t=team(f);if(!f)return;const tl=ensureTimeline(f);tl.stage="CONTAINMENT CONFIRMED";tl.containmentEnd=0;f.responseStage="CONTAINMENT CONFIRMED";f.responseStatus="CONTAINMENT SUCCESSFUL // ENTITY SECURED";f.actionHistory.unshift({time:new Date().toTimeString().slice(0,8),text:"CONTAINMENT SUCCESSFUL // ENTITY SECURED"});persist(f);announce(`CONTAINMENT TRANSMISSION\nCOMMAND, CONTAINMENT SUCCESSFUL.\nENTITY SECURED.\n${t?.teamName||"RESPONSE TEAM"} STANDING BY FOR RETURN ORDER.`);render()}
+  function returnToVehicle(){const f=franchise(),t=team(f),v=selectedVehicle(f);if(!f||!v)return;const tl=ensureTimeline(f);tl.stage="RETURNING";tl.returnEnd=Date.now()+45000;f.responseStage="RETURNING";f.responseStatus="TEAM RETURNING TO HQ";f.actionHistory.unshift({time:new Date().toTimeString().slice(0,8),text:`${t?.teamName||"RESPONSE TEAM"} RETURNING TO HQ`});persist(f);announce(`RETURN ORDER ACKNOWLEDGED\n${t?.teamName||"RESPONSE TEAM"}: RETURNING TO ${v.name||"ECTO VEHICLE"}.\nHQ ETA: 00:45`);startTimer()}
+  function atHQ(){const f=franchise(),t=team(f),v=selectedVehicle(f);if(!f)return;const tl=ensureTimeline(f);tl.stage="AT HQ";tl.returnEnd=0;f.responseStage="AT HQ";f.responseStatus="ECTO VEHICLE BACK AT HQ // CREW STANDING DOWN";f.actionHistory.unshift({time:new Date().toTimeString().slice(0,8),text:`${v?.name||"ECTO VEHICLE"} RETURNED TO HQ`});const fs=fleet();const x=fs.find(z=>v&&String(z.id)===String(v.id));if(x){x.deploymentState="AVAILABLE";delete x.deploymentIncidentId;delete x.deploymentLocationId;delete x.deploymentSiteId;delete x.deploymentTeamId}saveFleet(fs);persist(f);announce(`HQ TRANSMISSION\nCOMMAND, ${v?.name||"ECTO VEHICLE"} BACK AT HQ.\n${t?.teamName||"RESPONSE TEAM"} CREW SECURED.\nSTANDING DOWN.`);render()}
+  function hold(){const f=franchise(),t=team(f);announce(`TEAM RESPONSE\n${t?.teamName||"RESPONSE TEAM"}: HOLDING POSITION. AWAITING FURTHER INSTRUCTION.`)}
+  function backup(){const f=franchise(),t=team(f);announce(`COMMAND RECEIVED\nBACKUP REQUEST TRANSMITTED FROM ${f?.city||"FIELD LOCATION"}.\n${t?.teamName||"RESPONSE TEAM"}: ACKNOWLEDGED.`)}
+  function abort(){const f=franchise(),t=team(f);if(!f)return;const tl=ensureTimeline(f);tl.stage="RETURNING";tl.returnEnd=Date.now()+30000;f.responseStage="RETURNING";f.responseStatus="OPERATION ABORTED // RETURNING TO HQ";persist(f);announce(`ABORT ORDER\n${t?.teamName||"RESPONSE TEAM"}: OPERATION ABORTED. RETURNING TO HQ.`);startTimer()}
+  function pke(){
+    const f=franchise(),t=team(f);if(!f)return;
+    let pke=100+Math.floor(Math.random()*900);f.lastPke=pke;f.pkeHistory=Array.isArray(f.pkeHistory)?f.pkeHistory:[];f.pkeHistory.unshift({time:new Date().toTimeString().slice(0,8),value:pke});
+    const band=pke>=850?"EXTREME":pke>=700?"SEVERE":pke>=500?"HIGH":pke>=300?"ELEVATED":"LOW";
+    f.actionHistory=Array.isArray(f.actionHistory)?f.actionHistory:[];f.actionHistory.unshift({time:new Date().toTimeString().slice(0,8),text:`PKE SWEEP // ${pke} PKE // ${band} ACTIVITY`});f.responseStatus="PKE SCAN COMPLETE";persist(f);announce(`PKE SWEEP COMPLETE\n${t?.teamName||"RESPONSE TEAM"}: COMMAND, WE'RE GETTING A ${band.toLowerCase()} READING HERE. ${pke} PKE.`);render()
+  }
+  function startTimer(){clearInterval(timer);timer=setInterval(()=>{const f=franchise(),tl=ensureTimeline(f);if(!tl){clearInterval(timer);return}if(tl.stage==="EN ROUTE"&&tl.etaEnd&&Date.now()>=tl.etaEnd){clearInterval(timer);arrive();return}if(tl.stage==="CONTAINMENT"&&tl.containmentEnd&&Date.now()>=tl.containmentEnd){clearInterval(timer);containmentSuccess();return}if(tl.stage==="RETURNING"&&tl.returnEnd&&Date.now()>=tl.returnEnd){clearInterval(timer);atHQ();return}render()},250);render()}
+  function bind(){
+    const vb=q("v240VehicleBtn");
+    if(vb&&!vb.dataset.v249){vb.dataset.v249="1";vb.onclick=function(){const f=franchise();if(!f)return;const rows=fleet().filter(v=>vehicleMatches(v,f)&&String(v.status||"AVAILABLE").toUpperCase()==="AVAILABLE"&&String(v.deploymentState||"").toUpperCase()!=="DEPLOYED");const groups=[{label:"AVAILABLE ECTO VEHICLES",items:rows.length?rows.map(v=>({title:v.name||v.id,meta:`${v.type||"ECTO VEHICLE"} // ${v.callsign||v.id}`,value:String(v.id)})):[{title:"NO DEPLOYABLE VEHICLES",meta:"CHECK VEHICLE REGISTER HOME LOCATION / STATUS",disabled:true}]}];window.ectoUiLanguage?.open?.("ECTO VEHICLE DATABASE",`${String(f.city||"").toUpperCase()} // SELECT VEHICLE`,groups,item=>{const fs=fleet(),x=fs.find(z=>String(z.id)===String(item.value));if(!x)return;f.dispatchVehicleId=x.id;f.dispatchVehicleName=x.name||x.id;f.dispatchVehicleType=x.type||"ECTO VEHICLE";f.actionHistory=Array.isArray(f.actionHistory)?f.actionHistory:[];f.actionHistory.unshift({time:new Date().toTimeString().slice(0,8),text:`${f.dispatchVehicleName} ASSIGNED TO ${f.city||"LOCATION"}`});persist(f);render()})}}
+    const db=q("v239DispatchBtn")||q("v240DispatchBtn");if(db&&!db.dataset.v249){db.dataset.v249="1";db.onclick=dispatchAuthoritative}
+    const area=q("eccCommands");if(area&&!area.dataset.v249){area.dataset.v249="1";area.querySelectorAll("button").forEach(b=>{const c=b.cloneNode(true);b.replaceWith(c);});area.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{const n=(b.textContent||"").trim();if(n==="DISPATCH TEAM")dispatchAuthoritative();else if(n==="HOLD POSITION")hold();else if(n==="BEGIN INVESTIGATION")beginInvestigation();else if(n==="REQUEST PKE SWEEP")pke();else if(n==="DEPLOY TRAP")deployTrap();else if(n==="INITIATE CONTAINMENT")contain();else if(n==="REQUEST BACKUP")backup();else if(n==="RETURN TO VEHICLE")returnToVehicle();else if(n==="ABORT OPERATION")abort();else if(n==="ADVANCE TO SITE")announce("TEAM RESPONSE\n"+(team(franchise())?.teamName||"RESPONSE TEAM")+": ADVANCING TO ASSIGNED INVESTIGATION SITE.");}));}
+    render();
+  }
+  function init(){bind();startTimer();setInterval(bind,1000)}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
+})();
+</script>
+
