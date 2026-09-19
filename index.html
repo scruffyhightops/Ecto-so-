@@ -4533,7 +4533,13 @@ if ('serviceWorker' in navigator) {
     return a[i]||null;
   };
   const city=f=>String(f?.city||"").split(" [")[0].trim().toUpperCase();
-  const fleet=()=>{try{const p=JSON.parse(localStorage.getItem(FLEET_KEY)||"null");return Array.isArray(p)?p:[];}catch(e){return[];}};
+  const fallback=[
+    {id:"ecto-response",name:"ECTO RESPONSE",type:"SPORTS CAR",callsign:"ECTO RESPONSE",defaultLocation:"Portsmouth [PSM-14]",status:"AVAILABLE"},
+    {id:"ecto-01",name:"ECTO-01",type:"PRIMARY RESPONSE VEHICLE",callsign:"ECTO-01",defaultLocation:"London HQ [LON-01]",status:"AVAILABLE"},
+    {id:"ecto-02",name:"ECTO-02",type:"SECONDARY RESPONSE VEHICLE",callsign:"ECTO-02",defaultLocation:"Edinburgh [EDI-02]",status:"STANDBY"},
+    {id:"ecto-03",name:"ECTO-03",type:"FIELD SUPPORT VEHICLE",callsign:"ECTO-03",defaultLocation:"Manchester [MCR-03]",status:"AVAILABLE"}
+  ];
+  const fleet=()=>{try{const p=JSON.parse(localStorage.getItem(FLEET_KEY)||"null");if(Array.isArray(p)&&p.length)return p;const seed=fallback.map(v=>({...v}));localStorage.setItem(FLEET_KEY,JSON.stringify(seed));return seed;}catch(e){return fallback.map(v=>({...v}));}};
   const saveFleet=a=>{try{localStorage.setItem(FLEET_KEY,JSON.stringify(a));}catch(e){}};
   const home=v=>String(v?.defaultLocation||v?.homeLocation||"").split(" [")[0].trim().toUpperCase();
   const available=f=>fleet().filter(v=>home(v)===city(f)&&String(v.status||"AVAILABLE").toUpperCase()==="AVAILABLE"&&String(v.deploymentState||"").toUpperCase()!=="DEPLOYED");
