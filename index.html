@@ -807,7 +807,7 @@ textarea{
 <section id="boot"><div class="ecto-boot-frame"><div class="ecto-boot-top"><div class="ecto-boot-title">ECTO OS</div><div>PARANORMAL FIELD OPERATIONS COMPUTER</div><div>BOOT // V2.2.5</div></div><div class="ecto-boot-content"><div class="ecto-boot-panel"><div class="ecto-boot-panel-title">SYSTEM BOOT DIALOGUE</div><div id="post" class="ecto-boot-log"></div></div><div class="ecto-boot-panel"><div class="ecto-boot-panel-title">SYSTEM INITIALISATION</div><div class="ecto-boot-logo-space"><span>LOGO RESERVE<br><span class="dim">ECTO SYSTEM IDENTIFICATION</span></span></div><div class="ecto-boot-row"><span>FIELD COMPUTER</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>PKE SENSOR ARRAY</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>CONTAINMENT GRID</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>SPECTRAL DATABASE</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>UK THREAT NETWORK</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>AUDIO SYSTEM</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>CONFIGURATION INTERFACE</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-bar"><div id="ectoBootFill" class="ecto-boot-fill"></div></div><div class="ecto-boot-percent"><span>LOADING ECTO OS...</span><span id="ectoBootPercent">0%</span></div><div class="ecto-boot-status"><div>ALL SYSTEMS NOMINAL</div><div class="ecto-boot-ready">ECTO OS READY</div></div></div></div><div id="loginPanel" class="login hidden"><div class="login-title">SECURITY KERNEL // ACCESS REQUIRED</div><div class="row"><input id="accessCode" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="ENTER CLEARANCE CODE"><button id="authorise" type="button">AUTHORISE</button></div><div id="error"></div><div class="hint">ENTER = AUTHORISE // ESC = CLEAR // TRY: FIELD-1984 / GM-051 / AUTHOR</div><div id="verified" class="verified hidden"></div></div></div></section>
 <section id="app" class="hidden"><header><div class="title">ECTO OS // FIELD ENGINEERING COMPUTER</div><div class="session" id="session">NO SESSION</div><div class="system-clock" id="systemClock">00:00:00 // 00/00/0000</div></header>
 <div id="layout"><nav>
-<button data-screen="status">1 STATUS</button><button data-screen="containment">2 CONTAINMENT</button><button data-screen="diagnostics">3 DIAGNOSTICS</button><button data-screen="faults">4 SPECTRE DATABASE</button><button data-screen="fieldops">5 FIELD OPERATIONS</button><button data-screen="ukmap">6 ECTO DISPATCH</button><button data-screen="incidents">7 INCIDENT DATABASE</button><button data-screen="config">8 CONFIGURATION</button><button data-screen="locationadmin">9 LOCATION MANAGEMENT</button><button id="lock" type="button">LOCK SYSTEM</button>
+<button data-screen="status">1 STATUS</button><button data-screen="containment">2 CONTAINMENT</button><button data-screen="diagnostics">3 DIAGNOSTICS</button><button data-screen="faults">4 SPECTRE DATABASE</button><button data-screen="fieldops">5 FIELD OPERATIONS</button><button data-screen="ukmap">6 ECTO DISPATCH</button><button data-screen="incidents">7 INCIDENT DATABASE</button><button data-screen="commandconsole">8 ECTO COMMAND CONSOLE</button><button data-screen="config">8 CONFIGURATION</button><button data-screen="locationadmin">9 LOCATION MANAGEMENT</button><button id="lock" type="button">LOCK SYSTEM</button>
 </nav><main>
 <section id="status" class="screen active">
   <h1>SYSTEM STATUS & TELEMETRY</h1>
@@ -1354,6 +1354,15 @@ textarea{
       </div>
     </div>
   </div>
+</section>
+<section id="commandconsole" class="screen">
+<h1>ECTO COMMAND CONSOLE</h1>
+<div class="grid">
+<div class="panel"><h2>ACTIVE DEPLOYMENT</h2><div id="eccDeployment" class="logbox" style="padding:12px;white-space:pre-wrap;">NO DEPLOYMENT LOADED</div></div>
+<div class="panel"><h2>COMMAND STATUS</h2><div id="eccStatus" class="logbox" style="padding:12px;white-space:pre-wrap;">AWAITING OPERATOR INPUT</div></div>
+</div>
+<div class="panel"><h2>DEPLOYMENT COMMANDS</h2><div id="eccCommands" class="grid"></div></div>
+<div class="panel"><h2>COMMAND TRANSMISSION LOG</h2><div id="eccLog" class="logbox" style="min-height:180px;padding:12px;white-space:pre-wrap;">ECTO COMMAND CONSOLE INITIALISED.</div><button id="eccClear" type="button">CLEAR COMMAND LOG</button></div>
 </section>
 </main></div></section>
 <div id="thermalPrintReport" aria-hidden="true"></div>
@@ -4517,6 +4526,32 @@ if ('serviceWorker' in navigator) {
 .dispatch-vehicle-preflight{border:1px solid var(--ui-grid);background:var(--ui-deep);padding:9px;margin:8px 0}.dispatch-vehicle-value{color:var(--ui-accent);font-size:12px;font-weight:700;letter-spacing:.6px;margin-top:4px}.dispatch-preflight-vehicle-list{display:grid;gap:6px;margin-top:8px}.dispatch-preflight-vehicle{width:100%;min-height:48px;display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left;padding:7px 9px;border:1px solid var(--ui-grid);background:transparent;color:var(--ui-accent);font:inherit}.dispatch-preflight-vehicle span{min-width:0}.dispatch-preflight-vehicle b,.dispatch-preflight-vehicle small{display:block}.dispatch-preflight-vehicle small{color:var(--ui-dim);font-size:9px;margin-top:2px;overflow-wrap:anywhere}.dispatch-preflight-vehicle strong{font-size:9px;letter-spacing:.5px;white-space:nowrap}.dispatch-preflight-vehicle.selected{border-color:var(--ui-accent);background:rgba(255,176,0,.08)}
 @media(max-width:900px){.screen#ukmap .tactical-map-wrapper{grid-template-columns:1fr}.screen#ukmap .v240-core{position:static}.v240-step{grid-template-columns:28px minmax(0,1fr) 72px}}
 </style>
+<script>
+(function(){
+  'use strict';
+  const root=document.getElementById('commandconsole'); if(!root||root.dataset.eccReady)return; root.dataset.eccReady='1';
+  const commands=[
+    ['DISPATCH TEAM','DISPATCHED'],['HOLD POSITION','HOLD POSITION ACKNOWLEDGED'],['ADVANCE TO SITE','ADVANCE ORDER ACKNOWLEDGED'],['BEGIN INVESTIGATION','INVESTIGATION IN PROGRESS'],['REQUEST PKE SWEEP','PKE SWEEP REQUESTED'],['DEPLOY TRAP','TRAP DEPLOYMENT AUTHORISED'],['INITIATE CONTAINMENT','CONTAINMENT SEQUENCE ACTIVE'],['REQUEST BACKUP','BACKUP REQUEST TRANSMITTED'],['RETURN TO VEHICLE','RETURN ORDER ACKNOWLEDGED'],['ABORT OPERATION','OPERATION ABORTED']
+  ];
+  const $=id=>document.getElementById(id);
+  function deployment(){
+    const fs=window.ukFranchises||[]; const i=Number.isInteger(window.selectedMapIndex)?window.selectedMapIndex:0; const f=fs[i]||{};
+    const team=(f.teams||[])[Number.isInteger(window.activeSubTeamIndex)?window.activeSubTeamIndex:0]||{};
+    return {location:f.city||'UNASSIGNED',site:f.dispatchSiteId||'SITE NOT SELECTED',team:team.teamName||'UNASSIGNED',vehicle:f.dispatchVehicleName||f.dispatchVehicleId||'NOT SELECTED',stage:f.responseStage||'STANDING BY'};
+  }
+  function render(){const d=deployment(); $('eccDeployment').textContent='LOCATION: '+d.location+'\nSITE: '+d.site+'\nTEAM: '+d.team+'\nVEHICLE: '+d.vehicle+'\nSTAGE: '+d.stage;}
+  function write(text){const box=$('eccLog'); box.textContent+=(box.textContent?'\n\n':'')+'['+new Date().toLocaleTimeString('en-GB')+'] '+text; box.scrollTop=box.scrollHeight;}
+  function issue(name,result){
+    const d=deployment(); $('eccStatus').textContent='COMMAND: '+name+'\nSTATUS: TRANSMISSION COMPLETE\nRESPONSE: '+result;
+    write('COMMAND TRANSMISSION\nLOCATION: '+d.location+'\nTEAM: '+d.team+'\nVEHICLE: '+d.vehicle+'\nCOMMAND: '+name+'\nRESPONSE: '+result);
+    if(name==='INITIATE CONTAINMENT'){write('AUTOMATED SUB-COMMAND\nDEPLOY TRAP\nRESPONSE: TRAP DEPLOYMENT AUTHORISED');}
+    try{const fs=window.ukFranchises||[];const i=window.selectedMapIndex||0;const f=fs[i];if(f){f.actionHistory=Array.isArray(f.actionHistory)?f.actionHistory:[];f.actionHistory.unshift(name+' // '+result);if(name==='DEPLOY TRAP'||name==='INITIATE CONTAINMENT')f.trapState='DEPLOYED';if(name==='INITIATE CONTAINMENT')f.responseStage='CONTAINMENT';if(name==='BEGIN INVESTIGATION')f.responseStage='INVESTIGATING';if(typeof window.upsertCurrentIncident==='function')window.upsertCurrentIncident(i);}}catch(e){}
+  }
+  const area=$('eccCommands'); commands.forEach(([name,result])=>{const b=document.createElement('button');b.type='button';b.textContent=name;b.addEventListener('click',()=>issue(name,result));area.appendChild(b);});
+  $('eccClear').addEventListener('click',()=>{$('eccLog').textContent='COMMAND LOG CLEARED.';});
+  render(); setInterval(render,1000);
+})();
+</script>
 </body></html><script>
 /* V2.2.39 // ECTO DISPATCH SIDE CONTROL + DEPLOYMENT LINK */
 (function(){
