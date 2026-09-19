@@ -4517,6 +4517,66 @@ if ('serviceWorker' in navigator) {
 .dispatch-vehicle-preflight{border:1px solid var(--ui-grid);background:var(--ui-deep);padding:9px;margin:8px 0}.dispatch-vehicle-value{color:var(--ui-accent);font-size:12px;font-weight:700;letter-spacing:.6px;margin-top:4px}.dispatch-preflight-vehicle-list{display:grid;gap:6px;margin-top:8px}.dispatch-preflight-vehicle{width:100%;min-height:48px;display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left;padding:7px 9px;border:1px solid var(--ui-grid);background:transparent;color:var(--ui-accent);font:inherit}.dispatch-preflight-vehicle span{min-width:0}.dispatch-preflight-vehicle b,.dispatch-preflight-vehicle small{display:block}.dispatch-preflight-vehicle small{color:var(--ui-dim);font-size:9px;margin-top:2px;overflow-wrap:anywhere}.dispatch-preflight-vehicle strong{font-size:9px;letter-spacing:.5px;white-space:nowrap}.dispatch-preflight-vehicle.selected{border-color:var(--ui-accent);background:rgba(255,176,0,.08)}
 @media(max-width:900px){.screen#ukmap .tactical-map-wrapper{grid-template-columns:1fr}.screen#ukmap .v240-core{position:static}.v240-step{grid-template-columns:28px minmax(0,1fr) 72px}}
 </style>
+
+<script>
+/* ECTO OS V2.2.55 // VEHICLE REGISTER -> DISPATCH CONNECTION
+   Uses the existing V2.2.45 Dispatch layout. Does not alter its layout or Pre-Flight.
+   Vehicle home-location/status comes from the Configuration fleet register. */
+(function(){
+  "use strict";
+  const FLEET_KEY="ecto-os-vehicle-fleet-v1";
+  const q=id=>document.getElementById(id);
+  const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+  const loc=()=>{
+    const a=Array.isArray(window.ukFranchises)?window.ukFranchises:[];
+    const i=Number.isInteger(window.selectedMapIndex)?window.selectedMapIndex:0;
+    return a[i]||null;
+  };
+  const city=f=>String(f?.city||"").split(" [")[0].trim().toUpperCase();
+  const fleet=()=>{try{const p=JSON.parse(localStorage.getItem(FLEET_KEY)||"null");return Array.isArray(p)?p:[];}catch(e){return[];}};
+  const saveFleet=a=>{try{localStorage.setItem(FLEET_KEY,JSON.stringify(a));}catch(e){}};
+  const home=v=>String(v?.defaultLocation||v?.homeLocation||"").split(" [")[0].trim().toUpperCase();
+  const available=f=>fleet().filter(v=>home(v)===city(f)&&String(v.status||"AVAILABLE").toUpperCase()==="AVAILABLE"&&String(v.deploymentState||"").toUpperCase()!=="DEPLOYED");
+  const current=()=>{const f=loc();return f?.dispatchVehicleId?fleet().find(v=>String(v.id)===String(f.dispatchVehicleId))||null:null;};
+  function popup(title,subtitle,items,cb){
+    if(window.ectoUiLanguage?.open){window.ectoUiLanguage.open(title,subtitle,[{label:"AVAILABLE VEHICLES",items}],cb);return true;}
+    return false;
+  }
+  function render(){
+    const f=loc(),v=current();
+    ["v239Vehicle","v240Vehicle"].forEach(id=>{const el=q(id);if(el)el.textContent=v?.name||"NO ECTO VEHICLE SELECTED";});
+    ["v239Meta","v240Meta"].forEach(id=>{const el=q(id);if(el)el.textContent=f?`${available(f).length} AVAILABLE // HOME LOCATION MATCH`:`SELECT LOCATION FIRST`;});
+    ["v239Ready","v240Ready"].forEach(id=>{const el=q(id);if(el){const ready=!!f&&!!f.dispatchSiteId&&!!f.dispatchVehicleId;el.textContent=ready?"VEHICLE ATTACHED":"DEPLOYMENT INCOMPLETE";el.className=ready?"v239-status ok":"v239-status";}});
+  }
+  function chooseVehicle(e){
+    if(e){e.preventDefault();e.stopImmediatePropagation();}
+    const f=loc();
+    if(!f){popup("ECTO VEHICLE DATABASE","SELECT DEPLOYMENT LOCATION FIRST",[{title:"LOCATION REQUIRED",meta:"SELECT LOCATION BEFORE VEHICLE",disabled:true}],null);return;}
+    if(!f.dispatchSiteId){popup("ECTO VEHICLE DATABASE","SELECT INVESTIGATION SITE FIRST",[{title:"SITE REQUIRED",meta:"LOCATION → SITE → TEAM → VEHICLE",disabled:true}],null);return;}
+    const rows=available(f);
+    const items=rows.length?rows.map(v=>({title:v.name||"UNNAMED VEHICLE",meta:`${v.type||"ECTO VEHICLE"} // ${v.callsign||v.id}`,value:v.id})): [{title:"NO DEPLOYABLE VEHICLES",meta:"CHECK VEHICLE REGISTER HOME LOCATION / STATUS",disabled:true}];
+    popup("ECTO VEHICLE DATABASE",`${city(f)} // DEPLOYABLE VEHICLES`,items,item=>{
+      if(!item||item.disabled)return;
+      const fs=fleet(),v=fs.find(x=>String(x.id)===String(item.value));if(!v)return;
+      f.dispatchVehicleId=v.id;f.dispatchVehicleName=v.name||"";f.dispatchVehicleType=v.type||"ECTO VEHICLE";
+      f.actionHistory=Array.isArray(f.actionHistory)?f.actionHistory:[];
+      f.actionHistory.unshift({time:new Date().toTimeString().slice(0,8),text:`${f.dispatchVehicleName} ATTACHED TO DISPATCH`});
+      v.deploymentState="ASSIGNED";v.deploymentLocationId=f.locationId||f.id||f.city||"";v.deploymentSiteId=f.dispatchSiteId||"";
+      saveFleet(fs);render();
+      if(typeof window.renderPreflight==="function")window.renderPreflight();
+    });
+  }
+  function install(){
+    ["v239VehicleBtn","v240VehicleBtn"].forEach(id=>{
+      const b=q(id);if(!b||b.__v255Bound)return;
+      b.__v255Bound=true;
+      b.addEventListener("click",chooseVehicle,true);
+    });
+    render();
+  }
+  install();setInterval(install,500);
+})();
+</script>
 </body></html><script>
 /* V2.2.39 // ECTO DISPATCH SIDE CONTROL + DEPLOYMENT LINK */
 (function(){
