@@ -5521,3 +5521,71 @@ if ('serviceWorker' in navigator) {
 })();
 </script>
 
+
+<!-- ECTO OS V2.2.51 // FINAL VEHICLE ATTACHMENT AUTHORITY -->
+<style>
+#v240Vehicle.connected{color:var(--ui-accent)!important}
+#v240VehicleBtn.connected{border-color:var(--ui-accent)!important;color:var(--ui-accent)!important}
+#dispatchVehicleStatus.connected{color:var(--ui-accent)!important}
+</style>
+<script>
+(function(){
+  'use strict';
+  const FLEET_KEY='ecto-os-vehicle-fleet-v1';
+  const q=id=>document.getElementById(id);
+  const fleet=()=>{try{const x=JSON.parse(localStorage.getItem(FLEET_KEY)||'[]');return Array.isArray(x)?x:[]}catch(e){return[]}};
+  const franchise=()=>{const fs=window.ukFranchises||[];const i=Number.isInteger(window.selectedMapIndex)?window.selectedMapIndex:0;return fs[i]||null};
+  const city=v=>String(v||'').replace(/\s*\[[^\]]+\]/g,'').trim().toUpperCase();
+  const selected=(f)=>f?.dispatchVehicleId?fleet().find(v=>String(v.id)===String(f.dispatchVehicleId))||null:null;
+  const matches=(v,f)=>{
+    if(!v||!f)return false;
+    const fid=String(f.locationId||f.id||'').trim().toUpperCase();
+    const ids=[v.homeLocationId,v.locationId].filter(Boolean).map(x=>String(x).trim().toUpperCase());
+    if(fid&&ids.includes(fid))return true;
+    const a=city(v.defaultLocation||v.homeLocation||''),b=city(f.city||'');
+    return !!a&&!!b&&a===b;
+  };
+  function persist(f){try{const fs=window.ukFranchises||[];localStorage.setItem('ecto-os-location-database-v1',JSON.stringify(fs))}catch(e){}}
+  function show(v){
+    const name=v?.name||v?.id||'NO VEHICLE ASSIGNED', type=v?.type||'ECTO VEHICLE';
+    const el=q('v240Vehicle');if(el){el.textContent=v?name:'NO ECTO VEHICLE SELECTED';el.classList.toggle('connected',!!v)}
+    const b=q('v240VehicleBtn');if(b){b.textContent=v?'CONNECTED':'SELECT';b.classList.toggle('connected',!!v)}
+    const meta=q('v240Meta');if(meta)meta.textContent=v?`${type} // ${v.callsign||v.id||''} // CONNECTED`:'SELECT LOCATION FIRST';
+    const s=q('dispatchVehicleStatus');if(s){s.textContent=v?`VEHICLE CONNECTED // ${name} // ${type}`:'NO VEHICLE ASSIGNED // SELECT A VEHICLE BEFORE PRE-FLIGHT';s.classList.toggle('connected',!!v)}
+    const p=q('dispatchVehiclePreflight'),ps=q('dispatchVehiclePreflightStatus');
+    if(p)p.textContent=v?name:'NO VEHICLE ASSIGNED';
+    if(ps)ps.textContent=v?`${type} // CONNECTED // READY FOR DISPATCH`:'VEHICLE REQUIRED BEFORE DISPATCH';
+  }
+  function open(){
+    const f=franchise();if(!f)return;
+    const all=fleet();
+    let rows=all.filter(v=>String(v.status||'AVAILABLE').toUpperCase()==='AVAILABLE'&&String(v.deploymentState||'').toUpperCase()!=='DEPLOYED');
+    const matched=rows.filter(v=>matches(v,f));
+    if(matched.length)rows=matched;
+    const items=rows.length?rows.map(v=>({title:v.name||v.id,meta:`${v.type||'ECTO VEHICLE'} // ${v.callsign||v.id}${matches(v,f)?' // HOME LOCATION':' // FLEET AVAILABLE'}`,value:String(v.id)})):[{title:'NO AVAILABLE ECTO VEHICLES',meta:'CHECK VEHICLE REGISTER',disabled:true}];
+    const picker=window.ectoUiLanguage?.open;
+    if(!picker)return;
+    picker('ECTO VEHICLE DATABASE',`${String(f.city||'').toUpperCase()} // ATTACH VEHICLE`,[{label:'AVAILABLE ECTO VEHICLES',items}],item=>{
+      const fs=fleet(),v=fs.find(x=>String(x.id)===String(item.value));if(!v)return;
+      f.dispatchVehicleId=v.id;f.dispatchVehicleName=v.name||v.id;f.dispatchVehicleType=v.type||'ECTO VEHICLE';
+      f.vehicleAttached=true;f.vehicleAttachedAt=new Date().toISOString();
+      f.actionHistory=Array.isArray(f.actionHistory)?f.actionHistory:[];
+      f.actionHistory.unshift({time:new Date().toTimeString().slice(0,8),text:`${f.dispatchVehicleName} ATTACHED TO ${f.city||'LOCATION'}`});
+      persist(f);
+      show(v);
+      try{window.dispatchVehicleId=v.id}catch(e){}
+      if(typeof window.renderPreflight==='function')window.renderPreflight();
+      if(typeof window.updateMapDossier==='function')window.updateMapDossier(window.selectedMapIndex||0);
+      const db=q('v240DispatchBtn');if(db)db.disabled=false;
+    });
+  }
+  document.addEventListener('click',function(e){
+    const b=e.target?.closest?.('#v240VehicleBtn');
+    if(!b)return;
+    e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
+    open();
+  },true);
+  function bridge(){show(selected(franchise()))}
+  bridge();setInterval(bridge,500);
+})();
+</script>
