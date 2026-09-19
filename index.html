@@ -4660,6 +4660,90 @@ if ('serviceWorker' in navigator) {
   root.querySelectorAll("button").forEach(b=>{const n=(b.textContent||"").trim();if(["DISPATCH TEAM","HOLD POSITION","ADVANCE TO SITE","BEGIN INVESTIGATION","DEPLOY TRAP","REQUEST BACKUP","RETURN TO VEHICLE","ABORT OPERATION"].includes(n)&&!b.dataset.v248Bound){b.dataset.v248Bound="1";b.addEventListener("click",()=>{const r=response(n);if(status)status.textContent=`COMMAND: ${n}\nTEAM RESPONSE: ${r}`;if(log){log.textContent+=(log.textContent?"\n\n":"")+`[${new Date().toLocaleTimeString("en-GB")}] TEAM RESPONSE // ${r}`;log.scrollTop=log.scrollHeight;}})}});
 })();
 </script>
+
+<!-- V2.2.52 // ECTO DISPATCH VEHICLE CONFLICT RESOLUTION // FINAL AUTHORITY -->
+<style>
+  #v239VehicleBtn,#v239Vehicle{display:none!important}
+  #v239VehicleBtn{pointer-events:none!important}
+  #dispatchVehiclePreflightList{display:none!important}
+  .v252-vehicle-attached{color:var(--ui-accent)!important}
+</style>
+<script>
+(function(){
+  'use strict';
+  const KEY='ecto-os-vehicle-fleet-v1';
+  let popupOpen=false;
+  const q=id=>document.getElementById(id);
+  function fs(){try{const x=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(x)?x:[]}catch(e){return []}}
+  function save(a){try{localStorage.setItem(KEY,JSON.stringify(a))}catch(e){}}
+  function loc(){const a=window.ukFranchises||[];const i=Number.isInteger(window.selectedMapIndex)?window.selectedMapIndex:0;return a[i]||null}
+  function city(f){return String(f?.city||'').replace(/\s*\[[^\]]+\]/,'').trim().toUpperCase()}
+  function norm(x){return String(x||'').replace(/\[[^\]]+\]/,'').trim().toUpperCase()}
+  function matches(v,f){
+    if(!v||!f)return false;
+    const c=city(f);
+    const home=norm(v.defaultLocation);
+    const hid=norm(v.homeLocationId||v.locationId);
+    if(hid && (hid===String(f.locationId||'').toUpperCase() || hid===city(f))) return true;
+    return home===c || norm(v.homeLocation)===c;
+  }
+  function chosen(f){return f?.dispatchVehicleId?fs().find(v=>String(v.id)===String(f.dispatchVehicleId))||null:null}
+  function render(){
+    const f=loc(),v=chosen(f); if(!f)return;
+    const name=v?.name||f.dispatchVehicleName||'NO ECTO VEHICLE SELECTED';
+    const type=v?.type||f.dispatchVehicleType||'ECTO VEHICLE';
+    const a=q('v240Vehicle');if(a){a.textContent=v?name:'NO ECTO VEHICLE SELECTED';a.classList.toggle('v252-vehicle-attached',!!v)}
+    const b=q('v240VehicleBtn');if(b){b.textContent=v?'CONNECTED':'SELECT';b.classList.toggle('v252-vehicle-attached',!!v);b.setAttribute('aria-label',v?`Connected vehicle ${name}`:'Select ECTO vehicle')}
+    const m=q('v240Meta');if(m)m.textContent=v?`${type} // ${v.callsign||v.id||''} // VEHICLE ATTACHED`:'SELECT LOCATION FIRST';
+    const st=q('dispatchVehicleStatus');if(st){st.textContent=v?`VEHICLE ATTACHED // ${name} // ${type}`:'NO VEHICLE ATTACHED // SELECT A VEHICLE';st.classList.toggle('v252-vehicle-attached',!!v)}
+    const p=q('dispatchVehiclePreflight'),ps=q('dispatchVehiclePreflightStatus');if(p)p.textContent=v?name:'VEHICLE ATTACHMENT REQUIRED';if(ps)ps.textContent=v?`CONNECTED // ${type}`:'VEHICLE MUST BE ATTACHED IN ECTO DISPATCH';
+  }
+  function attach(id){
+    const f=loc(); if(!f)return;
+    const fleet=fs(); const v=fleet.find(x=>String(x.id)===String(id)); if(!v)return;
+    const old=f.dispatchVehicleId;
+    if(old && String(old)!==String(v.id)){
+      const ov=fleet.find(x=>String(x.id)===String(old));
+      if(ov && ov.deploymentIncidentId===f.incidentId){delete ov.deploymentIncidentId;delete ov.deploymentLocationId;delete ov.deploymentSiteId;delete ov.deploymentTeamId;ov.deploymentState='AVAILABLE'}
+    }
+    f.dispatchVehicleId=v.id;f.dispatchVehicleName=v.name||v.id;f.dispatchVehicleType=v.type||'ECTO VEHICLE';f.vehicleAttached=true;f.vehicleAttachedAt=new Date().toISOString();
+    v.deploymentState='ASSIGNED';v.deploymentIncidentId=f.incidentId||'';v.deploymentLocationId=f.locationId||'';v.deploymentSiteId=f.dispatchSiteId||'';v.deploymentTeamId=(f.teams||[])[Number.isInteger(window.activeSubTeamIndex)?window.activeSubTeamIndex:0]?.teamName||'';
+    f.actionHistory=Array.isArray(f.actionHistory)?f.actionHistory:[];f.actionHistory.unshift({time:new Date().toTimeString().slice(0,8),text:`${v.name||v.id} ATTACHED // ${city(f)}`});
+    save(fleet);try{localStorage.setItem('ecto-os-location-database-v1',JSON.stringify(window.ukFranchises||[]))}catch(e){}
+    try{window.dispatchVehicleId=v.id}catch(e){}
+    try{if(typeof window.renderPreflight==='function')window.renderPreflight()}catch(e){}
+    render();
+  }
+  function open(){
+    if(popupOpen)return;
+    const f=loc();if(!f)return;
+    const fleet=fs();
+    const rows=fleet.filter(v=>matches(v,f)&&String(v.status||'AVAILABLE').toUpperCase()==='AVAILABLE' && (!v.deploymentState||['AVAILABLE','ASSIGNED'].includes(String(v.deploymentState).toUpperCase()) || String(v.id)===String(f.dispatchVehicleId)));
+    popupOpen=true;
+    const groups=[{label:'AVAILABLE ECTO VEHICLES',items:rows.length?rows.map(v=>({title:v.name||v.id,meta:`${v.type||'ECTO VEHICLE'} // ${v.callsign||v.id}`,value:String(v.id)})):[{title:'NO VEHICLES AVAILABLE',meta:'CHECK VEHICLE REGISTER / HOME LOCATION / STATUS',disabled:true}]}];
+    const done=()=>{popupOpen=false;render()};
+    try{
+      if(window.ectoUiLanguage?.open){window.ectoUiLanguage.open('ECTO VEHICLE DATABASE',`${city(f)} // ATTACH VEHICLE`,groups,item=>{if(item?.value)attach(item.value);done()});return}
+      if(typeof window.openPopup==='function'){window.openPopup('ECTO VEHICLE DATABASE',city(f),groups,item=>{if(item?.value)attach(item.value);done()});return}
+    }catch(e){done()}
+    popupOpen=false;
+  }
+  function install(){
+    const b=q('v240VehicleBtn');if(!b)return;
+    if(!b.dataset.v252Capture){
+      b.dataset.v252Capture='1';
+      b.addEventListener('click',function(e){e.preventDefault();e.stopImmediatePropagation();open()},{capture:true});
+    }
+    render();
+  }
+  document.addEventListener('click',function(e){
+    const b=e.target?.closest?.('#v240VehicleBtn');
+    if(!b||e.eventPhase!==1)return;
+  },true);
+  install();setInterval(install,250);
+})();
+</script>
+
 </body></html><script>
 /* V2.2.39 // ECTO DISPATCH SIDE CONTROL + DEPLOYMENT LINK */
 (function(){
