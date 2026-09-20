@@ -4557,6 +4557,79 @@ if ('serviceWorker' in navigator) {
   load();install();setInterval(install,500);
 })();
 </script><style>.v239-superseded{display:none!important}</style>
+<script id="ecto-v259-vehicle-data-path-diagnostic">
+/* ECTO OS V2.2.59 // VEHICLE DATA PATH DIAGNOSTIC
+   Diagnostic only. Does not alter fleet records, Dispatch selection, or protected systems. */
+(function(){
+  "use strict";
+  const KEY="ecto-os-vehicle-fleet-v1";
+  const q=id=>document.getElementById(id);
+  const clean=s=>String(s||"").replace(/\s*\[[^\]]+\]/g,"").trim().toUpperCase();
+  const current=()=>{try{
+    const a=Array.isArray(window.ukFranchises)?window.ukFranchises:[];
+    const i=Number.isInteger(window.selectedMapIndex)?window.selectedMapIndex:0;
+    return a[i]||null;
+  }catch(e){return null;}};
+  const fleet=()=>{try{const p=JSON.parse(localStorage.getItem(KEY)||"null");return Array.isArray(p)?p:[];}catch(e){return[];}};
+  function locationId(f){return String(f?.locationId||f?.id||"").toUpperCase();}
+  function row(v,f){
+    const targetCity=clean(f?.city), targetId=locationId(f);
+    const fields=[
+      ["defaultLocation",v?.defaultLocation],
+      ["homeLocation",v?.homeLocation],
+      ["homeLocationName",v?.homeLocationName],
+      ["homeLocationId",v?.homeLocationId],
+      ["locationId",v?.locationId]
+    ].filter(x=>x[1]!==undefined&&x[1]!==null&&String(x[1]).trim()!=="");
+    const cityMatch=fields.some(x=>clean(x[1])===targetCity||clean(x[1]).includes(targetCity)||targetCity.includes(clean(x[1])));
+    const idMatch=targetId&&fields.some(x=>String(x[1]).toUpperCase()===targetId);
+    const available=String(v?.status||"AVAILABLE").toUpperCase()==="AVAILABLE";
+    const deployed=String(v?.deploymentState||"").toUpperCase()==="DEPLOYED";
+    return {cityMatch,idMatch,available,deployed,fields};
+  }
+  function run(){
+    const f=current(),fs=fleet();
+    const lines=[];
+    lines.push(`VEHICLE DATA PATH DIAGNOSTIC // V2.2.59`);
+    lines.push(`SOURCE: ${KEY}`);
+    lines.push(`FLEET RECORDS: ${fs.length}`);
+    lines.push(`ACTIVE LOCATION: ${f?.city||"NONE"}`);
+    lines.push(`LOCATION ID: ${locationId(f)||"NONE"}`);
+    lines.push(`CITY KEY: ${clean(f?.city)||"NONE"}`);
+    lines.push(`DISPATCH VEHICLE ID: ${f?.dispatchVehicleId||"NONE"}`);
+    lines.push(``);
+    if(!fs.length){lines.push(`!! NO VEHICLE RECORDS FOUND IN LOCAL STORAGE !!`);}
+    fs.forEach((v,i)=>{
+      const r=row(v,f);
+      const match=(r.cityMatch||r.idMatch)&&r.available&&!r.deployed;
+      lines.push(`${String(i+1).padStart(2,"0")} ${v?.name||"UNNAMED"} // ${match?"MATCHABLE":"NOT MATCHABLE"}`);
+      lines.push(`   ID: ${v?.id||"NONE"}`);
+      lines.push(`   STATUS: ${String(v?.status||"NONE").toUpperCase()} // DEPLOYMENT: ${String(v?.deploymentState||"NONE").toUpperCase()}`);
+      lines.push(`   CITY MATCH: ${r.cityMatch?"YES":"NO"} // ID MATCH: ${r.idMatch?"YES":"NO"}`);
+      lines.push(`   HOME FIELDS: ${r.fields.length?r.fields.map(x=>x[0]+"="+x[1]).join(" | "):"NONE"}`);
+    });
+    const text=lines.join("\n");
+    if(window.ectoUiLanguage?.open){
+      window.ectoUiLanguage.open("VEHICLE DATA LINK TEST",`${f?.city||"NO LOCATION"} // READ ONLY`,[{label:"DIAGNOSTIC OUTPUT",items:[{title:fs.length?"FLEET RECORDS DETECTED":"NO FLEET RECORDS",meta:`${fs.length} RECORD${fs.length===1?"":"S"} // LOCAL STORAGE`,value:"DIAG"}]}],null);
+    }
+    let box=q("v259VehicleDiagOutput");
+    if(!box){box=document.createElement("pre");box.id="v259VehicleDiagOutput";box.className="v259-vehicle-diag-output";const panel=q("v240Core");if(panel)panel.appendChild(box);}
+    if(box)box.textContent=text;
+  }
+  function install(){
+    const panel=q("v240Core");if(!panel)return;
+    if(!q("v259VehicleDiagBtn")){
+      const b=document.createElement("button");b.type="button";b.id="v259VehicleDiagBtn";b.textContent="RUN VEHICLE DATA TEST";b.style.marginTop="7px";b.addEventListener("click",run);
+      const actions=panel.querySelector(".v240-actions");if(actions)actions.insertAdjacentElement("afterend",b);else panel.appendChild(b);
+    }
+  }
+  install();setInterval(install,500);
+})();
+</script>
+<style>
+.v259-vehicle-diag-output{display:block;white-space:pre-wrap;max-height:260px;overflow:auto;margin:7px 0 0;padding:8px;border:1px solid var(--ui-grid);background:var(--ui-deep);color:var(--ui-dim);font:8px/1.45 monospace;letter-spacing:.3px}
+#v259VehicleDiagBtn{width:100%;min-height:40px;padding:7px;border:1px solid var(--ui-dim);background:transparent;color:var(--ui-dim);font:inherit;letter-spacing:.5px}
+</style>
 </body></html><script>
 /* ECTO OS V2.2.42 // PRE-FLIGHT VEHICLE LOCATION MATCH FIX */
 (function(){
