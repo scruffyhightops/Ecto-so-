@@ -2082,7 +2082,6 @@ window.addEventListener("load",post);
     window.ensureSectorState=ensureSectorState;
     window.renderCitySites=renderCitySites;
     window.updateMapDossier=updateMapDossier;
-    window.selectSector=selectSector;
   }catch(e){}
   function locationDisplayName(f){ return String(f.city||"").replace(/\s*\[[^\]]+\]/,""); }
   function renderSiteParentOptions(){
@@ -4517,6 +4516,114 @@ if ('serviceWorker' in navigator) {
 .dispatch-vehicle-preflight{border:1px solid var(--ui-grid);background:var(--ui-deep);padding:9px;margin:8px 0}.dispatch-vehicle-value{color:var(--ui-accent);font-size:12px;font-weight:700;letter-spacing:.6px;margin-top:4px}.dispatch-preflight-vehicle-list{display:grid;gap:6px;margin-top:8px}.dispatch-preflight-vehicle{width:100%;min-height:48px;display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left;padding:7px 9px;border:1px solid var(--ui-grid);background:transparent;color:var(--ui-accent);font:inherit}.dispatch-preflight-vehicle span{min-width:0}.dispatch-preflight-vehicle b,.dispatch-preflight-vehicle small{display:block}.dispatch-preflight-vehicle small{color:var(--ui-dim);font-size:9px;margin-top:2px;overflow-wrap:anywhere}.dispatch-preflight-vehicle strong{font-size:9px;letter-spacing:.5px;white-space:nowrap}.dispatch-preflight-vehicle.selected{border-color:var(--ui-accent);background:rgba(255,176,0,.08)}
 @media(max-width:900px){.screen#ukmap .tactical-map-wrapper{grid-template-columns:1fr}.screen#ukmap .v240-core{position:static}.v240-step{grid-template-columns:28px minmax(0,1fr) 72px}}
 </style>
+<script>
+/* ECTO OS V2.2.43 // VEHICLE ASSIGNMENT AUTHORITY LOCK
+   Stabilises the single selected deployment vehicle across the overlapping legacy
+   dispatch/preflight presentation layers. Selection is canonical; rendering may
+   refresh the UI but may not silently clear a valid assignment. */
+(function(){
+  "use strict";
+  const KEY="ecto-os-vehicle-fleet-v1";
+  const q=id=>document.getElementById(id);
+  const franchise=()=>Array.isArray(window.ukFranchises)?window.ukFranchises[Number(window.selectedMapIndex)||0]:null;
+  const city=v=>String(v?.city||"").replace(/\s*\[[^\]]+\]/,"").trim().toUpperCase();
+  function fleet(){try{const p=JSON.parse(localStorage.getItem(KEY)||"[]");return Array.isArray(p)?p:[];}catch(e){return[];}}
+  function vehicleById(id){return fleet().find(v=>String(v?.id)===String(id))||null;}
+  function matchesLocation(v,f){
+    if(!v||!f)return false;
+    const home=String(v.homeLocationId||v.locationId||v.defaultLocation||"").replace(/\s*\[[^\]]+\]/,"").trim().toUpperCase();
+    return home===city(f);
+  }
+  function validCanonical(f){
+    const id=f?.__ectoVehicleAssignmentId;
+    const v=id?vehicleById(id):null;
+    return v&&matchesLocation(v,f)?v:null;
+  }
+  function canonicalise(f){
+    if(!f)return null;
+    const current=f.dispatchVehicleId?vehicleById(f.dispatchVehicleId):null;
+    if(current&&matchesLocation(current,f)){
+      f.__ectoVehicleAssignmentId=current.id;
+      f.dispatchVehicleName=current.name||"";
+      f.dispatchVehicleType=current.type||"ECTO VEHICLE";
+      return current;
+    }
+    const saved=validCanonical(f);
+    if(saved){
+      f.dispatchVehicleId=saved.id;
+      f.dispatchVehicleName=saved.name||"";
+      f.dispatchVehicleType=saved.type||"ECTO VEHICLE";
+      return saved;
+    }
+    return null;
+  }
+  function clearAssignment(f){
+    if(!f)return;
+    delete f.__ectoVehicleAssignmentId;
+    delete f.dispatchVehicleId;
+    delete f.dispatchVehicleName;
+    delete f.dispatchVehicleType;
+  }
+  function remember(id){
+    const f=franchise(),v=vehicleById(id);
+    if(!f||!v||!matchesLocation(v,f))return;
+    f.__ectoVehicleAssignmentId=v.id;
+    f.dispatchVehicleId=v.id;
+    f.dispatchVehicleName=v.name||"";
+    f.dispatchVehicleType=v.type||"ECTO VEHICLE";
+  }
+  function sync(){
+    const f=franchise();
+    if(!f)return;
+    const v=canonicalise(f);
+    const value=q("dispatchVehiclePreflight");
+    const status=q("dispatchVehiclePreflightStatus");
+    const list=q("dispatchVehiclePreflightList");
+    if(value)value.textContent=v?.name||"NO VEHICLE ASSIGNED";
+    if(status)status.textContent=v?`${v.type||"ECTO VEHICLE"} // READY FOR DISPATCH`:"VEHICLE REQUIRED BEFORE DISPATCH";
+    if(list&&v){
+      list.querySelectorAll("[data-preflight-vehicle],[data-v241-preflight-vehicle]").forEach(b=>{
+        const raw=b.dataset.preflightVehicle||b.dataset.v241PreflightVehicle||"";
+        const active=String(v.id).replace(/[^a-zA-Z0-9_-]/g,"")===raw;
+        b.classList.toggle("selected",active);
+        const strong=b.querySelector("strong");if(strong)strong.textContent=active?"SELECTED":"SELECT";
+      });
+    }
+  }
+  function bind(){
+    document.querySelectorAll("[data-preflight-vehicle],[data-v241-preflight-vehicle]").forEach(btn=>{
+      if(btn.__v243Bound)return;
+      btn.__v243Bound=true;
+      btn.addEventListener("click",()=>setTimeout(()=>{remember(btn.dataset.preflightVehicle||btn.dataset.v241PreflightVehicle||"");sync();},0),true);
+    });
+  }
+  function observe(){
+    const field=q("fieldops");
+    if(!field)return;
+    if(!field.__v243Observed){
+      field.__v243Observed=true;
+      new MutationObserver(()=>{bind();sync();}).observe(field,{childList:true,subtree:true});
+    }
+  }
+  function patchLocation(){
+    const fn=window.selectSector;
+    if(typeof fn!=="function"||fn.__v243Wrapped)return;
+    const wrapped=function(){
+      const before=Number(window.selectedMapIndex);
+      const r=fn.apply(this,arguments);
+      const after=Number(window.selectedMapIndex);
+      if(before!==after)clearAssignment(Array.isArray(window.ukFranchises)?window.ukFranchises[before]:null);
+      return r;
+    };
+    wrapped.__v243Wrapped=true;window.selectSector=wrapped;
+  }
+  function init(){
+    bind();observe();patchLocation();sync();
+    setInterval(()=>{bind();observe();patchLocation();sync();},400);
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
+})();
+</script>
 </body></html><script>
 /* V2.2.39 // ECTO DISPATCH SIDE CONTROL + DEPLOYMENT LINK */
 (function(){
@@ -4754,46 +4861,3 @@ if ('serviceWorker' in navigator) {
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
 </script>
-
-<script>
-/* ECTO OS V2.2.45 // FOCUSED PRE-FLIGHT SIMPLIFICATION
-   Vehicle selection belongs to ECTO DISPATCH. Pre-Flight only prepares the team.
-   This layer deliberately removes the legacy/injected Pre-Flight vehicle selector and
-   the duplicate Field Ops dispatch button, leaving the existing team/equipment checks intact. */
-(function(){
-  "use strict";
-  const q=id=>document.getElementById(id);
-  function clean(){
-    const field=q("fieldops");
-    if(!field)return;
-    field.querySelectorAll(".dispatch-vehicle-preflight,[id^=dispatchVehiclePreflight]").forEach(el=>{
-      const box=el.classList?.contains("dispatch-vehicle-preflight")?el:el.closest?.(".dispatch-vehicle-preflight");
-      if(box)box.remove(); else el.remove();
-    });
-    const deploy=q("deployTeamWorkflowBtn");
-    if(deploy){
-      const row=deploy.closest(".button-row");
-      if(row)row.remove(); else deploy.remove();
-    }
-    const ret=q("returnDispatchBtn");
-    if(ret){
-      const row=ret.closest(".button-row");
-      if(row)row.remove(); else ret.remove();
-    }
-  }
-  function init(){
-    clean();
-    const field=q("fieldops");
-    if(field&&!field.__v245Observed){
-      field.__v245Observed=true;
-      new MutationObserver(clean).observe(field,{childList:true,subtree:true});
-    }
-    setInterval(clean,800);
-  }
-  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
-})();
-</script>
-<style>
-/* Keep the old injected vehicle selector suppressed even if a legacy refresh recreates it. */
-#fieldops .dispatch-vehicle-preflight{display:none!important}
-</style>
