@@ -4654,6 +4654,82 @@ if ('serviceWorker' in navigator) {
 .dispatch-vehicle-preflight{border:1px solid var(--ui-grid);background:var(--ui-deep);padding:9px;margin:8px 0}.dispatch-vehicle-value{color:var(--ui-accent);font-size:12px;font-weight:700;letter-spacing:.6px;margin-top:4px}.dispatch-preflight-vehicle-list{display:grid;gap:6px;margin-top:8px}.dispatch-preflight-vehicle{width:100%;min-height:48px;display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left;padding:7px 9px;border:1px solid var(--ui-grid);background:transparent;color:var(--ui-accent);font:inherit}.dispatch-preflight-vehicle span{min-width:0}.dispatch-preflight-vehicle b,.dispatch-preflight-vehicle small{display:block}.dispatch-preflight-vehicle small{color:var(--ui-dim);font-size:9px;margin-top:2px;overflow-wrap:anywhere}.dispatch-preflight-vehicle strong{font-size:9px;letter-spacing:.5px;white-space:nowrap}.dispatch-preflight-vehicle.selected{border-color:var(--ui-accent);background:rgba(255,176,0,.08)}
 @media(max-width:900px){.screen#ukmap .tactical-map-wrapper{grid-template-columns:1fr}.screen#ukmap .v240-core{position:static}.v240-step{grid-template-columns:28px minmax(0,1fr) 72px}}
 </style>
+
+<script>
+/* V2.2.71 // LOGIN SAFETY RE-INITIALISATION
+   Isolated from operational/dispatch layers so a runtime error in a later
+   feature layer cannot remove the ECTO OS login gesture. */
+(function(){
+  "use strict";
+  function initLogin(){
+    const panel=document.getElementById("loginPanel");
+    const input=document.getElementById("accessCode");
+    const btn=document.getElementById("authorise");
+    const app=document.getElementById("app");
+    const boot=document.getElementById("boot");
+    if(!panel||!input||!btn||!app||!boot)return;
+
+    if(!btn.__ectoLoginSafe){
+      btn.__ectoLoginSafe=true;
+      btn.addEventListener("click",function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        if(typeof window.login==="function") window.login();
+        else safeLogin();
+      });
+    }
+    if(!input.__ectoLoginSafe){
+      input.__ectoLoginSafe=true;
+      input.addEventListener("keydown",function(e){
+        if(e.key==="Enter"){
+          e.preventDefault();
+          e.stopPropagation();
+          if(typeof window.login==="function") window.login();
+          else safeLogin();
+        }
+        if(e.key==="Escape"){
+          e.preventDefault();
+          input.value="";
+          const err=document.getElementById("error");
+          const verified=document.getElementById("verified");
+          if(err)err.textContent="";
+          if(verified)verified.classList.add("hidden");
+          input.focus();
+        }
+      });
+    }
+    if(panel.classList.contains("hidden") && boot.classList.contains("hidden")){
+      panel.classList.remove("hidden");
+    }
+    if(!app.classList.contains("hidden"))return;
+    try{input.focus({preventScroll:true});}catch(e){input.focus();}
+  }
+
+  function safeLogin(){
+    const access={"FIELD":"FIELD ENGINEER","FIELD-1984":"FIELD ENGINEER","ENGINEER":"FIELD ENGINEER","ENG-1984":"FIELD ENGINEER","CONTROL":"MISSION CONTROL","MISSION":"MISSION CONTROL","GM-051":"MISSION CONTROL","AUTHOR":"SYSTEM AUTHOR","ADMIN":"SYSTEM AUTHOR","PROTON":"SYSTEM AUTHOR","1984":"SYSTEM AUTHOR","GHOST":"SYSTEM AUTHOR"};
+    const input=document.getElementById("accessCode");
+    const error=document.getElementById("error");
+    const verified=document.getElementById("verified");
+    const boot=document.getElementById("boot");
+    const app=document.getElementById("app");
+    const session=document.getElementById("session");
+    const code=(input?.value||"").replace(/\s+/g,"").toUpperCase();
+    if(error)error.textContent="";
+    if(!code){if(error)error.textContent="ACCESS CODE REQUIRED";return;}
+    if(!Object.prototype.hasOwnProperty.call(access,code)){if(error)error.textContent="ACCESS DENIED // INVALID CLEARANCE";return;}
+    if(verified){verified.innerHTML="CLEARANCE VERIFIED<br><br>ACCESS LEVEL: <b>"+access[code]+"</b><br>INITIALISING PROTOCOLS...";verified.classList.remove("hidden");}
+    setTimeout(function(){
+      if(boot)boot.classList.add("hidden");
+      if(app)app.classList.remove("hidden");
+      if(session)session.textContent="SESSION: "+access[code];
+    },300);
+  }
+
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",initLogin,{once:true});
+  else initLogin();
+  window.addEventListener("load",initLogin,{once:false});
+})();
+</script>
 </body></html><script>
 /* V2.2.39 // ECTO DISPATCH SIDE CONTROL + DEPLOYMENT LINK */
 (function(){
