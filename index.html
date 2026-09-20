@@ -802,6 +802,7 @@ textarea{
 .vehicle-admin-field{display:block;margin:9px 0}.vehicle-admin-field>input{width:100%;margin-top:5px}
 .vehicle-admin-editor .ecto-choice-row{margin-top:5px}
 @media(max-width:720px){.vehicle-admin-grid{grid-template-columns:1fr}}
+#dispatchVehiclePreflightList:empty{display:none!important}.dispatch-vehicle-preflight .dispatch-preflight-vehicle-list{display:none!important}
 </style>
 </head><body>
 <section id="boot"><div class="ecto-boot-frame"><div class="ecto-boot-top"><div class="ecto-boot-title">ECTO OS</div><div>PARANORMAL FIELD OPERATIONS COMPUTER</div><div>BOOT // V2.2.5</div></div><div class="ecto-boot-content"><div class="ecto-boot-panel"><div class="ecto-boot-panel-title">SYSTEM BOOT DIALOGUE</div><div id="post" class="ecto-boot-log"></div></div><div class="ecto-boot-panel"><div class="ecto-boot-panel-title">SYSTEM INITIALISATION</div><div class="ecto-boot-logo-space"><span>LOGO RESERVE<br><span class="dim">ECTO SYSTEM IDENTIFICATION</span></span></div><div class="ecto-boot-row"><span>FIELD COMPUTER</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>PKE SENSOR ARRAY</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>CONTAINMENT GRID</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>SPECTRAL DATABASE</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>UK THREAT NETWORK</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>AUDIO SYSTEM</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>CONFIGURATION INTERFACE</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-bar"><div id="ectoBootFill" class="ecto-boot-fill"></div></div><div class="ecto-boot-percent"><span>LOADING ECTO OS...</span><span id="ectoBootPercent">0%</span></div><div class="ecto-boot-status"><div>ALL SYSTEMS NOMINAL</div><div class="ecto-boot-ready">ECTO OS READY</div></div></div></div><div id="loginPanel" class="login hidden"><div class="login-title">SECURITY KERNEL // ACCESS REQUIRED</div><div class="row"><input id="accessCode" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="ENTER CLEARANCE CODE"><button id="authorise" type="button">AUTHORISE</button></div><div id="error"></div><div class="hint">ENTER = AUTHORISE // ESC = CLEAR // TRY: FIELD-1984 / GM-051 / AUTHOR</div><div id="verified" class="verified hidden"></div></div></div></section>
@@ -4253,24 +4254,10 @@ if ('serviceWorker' in navigator) {
     if(st)st.textContent=v?`${v.type||"ECTO VEHICLE"} // READY FOR DISPATCH`:"VEHICLE REQUIRED BEFORE DISPATCH";
     const list=q("dispatchVehiclePreflightList");
     if(!list)return;
-    const rows=vehiclesForLocation(f).filter(x=>String(x.status||"AVAILABLE").toUpperCase()==="AVAILABLE" && String(x.id)!=="unassigned");
-    if(!rows.length){
-      list.innerHTML='<div class="dim">NO DEPLOYABLE VEHICLES REGISTERED FOR THIS LOCATION</div>';
-      return;
-    }
-    list.innerHTML=rows.map(x=>{
-      const active=v&&String(v.id)===String(x.id);
-      return `<button type="button" class="dispatch-preflight-vehicle${active?" selected":""}" data-preflight-vehicle="${String(x.id).replace(/[^a-zA-Z0-9_-]/g,"")}"><span><b>${escapeHtml(x.name||"UNNAMED VEHICLE")}</b><small>${escapeHtml(x.type||"ECTO VEHICLE")} // ${escapeHtml(x.callsign||x.id||"")}</small></span><strong>${active?"SELECTED":"SELECT"}</strong></button>`;
-    }).join("");
-    list.querySelectorAll("[data-preflight-vehicle]").forEach(btn=>btn.addEventListener("click",()=>{
-      const id=btn.dataset.preflightVehicle;
-      const chosen=rows.find(x=>String(x.id).replace(/[^a-zA-Z0-9_-]/g,"")===id);
-      if(!chosen)return;
-      f.dispatchVehicleId=chosen.id;f.dispatchVehicleName=chosen.name;f.dispatchVehicleType=chosen.type||"ECTO VEHICLE";
-      deploymentCheckPassed=false;
-      renderPreflightVehicle();renderVehicles();refreshDeployButton();
-      log(`PRE-FLIGHT VEHICLE SELECTED // ${chosen.name} // ${f.city}.`,"info");
-    }));
+    list.innerHTML=v
+      ? `<div class="dim">VEHICLE ASSIGNED BY RESPONSE TEAM // ${escapeHtml(f?.city||"FIELD LOCATION")}</div>`
+      : '<div class="dim">NO ECTO VEHICLE ASSIGNED TO THIS TEAM // USE TEAM EDITOR</div>';
+    list.querySelectorAll("[data-preflight-vehicle]").forEach(btn=>btn.remove());
   }
   function injectPreflightVehicle(){
     const label=q("preflightTeamLabel");
@@ -4441,7 +4428,12 @@ if ('serviceWorker' in navigator) {
   const deployed=v=>String(v?.deploymentState||"").toUpperCase()==="DEPLOYED";
   const availableVehicles=f=>fleet().filter(v=>vehicleMatchesLocation(v,f)&&String(v.status||"").toUpperCase()==="AVAILABLE"&&!deployed(v));
   const selectedSiteId=()=>String(location()?.dispatchSiteId||"");
-  const selectedVehicle=()=>{const f=location();return f?.dispatchVehicleId?fleet().find(v=>String(v.id)===String(f.dispatchVehicleId))||null:null;};
+  const selectedVehicle=()=>{
+    const f=location(), t=selectedTeam();
+    const assigned=t?.vehicleId ? fleet().find(v=>String(v.id)===String(t.vehicleId))||null : null;
+    if(f && assigned){ f.dispatchVehicleId=assigned.id; f.dispatchVehicleName=assigned.name; f.dispatchVehicleType=assigned.type||"ECTO VEHICLE"; }
+    return assigned;
+  };
   const selectedSite=()=>{const f=location(),sid=selectedSiteId();return sites(f).find((s,i)=>siteId(s,i,f)===sid)||null;};
   const preflightReady=()=>{
     const t=team(); if(!t||!Array.isArray(t.members)||!t.members.length)return false;
@@ -4906,6 +4898,7 @@ if ('serviceWorker' in navigator) {
       window.activeSubTeamIndex=Number(item.value)||0;
       const t=activeTeam();
       if(t&&!t.vehicleId)assignVehicleIfNeeded(t,f);
+      if(t?.vehicleId){ const v=vehicleForTeam(t); if(v){ f.dispatchVehicleId=v.id; f.dispatchVehicleName=v.name; f.dispatchVehicleType=v.type||"ECTO VEHICLE"; } }
       saveLocations();
       refresh();
     });
@@ -4955,6 +4948,7 @@ if ('serviceWorker' in navigator) {
     let panel=q('ectoPhase1Dispatch');
     if(!panel){ panel=document.createElement('aside'); panel.id='ectoPhase1Dispatch'; panel.className='ecto-v263-dispatch'; holder.appendChild(panel); }
     const f=activeLocation(),t=activeTeam(),site=selectedSite(),v=vehicleForTeam(t);
+    if(f&&v){ f.dispatchVehicleId=v.id; f.dispatchVehicleName=v.name; f.dispatchVehicleType=v.type||"ECTO VEHICLE"; }
     const ready=!!f&&!!site&&!!t&&!!v&&String(v.deploymentState||'AVAILABLE').toUpperCase()!=='DEPLOYED';
     panel.innerHTML=`<div class="ecto-v263-head"><div><b>ECTO DISPATCH CONTROL</b><div class="dim">PHASE ONE // TEAM DEPLOYMENT FOUNDATION</div></div><div id="ectoPhase1Ready" class="ecto-v263-status ${ready?'ok':''}">${ready?'READY FOR DEPLOYMENT':'DEPLOYMENT INCOMPLETE'}</div></div>
       <div class="ecto-v263-step"><span>01</span><div><small>LOCATION</small><strong>${esc(f?.city||'SELECT LOCATION')}</strong></div><button type="button" id="ectoPhase1Location">CHANGE</button></div>
