@@ -4940,6 +4940,35 @@ if ('serviceWorker' in navigator) {
     });
   }
 
+  function ensurePhaseOneVehicle(f,t){
+    if(!f||!t)return null;
+    let v=vehicleForTeam(t);
+    const rows=fleet();
+    if(v && String(v.deploymentState||'AVAILABLE').toUpperCase()==='DEPLOYED'){
+      t.vehicleId=null;
+      v=null;
+    }
+    if(!v && f.dispatchVehicleId){
+      const linked=rows.find(x=>String(x.id)===String(f.dispatchVehicleId));
+      if(linked && String(linked.deploymentState||'AVAILABLE').toUpperCase()!=='DEPLOYED'){
+        t.vehicleId=linked.id;
+        v=linked;
+      }
+    }
+    if(!v){
+      const used=new Set((Array.isArray(f.teams)?f.teams:[]).filter(x=>x&&x!==t&&x.vehicleId).map(x=>String(x.vehicleId)));
+      const available=rows.filter(x=>!used.has(String(x.id))&&String(x.status||'AVAILABLE').toUpperCase()!=='OUT OF SERVICE'&&String(x.deploymentState||'AVAILABLE').toUpperCase()!=='DEPLOYED');
+      v=available.find(x=>vehicleMatchesCity(x,f))||available[0]||null;
+      if(v)t.vehicleId=v.id;
+    }
+    if(v){
+      f.dispatchVehicleId=v.id;
+      f.dispatchVehicleName=v.name;
+      f.dispatchVehicleType=v.type||'ECTO VEHICLE';
+    }
+    return v;
+  }
+
   function renderDispatch(){
     const map=q('ukmap'); if(!map)return;
     document.querySelectorAll('#v239Core,#v240Core,#v238Core').forEach(x=>x.classList.add('ecto-phase1-hidden'));
@@ -4947,8 +4976,8 @@ if ('serviceWorker' in navigator) {
     const holder=map.querySelector('.tactical-map-wrapper'); if(!holder)return;
     let panel=q('ectoPhase1Dispatch');
     if(!panel){ panel=document.createElement('aside'); panel.id='ectoPhase1Dispatch'; panel.className='ecto-v263-dispatch'; holder.appendChild(panel); }
-    const f=activeLocation(),t=activeTeam(),site=selectedSite(),v=vehicleForTeam(t);
-    if(f&&v){ f.dispatchVehicleId=v.id; f.dispatchVehicleName=v.name; f.dispatchVehicleType=v.type||"ECTO VEHICLE"; }
+    const f=activeLocation(),t=activeTeam(),site=selectedSite(),v=ensurePhaseOneVehicle(f,t);
+    if(f&&t&&v)saveLocations();
     const ready=!!f&&!!site&&!!t&&!!v&&String(v.deploymentState||'AVAILABLE').toUpperCase()!=='DEPLOYED';
     panel.innerHTML=`<div class="ecto-v263-head"><div><b>ECTO DISPATCH CONTROL</b><div class="dim">PHASE ONE // TEAM DEPLOYMENT FOUNDATION</div></div><div id="ectoPhase1Ready" class="ecto-v263-status ${ready?'ok':''}">${ready?'READY FOR DEPLOYMENT':'DEPLOYMENT INCOMPLETE'}</div></div>
       <div class="ecto-v263-step"><span>01</span><div><small>LOCATION</small><strong>${esc(f?.city||'SELECT LOCATION')}</strong></div><button type="button" id="ectoPhase1Location">CHANGE</button></div>
@@ -4960,13 +4989,14 @@ if ('serviceWorker' in navigator) {
     q('ectoPhase1Site').onclick=selectSite;
     q('ectoPhase1Team').onclick=selectTeam;
     q('ectoPhase1Editor').onclick=openTeamEditor;
-    q('ectoPhase1Preflight').onclick=()=>{window.renderPreflight?.();document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id==='fieldops'));};
+    q('ectoPhase1Preflight').onclick=()=>{window.renderPreflight?.();window.updateReadiness?.();document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id==='fieldops'));};
     q('ectoPhase1Dispatch').onclick=dispatch;
     q('ectoPhase1Return').onclick=returnVehicle;
   }
 
   function dispatch(){
-    const f=activeLocation(),t=activeTeam(),v=vehicleForTeam(t),site=selectedSite();
+    const f=activeLocation(),t=activeTeam(),site=selectedSite();
+    const v=ensurePhaseOneVehicle(f,t);
     if(!f||!t||!v||!site)return;
     const rows=fleet(),stored=rows.find(x=>String(x.id)===String(v.id)); if(!stored)return;
     stored.deploymentState='DEPLOYED';
