@@ -1,0 +1,1707 @@
+<!doctype html><html><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#020602"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><title>ECTO OS</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:#020602;color:var(--ui-accent);font-family:monospace;overflow:hidden}
+#app{width:100%;height:100dvh;min-height:0;overflow:hidden;display:flex;flex-direction:column}#app.hidden{display:none!important}#app #layout{flex:1 1 auto;min-height:0;height:auto}#app main{min-height:0;overflow-y:auto;overflow-x:hidden}#app.fullscreen-fallback{position:fixed;inset:0;width:100vw;height:100dvh;z-index:10000;background:#020602}
+body:after{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(#0000 0 3px,var(--ui-accent)08 4px);z-index:9}
+button,input,select{font:inherit}button{background:#071207;color:var(--ui-accent);border:1px solid var(--ui-border);padding:10px 14px;cursor:pointer}button:focus{outline:1px solid var(--ui-accent)}button:disabled{opacity:0.4;cursor:not-allowed}
+.hidden{display:none!important}#boot{height:100%;display:flex;align-items:center;justify-content:center;padding:16px}.box{width:min(820px,100%);max-height:94vh;overflow:auto;border:1px solid var(--ui-border);padding:24px;background:#030c03}.logo{text-align:center;font-size:clamp(20px,4vw,34px);letter-spacing:3px;margin-bottom:20px}#post{white-space:pre-wrap;line-height:1.65;min-height:250px}.login{border-top:1px solid var(--ui-border);padding-top:20px}.login-title{text-align:center;letter-spacing:3px;margin-bottom:16px}.row{display:flex;gap:10px}#accessCode{flex:1;min-width:0;background:var(--ui-deep);color:var(--ui-accent);border:1px solid var(--ui-border);padding:15px;text-transform:uppercase;letter-spacing:2px}.hint{text-align:center;color:var(--ui-dim);font-size:12px;margin-top:12px}#error{text-align:center;color:#ff5555;height:22px;margin-top:10px}.verified{margin-top:12px;border:1px solid var(--ui-border);padding:12px;text-align:center}
+header{height:58px;border-bottom:1px solid var(--ui-border);display:flex;justify-content:space-between;align-items:center;padding:0 14px;gap:12px}.title{font-weight:bold;letter-spacing:2px}.session{font-size:12px}.system-clock{font-size:11px;color:var(--ui-dim);text-align:right;line-height:1.35}.header-tools{display:flex;align-items:center;gap:10px;margin-left:auto}.fullscreen-btn{min-width:118px;padding:8px 10px;font-size:10px;letter-spacing:1px}.fullscreen-btn.active{background:var(--ui-accent);color:#000;border-color:var(--ui-accent)} .fullscreen-fallback .fullscreen-btn{background:var(--ui-accent);color:#000;border-color:var(--ui-accent)}
+#app.fullscreen-fallback{overflow:auto}#app.fullscreen-fallback #layout{min-height:0}#layout{height:calc(100% - 58px);min-height:0;display:grid;grid-template-columns:185px minmax(0,1fr);grid-template-rows:minmax(0,1fr);overflow:hidden}nav{border-right:1px solid var(--ui-border);padding:9px;overflow:auto}nav button{display:block;width:100%;margin-bottom:7px;text-align:left}main{padding:14px;overflow:auto;min-width:0;min-height:0;height:100%;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}.screen{display:none}.screen.active{display:block}h1{font-size:20px;letter-spacing:2px;border-bottom:1px solid var(--ui-border);padding-bottom:10px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.panel{border:1px solid var(--ui-border);padding:15px;background:var(--ui-panel)}.big{font-size:28px;margin:8px 0}.metric{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px dotted var(--ui-grid)}.bar{height:13px;border:1px solid var(--ui-border);margin:6px 0 12px}.bar i{display:block;height:100%;background:var(--ui-accent);transition:width 0.4s ease, background-color 0.4s ease}canvas{width:100%;height:190px;border:1px solid var(--ui-border)}
+@media(max-width:720px){#layout{grid-template-columns:1fr;grid-template-rows:60px minmax(0,1fr)}nav{height:60px;border-right:0;border-bottom:1px solid var(--ui-border);display:flex;gap:6px;overflow-x:auto}nav button{min-width:110px;margin:0}.row{flex-direction:column}.grid{grid-template-columns:1fr}}
+
+.field-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.panel-title{font-size:13px;letter-spacing:1px;border-bottom:1px solid var(--ui-border);padding-bottom:8px;margin-bottom:10px}
+.dim{color:var(--ui-dim);font-size:10px}
+.field-canvas{height:155px!important;border-color:var(--ui-border);background:var(--ui-deep);margin-bottom:8px}
+.button-row{display:flex;gap:7px;margin:7px 0}
+.button-row button{flex:1}
+.logbox{height:155px;overflow:auto;background:var(--ui-deep);border:1px solid var(--ui-grid);padding:9px;font-size:11px;line-height:1.5;color:var(--ui-accent)}
+.logline{margin-bottom:4px}
+.logline.warn{color:#ffb000}.logline.alert{color:#ff5555}
+
+/* TACTICAL UK MAP COMPONENT STYLES */
+.tactical-map-wrapper{background:var(--ui-panel);color:var(--ui-accent);font-family:monospace;display:grid;grid-template-columns:minmax(0,1.7fr) minmax(300px,1fr);gap:12px;width:100%;box-sizing:border-box}
+.tactical-panel{background:#030c03;border:1px solid var(--ui-border);padding:12px;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.tactical-panel h2{font-size:12px;text-transform:uppercase;color:#ffb000;border-bottom:1px solid var(--ui-border);padding-bottom:6px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;letter-spacing:1px}
+.tactical-panel h2 small{font-size:10px;color:var(--ui-dim)}
+.chart-container{position:relative;width:100%;aspect-ratio:4/3;min-height:0;height:auto;background:#020602 url("assets/maps/ecto-uk-map-base.png") center/cover no-repeat;border:1px solid var(--ui-grid);display:block;margin-bottom:8px;overflow:hidden}
+.chart-container canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:pointer;border:none}
+.map-controls{position:absolute;top:8px;right:8px;display:flex;gap:4px;z-index:4;flex-wrap:wrap;justify-content:flex-end}.map-controls button{min-width:42px;min-height:38px;padding:6px 9px;background:rgba(0,0,0,.88);font-size:10px}.map-breadcrumb{position:absolute;top:8px;left:8px;z-index:3;padding:5px 8px;border:1px solid var(--ui-grid);background:rgba(0,0,0,.82);font:10px monospace;color:var(--ui-dim);pointer-events:none}.selected-location-teams{border-top:1px solid var(--ui-grid);padding-top:8px}.selected-location-teams .team-card{margin-top:5px}.location-row.active{border-color:var(--ui-accent)!important;box-shadow:0 0 8px rgba(57,255,128,.10)}.location-selected-badge{display:inline-block;border:1px solid var(--ui-accent);color:var(--ui-accent);font-size:8px;padding:2px 5px;margin-left:5px}.site-list{display:grid;gap:5px;margin-top:8px;max-height:190px;overflow:auto}.site-row{display:grid;grid-template-columns:1fr auto;gap:8px;padding:8px;border:1px solid var(--ui-grid);background:var(--ui-deep);cursor:pointer}.site-row.active{border-color:var(--ui-accent);box-shadow:0 0 8px rgba(57,255,128,.08)}.site-row b{font-size:11px}.site-meta{font-size:9px;color:var(--ui-dim);margin-top:2px}.site-tag{font-size:8px;border:1px solid var(--ui-grid);padding:3px 5px;color:var(--ui-dim);white-space:nowrap}.site-add-note{margin-top:7px;font-size:9px;color:var(--ui-dim);line-height:1.45}
+.uk-city-sector-picker{position:absolute;left:10px;top:52px;width:min(360px,calc(100% - 20px));max-height:62%;overflow:auto;z-index:6;background:rgba(2,8,2,.96);border:1px solid var(--ui-accent);box-shadow:0 0 14px rgba(57,255,128,.16);padding:9px}
+.uk-picker-head{display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid var(--ui-grid);padding-bottom:6px;margin-bottom:7px;color:var(--ui-accent);font-size:11px;letter-spacing:1px}
+.uk-picker-head button{min-width:38px;min-height:34px;padding:5px 8px}
+.uk-city-sector-list{display:grid;gap:6px;margin-top:7px}.uk-city-sector-list button{width:100%;text-align:left;min-height:42px;background:rgba(0,0,0,.45)}.uk-city-sector-list button b{display:block;color:var(--ui-accent)}.uk-city-sector-list button span{display:block;margin-top:3px;color:var(--ui-dim);font-size:9px}
+.grid-ref-entry{margin-top:8px;border:1px solid var(--ui-grid);padding:8px;background:rgba(0,0,0,.12)}.grid-ref-entry-label{font-size:8px;color:var(--ui-dim);letter-spacing:.8px;margin-bottom:5px}.grid-ref-entry-row{display:flex;gap:6px}.grid-ref-entry-row input{flex:1;min-width:0;background:var(--ui-deep);color:var(--ui-accent);border:1px solid var(--ui-border);padding:9px;text-transform:uppercase;letter-spacing:1px}.grid-ref-entry-row button{min-width:76px;padding:8px}
+.telemetry-row{display:flex;justify-content:space-between;font-size:11px;margin-bottom:6px;background:rgba(255,255,255,0.02);padding:6px 10px;border:1px dotted var(--ui-grid)}
+.telemetry-val{color:var(--ui-accent);font-weight:bold}
+.dossier-box{background:var(--ui-deep);border:1px solid var(--ui-grid);padding:10px;font-size:11px;margin-bottom:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto;line-height:1.5}
+.text-green{color:var(--ui-accent)!important}.text-amber{color:#ffb000!important}.text-red{color:#ff5555!important}.text-blue{color:#39a9ff!important}
+
+.team-roster{background:var(--ui-deep);border:1px solid var(--ui-border);padding:12px;font-size:11px;margin-top:8px}
+.teams-submenu{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-top:10px;max-height:150px;overflow-y:auto;padding-right:4px}
+.team-card{background:var(--ui-deep);border:1px solid var(--ui-grid);padding:8px;font-size:11px;cursor:pointer;transition:all 0.2s}
+.team-card:hover{border-color:var(--ui-accent);background:#041204}
+.team-card.active{border-color:var(--ui-accent);background:#071a07;box-shadow:inset 0 0 0 1px var(--ui-accent)}
+.team-card-header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--ui-grid);padding-bottom:4px;margin-bottom:4px}
+.team-card-header b{color:#39a9ff;letter-spacing:1px}
+
+.member-row{display:flex;justify-content:space-between;align-items:center;margin-top:4px;font-size:11px;border-bottom:1px dotted #123616;padding-bottom:4px}
+.member-row button{padding:2px 6px;font-size:9px;background:#071207;border-color:var(--ui-border);color:#ff5555}
+.member-row button:hover{background:#030c03;border-color:#ff5555}
+
+.add-member-form{display:flex;gap:6px;margin-top:8px}
+.add-member-form input{background:var(--ui-deep);color:var(--ui-accent);border:1px solid var(--ui-border);padding:7px;font-size:11px;font-family:monospace;flex:1}
+.add-member-form input:focus{outline:1px solid var(--ui-accent);background:#041204}
+.spectre-db-list{display:flex;flex-direction:column;gap:4px;margin-top:8px}.spectre-db-list .member-row{min-width:0}.inspect-specimen-row{gap:8px;align-items:center;overflow:hidden}.inspect-specimen-row>span:first-child{min-width:0;flex:1;overflow-wrap:anywhere;line-height:1.4}.inspect-specimen-row button{flex:0 0 auto;min-width:82px;min-height:40px;padding:7px 8px;font-size:9px;white-space:nowrap}.spectre-class-selector{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;width:100%}
+.spectre-class-btn{min-width:0;min-height:48px;padding:6px 4px;font-size:10px;letter-spacing:.8px;line-height:1.15;white-space:normal;overflow:hidden}.spectre-class-btn .class-threat{display:block;font-size:8px;letter-spacing:1px;margin-top:4px;opacity:.75}.spectre-class-btn.active{background:var(--ui-accent);color:var(--ui-deep);border-color:var(--ui-accent);box-shadow:0 0 8px rgba(115,255,128,.18)}.spectre-class-btn.active .class-threat{opacity:1}
+.spectre-pke-band{font-size:9px;color:var(--ui-dim);margin:5px 0 8px;line-height:1.4}
+.location-db-grid{display:grid;grid-template-columns:minmax(260px,.9fr) minmax(320px,1.5fr);gap:12px;margin-top:10px}
+.location-form{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.location-field{display:flex;flex-direction:column;gap:4px}.location-field.full{grid-column:1/-1}
+.location-field label{font-size:9px;letter-spacing:1px;color:var(--ui-dim)}
+.location-field input,.location-field select{width:100%;min-height:44px;padding:9px 10px;background:var(--ui-deep);border:1px solid var(--ui-grid);color:var(--ui-accent);font:inherit;font-size:11px;border-radius:0}
+.location-field input:focus,.location-field select:focus{outline:1px solid var(--ui-accent);border-color:var(--ui-accent)}
+.location-list{max-height:300px;overflow:auto;background:var(--ui-deep);border:1px solid var(--ui-grid)}
+.location-row{display:grid;grid-template-columns:1.25fr .7fr .7fr auto;gap:7px;align-items:center;padding:9px;border-bottom:1px dotted var(--ui-grid);font-size:10px}
+.location-row:last-child{border-bottom:0}.location-row.active{background:#071a07}.location-row b{color:#39a9ff}.location-meta{color:var(--ui-dim);font-size:9px}.location-row button{min-height:36px;padding:6px 8px;font-size:9px}
+.location-status{font-size:8px;letter-spacing:.8px;color:var(--ui-dim)}/* ECTO CUSTOM SELECT CONTROLS */
+.ecto-select-native{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important;}
+.ecto-select-wrap{position:relative;width:100%;}
+.ecto-select-btn{width:100%;min-height:44px;padding:9px 34px 9px 10px;text-align:left;background:var(--ui-deep);color:var(--ui-accent);border:1px solid var(--ui-border);position:relative;white-space:normal;line-height:1.25;}
+.ecto-select-btn:after{content:"▼";position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:9px;color:var(--ui-dim);}
+.ecto-select-btn.active{border-color:var(--ui-accent);box-shadow:0 0 8px rgba(57,255,128,.08);}
+.ecto-select-menu{position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:1200;background:#030c03;border:1px solid var(--ui-border);box-shadow:0 8px 20px rgba(0,0,0,.65);padding:4px;display:none;max-height:220px;overflow:auto;-webkit-overflow-scrolling:touch;}
+.ecto-select-menu.open{display:block;}
+.ecto-select-option{display:block;width:100%;min-height:42px;padding:9px 10px;text-align:left;background:#071207;color:var(--ui-accent);border:1px solid transparent;margin:2px 0;}
+.ecto-select-option:hover,.ecto-select-option:focus{border-color:var(--ui-accent);background:#0a1b0a;outline:none;}
+.ecto-select-option.selected{border-color:var(--ui-grid);color:#fff;}
+.location-admin-gate{border:1px solid var(--ui-border);background:var(--ui-deep);padding:18px;margin-bottom:12px;max-width:760px;margin-left:auto;margin-right:auto}.location-admin-gate .panel-title{letter-spacing:.08em}.location-admin-header{border-bottom:1px solid var(--ui-grid);padding-bottom:10px;margin-bottom:12px}.location-admin-warning{font-size:10px;letter-spacing:.08em;margin-top:4px}.location-admin-status{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--ui-grid);background:var(--ui-panel);padding:9px 10px;margin:12px 0}.location-admin-status-label{font-size:10px;letter-spacing:.1em}.location-admin-status-value{font-size:11px;letter-spacing:.08em;color:var(--ui-accent)}.location-admin-row{display:flex;gap:8px}.location-admin-row input{flex:1;min-width:0;min-height:48px;padding:10px;background:var(--ui-panel);color:var(--ui-accent);border:1px solid var(--ui-grid);font:inherit;letter-spacing:.12em;text-transform:uppercase}.location-admin-row input:focus{outline:1px solid var(--ui-accent);border-color:var(--ui-accent)}.location-admin-row button{min-width:150px}.location-admin-error{min-height:18px;margin-top:7px;color:var(--ui-accent);font-size:10px;letter-spacing:.06em}.location-admin-error.denied{color:#ff5555}.location-admin-error.granted{color:var(--ui-accent)}.location-editing{border-color:#ffb000!important;color:#ffb000!important}.location-lock-row{display:flex;justify-content:flex-end;margin-top:8px}.location-lock-row button{min-height:42px}@media(max-width:600px){.location-admin-gate{padding:14px}.location-admin-row{flex-direction:column}.location-admin-row button{width:100%;min-width:0}.location-admin-status{align-items:flex-start;flex-direction:column}.location-row{grid-template-columns:1fr auto}.location-row .location-meta:nth-child(3){display:none}}
+.config-details{grid-column:span 2;border:1px solid var(--ui-border);background:var(--ui-panel)}.config-details>summary{list-style:none;cursor:pointer;padding:13px 15px;font-size:13px;letter-spacing:1px;color:var(--ui-accent);background:var(--ui-deep);min-height:48px;display:flex;align-items:center;justify-content:space-between}.config-details>summary::-webkit-details-marker{display:none}.config-details>summary:after{content:"[ OPEN ]";font-size:9px;color:var(--ui-dim)}.config-details[open]>summary:after{content:"[ CLOSE ]"}.config-details-body{padding:15px;border-top:1px solid var(--ui-border)}.fullscreen-config-row{display:flex;gap:8px;flex-wrap:wrap}.fullscreen-config-row button{min-height:46px}.config-note{font-size:10px;color:var(--ui-dim);line-height:1.5;margin-top:8px}
+@media(max-width:820px){.location-db-grid{grid-template-columns:1fr}.location-row{grid-template-columns:1.2fr .8fr auto}.location-row .location-meta:nth-child(3){display:none}}
+.spectre-pke-warning{color:#ffb000}.spectre-edit-shell{background:var(--ui-deep);border:1px solid var(--ui-border);padding:14px;box-shadow:inset 0 0 18px rgba(0,0,0,.22)}.spectre-edit-grid{display:grid;grid-template-columns:1.25fr .75fr;gap:10px;margin-top:12px}.spectre-edit-field{display:flex;flex-direction:column;gap:5px;min-width:0}.spectre-edit-field label{font-size:9px;letter-spacing:1.2px;color:var(--ui-dim)}.spectre-edit-field input,.spectre-edit-field select,.spectre-edit-field textarea{box-sizing:border-box;width:100%;min-width:0;min-height:44px;padding:9px 10px;background:var(--ui-panel);border:1px solid var(--ui-grid);border-radius:0;color:var(--ui-accent);font:inherit;font-size:11px;caret-color:var(--ui-accent)}.spectre-edit-field textarea{min-height:110px;resize:vertical;line-height:1.45}.spectre-edit-field select{appearance:auto}.spectre-edit-field input:focus,.spectre-edit-field select:focus,.spectre-edit-field textarea:focus{outline:1px solid var(--ui-accent);border-color:var(--ui-accent);box-shadow:0 0 8px rgba(115,255,128,.12)}.spectre-edit-band{margin-top:10px;padding:7px 9px;border-left:2px solid var(--ui-accent);background:var(--ui-panel)}.spectre-edit-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:12px}@media(max-width:700px){.spectre-class-selector{grid-template-columns:repeat(4,minmax(0,1fr))}.spectre-edit-grid{grid-template-columns:1fr}}
+.spectre-print-report{display:none}
+@media print{
+  html,body{background:#fff!important;color:#000!important;overflow:visible!important}
+  body.spectre-printing>*:not(#spectrePrintReport){display:none!important}
+  body.spectre-printing #spectrePrintReport{display:block!important;width:180mm;margin:0 auto;background:#fff;color:#000;font-family:monospace;font-size:10pt;line-height:1.45;padding:8mm;box-sizing:border-box}
+  body.spectre-printing #spectrePrintReport *{color:#000!important;background:#fff!important;border-color:#000!important;box-shadow:none!important}
+  .spectre-print-rule{border-top:1px solid #000;margin:8px 0}
+}
+
+
+/* ECTO UI DIALOGUE SYSTEM // PHASE 6.2 */
+.ecto-dialog-overlay{position:fixed;inset:0;z-index:3000;display:flex;align-items:center;justify-content:center;padding:calc(16px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));background:rgba(1,5,1,.86);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
+.ecto-dialog-overlay.hidden{display:none!important}
+.ecto-dialog{width:min(560px,100%);max-height:calc(100dvh - 32px);overflow:auto;background:#030c03;border:1px solid var(--ui-accent);box-shadow:0 0 28px rgba(115,255,128,.12),inset 0 0 22px rgba(0,0,0,.3);font-family:inherit}
+.ecto-dialog-header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 13px;border-bottom:1px solid var(--ui-border);background:var(--ui-deep);position:sticky;top:0;z-index:2}
+.ecto-dialog-title{font-size:12px;letter-spacing:1.5px;color:var(--ui-accent);font-weight:bold}
+.ecto-dialog-code{font-size:8px;letter-spacing:1px;color:var(--ui-dim);white-space:nowrap}
+.ecto-dialog-body{padding:16px}
+.ecto-dialog-message{font-size:12px;line-height:1.55;white-space:pre-line}
+.ecto-dialog-detail{margin-top:10px;padding:9px 10px;border-left:2px solid var(--ui-grid);background:var(--ui-panel);color:var(--ui-dim);font-size:10px;line-height:1.5;white-space:pre-line}
+.ecto-dialog-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:16px;padding-top:10px;border-top:1px dotted var(--ui-grid)}
+.ecto-dialog-actions button{min-width:110px}
+.ecto-dialog-btn-primary{border-color:var(--ui-accent)!important;color:var(--ui-accent)!important}
+.ecto-dialog-btn-danger{border-color:#ff5555!important;color:#ff5555!important}
+.ecto-dialog.warning{border-color:#ffb000}.ecto-dialog.warning .ecto-dialog-title{color:#ffb000}
+.ecto-dialog.error{border-color:#ff5555}.ecto-dialog.error .ecto-dialog-title{color:#ff5555}
+.ecto-dialog.info{border-color:#39a9ff}.ecto-dialog.info .ecto-dialog-title{color:#39a9ff}
+@media(max-width:700px){.ecto-dialog-overlay{align-items:flex-start;justify-content:flex-start;overflow:auto;padding-top:max(8px,env(safe-area-inset-top));padding-bottom:max(8px,env(safe-area-inset-bottom))}.ecto-dialog{width:100%;max-height:calc(100dvh - 16px)}}
+
+/* POPUP MODAL STYLES */
+.modal-overlay{position:fixed;inset:0;background:rgba(2,6,2,0.85);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal-overlay.hidden{display:none!important}
+.modal-box{width:min(600px,100%);background:#030c03;border:1px solid #39a9ff;padding:20px;box-shadow:0 0 20px rgba(57,169,255,0.15)}
+.modal-header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--ui-border);padding-bottom:8px;margin-bottom:12px}
+.modal-header b{color:#39a9ff;letter-spacing:2px;font-size:14px}
+.modal-close-btn{background:#071207;border:1px solid #ff5555;color:#ff5555;padding:4px 8px;font-size:11px}
+
+/* THREAT RESPONSE CONSOLE */
+.action-modal-box{width:min(720px,100%);border-color:#ffb000;box-shadow:0 0 24px rgba(255,176,0,.12)}
+.action-target{border:1px solid var(--ui-grid);background:var(--ui-deep);padding:9px;color:#39a9ff;font-size:11px;letter-spacing:1px;margin-bottom:7px}
+.action-warning{font-size:10px;color:#ffb000;letter-spacing:1px;margin:7px 0}
+.action-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.action-option{background:var(--ui-deep);border:1px solid var(--ui-grid);padding:10px;text-align:left;min-height:74px}
+.action-option:hover{border-color:#ffb000;background:#0b160b}
+.action-option b{display:block;color:var(--ui-accent);font-size:11px;letter-spacing:1px;margin-bottom:5px}
+.action-option span{display:block;color:var(--ui-dim);font-size:10px;line-height:1.4}
+.action-option.locked{opacity:.42}
+.action-option.locked:hover{border-color:var(--ui-grid);background:var(--ui-deep)}
+.action-confirm{border:1px solid #ffb000;background:rgba(255,176,0,.04);padding:10px;margin-top:10px}
+.action-confirm-text{font-size:11px;line-height:1.55;margin-bottom:7px}
+.action-history{height:130px;overflow:auto;background:var(--ui-deep);border:1px solid var(--ui-grid);padding:8px;font-size:10px;line-height:1.45}
+.action-history .history-line{margin-bottom:5px;border-bottom:1px dotted var(--ui-grid);padding-bottom:4px}
+.action-history .history-line.warn{color:#ffb000}.action-history .history-line.alert{color:#ff5555}
+.incident-db-toolbar{display:grid;grid-template-columns:2fr 1fr;gap:7px;margin:8px 0}.incident-db-toolbar input,.incident-db-toolbar select{background:var(--ui-deep);color:var(--ui-accent);border:1px solid var(--ui-border);padding:9px;font-family:monospace;font-size:10px;min-width:0}.incident-db-list{max-height:245px;overflow:auto;background:var(--ui-deep);border:1px solid var(--ui-grid);padding:6px}.incident-db-row{display:grid;grid-template-columns:1.1fr 1.1fr 1.4fr 1fr auto;gap:7px;align-items:center;border-bottom:1px dotted var(--ui-grid);padding:8px 5px;font-size:10px;cursor:pointer}.incident-db-row:last-child{border-bottom:0}.incident-db-row:hover,.incident-db-row.active{background:#071a07;border-color:var(--ui-accent)}.incident-db-row b{letter-spacing:.5px}.incident-db-status{font-weight:bold}.incident-db-status.open{color:#ffb000}.incident-db-status.closed{color:var(--ui-accent)}.incident-db-dossier{margin-top:8px;background:var(--ui-deep);border:1px solid var(--ui-grid);padding:10px;font-size:10px;line-height:1.55;max-height:280px;overflow:auto}.incident-db-dossier .db-head{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--ui-border);padding-bottom:6px;margin-bottom:7px}.incident-db-dossier .db-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px 14px}.incident-db-dossier .db-actions{margin-top:8px;border-top:1px dotted var(--ui-grid);padding-top:7px}.incident-db-dossier .db-action{margin-bottom:3px}.incident-db-empty{padding:16px;text-align:center;color:var(--ui-dim)}
+@media(max-width:650px){.incident-db-toolbar{grid-template-columns:1fr}.incident-db-row{grid-template-columns:1fr 1fr}.incident-db-row .db-hide-small{display:none}.incident-db-dossier .db-grid{grid-template-columns:1fr}}
+@media(max-width:560px){.action-grid{grid-template-columns:1fr}.action-option{min-height:64px}}
+
+
+/* V2.2.3 Location Management layout polish */
+.location-admin-content-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;padding-bottom:9px;border-bottom:1px solid var(--ui-grid)}
+.location-admin-content-head .panel-title{margin:0}
+.location-section-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:14px 0 8px;padding:7px 9px;border:1px solid var(--ui-grid);background:rgba(0,0,0,.16);font-size:10px;letter-spacing:1px;color:var(--ui-accent)}
+.location-section-head .dim{font-size:8px;letter-spacing:.7px}
+.location-editor-panel{border:1px solid var(--ui-grid);padding:10px;background:rgba(0,0,0,.08)}
+.location-list-panel{border:1px solid var(--ui-grid);padding:10px;background:rgba(0,0,0,.08)}
+.location-list-panel .location-list{margin-top:8px}
+.location-new-row{display:flex;justify-content:flex-end;margin-bottom:8px}
+@media(max-width:900px){
+  .location-admin-content-head{align-items:flex-start;flex-direction:column}
+  .location-new-row{justify-content:stretch}
+  .location-new-row button{width:100%}
+}
+@media(max-width:900px){.tactical-map-wrapper{grid-template-columns:1fr}.add-member-form{flex-direction:column}}
+
+/* IPAD / TOUCH UI ENHANCEMENTS */
+html,body{
+  -webkit-text-size-adjust:100%;
+  overscroll-behavior:none;
+  touch-action:manipulation;
+}
+body{
+  padding-top:env(safe-area-inset-top);
+  padding-bottom:env(safe-area-inset-bottom);
+  padding-left:env(safe-area-inset-left);
+  padding-right:env(safe-area-inset-right);
+}
+button{
+  min-height:48px;
+  min-width:48px;
+  padding:12px 14px;
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+  user-select:none;
+}
+button:active,.team-card:active{
+  transform:scale(.985);
+  background:#0a1c0a;
+}
+input,select{min-height:48px;font-size:16px!important;border-radius:0;}
+canvas{touch-action:none;}
+#layout{min-height:0;}
+nav{
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
+nav::-webkit-scrollbar,.teams-submenu::-webkit-scrollbar,.logbox::-webkit-scrollbar{display:none;}
+nav button{min-height:48px;}
+main{
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+}
+.teams-submenu{
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
+.logbox,.dossier-box,#teamRosterMembersList{
+  -webkit-overflow-scrolling:touch;
+}
+.modal-overlay{
+  padding:calc(12px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left));
+}
+.modal-box{max-height:92dvh;overflow:auto;-webkit-overflow-scrolling:touch;}
+
+/* iOS / iPadOS modal viewport fix // v0.2.6 */
+@supports (-webkit-touch-callout:none){
+  @media(max-width:700px){
+    .modal-overlay{
+      align-items:flex-start;
+      justify-content:flex-start;
+      overflow:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      padding-top:max(8px, env(safe-area-inset-top));
+      padding-bottom:max(8px, env(safe-area-inset-bottom));
+    }
+    .modal-box{
+      width:100%;
+      max-width:none;
+      max-height:calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 16px);
+      min-height:0;
+      display:flex;
+      flex-direction:column;
+      overflow:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      box-sizing:border-box;
+    }
+    .modal-header{
+      position:sticky;
+      top:0;
+      z-index:5;
+      flex:0 0 auto;
+      background:#030c03;
+      padding-top:4px;
+    }
+    .modal-close-btn{
+      position:relative;
+      z-index:6;
+      flex:0 0 auto;
+    }
+    .action-modal-box{
+      max-height:calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 16px);
+    }
+    .action-grid{
+      min-height:0;
+    }
+    .action-history{
+      max-height:130px;
+    }
+  }
+}
+
+/* iOS / iPadOS ACTION CONSOLE // v0.2.7 DEDICATED COMMAND SCREEN */
+@supports (-webkit-touch-callout:none){
+  @media(max-width:700px){
+    body.ecto-action-open{overflow:hidden!important;position:relative;}
+    body.ecto-action-open>header,
+    body.ecto-action-open nav{visibility:hidden!important;pointer-events:none!important;}
+    body.ecto-action-open #sectorActionModal{
+      position:absolute;
+      top:0;left:0;right:0;bottom:0;
+      width:100%;height:100%;
+      min-height:100vh;
+      padding:0;
+      margin:0;
+      display:block;
+      overflow:hidden;
+      z-index:10000;
+      background:rgba(2,6,2,.97);
+    }
+    body.ecto-action-open #sectorActionModal .action-modal-box{
+      width:100%;max-width:none;height:100%;max-height:none;min-height:0;
+      margin:0;padding:calc(8px + env(safe-area-inset-top)) 12px calc(12px + env(safe-area-inset-bottom));
+      border:1px solid #ffb000;border-left:0;border-right:0;
+      box-shadow:none;box-sizing:border-box;
+      display:flex;flex-direction:column;overflow:hidden;
+      background:#030c03;
+    }
+    body.ecto-action-open #sectorActionModal .modal-header{
+      position:relative;top:auto;z-index:20;flex:0 0 auto;
+      min-height:48px;margin:0 0 10px;padding:4px 0 8px;
+      background:#030c03;
+    }
+    body.ecto-action-open #sectorActionModal .modal-close-btn{
+      min-height:44px;min-width:88px;padding:8px 10px;
+    }
+    body.ecto-action-open #sectorActionModal .action-target,
+    body.ecto-action-open #sectorActionModal .action-warning{flex:0 0 auto;}
+    body.ecto-action-open #sectorActionModal .action-target{margin-bottom:6px;}
+    body.ecto-action-open #sectorActionModal .action-warning{margin:6px 0 8px;}
+    body.ecto-action-open #sectorActionModal .action-grid{
+      flex:1 1 auto;min-height:0;
+      display:flex;flex-direction:column;gap:8px;
+      overflow:auto;
+      -webkit-overflow-scrolling:touch;
+      overscroll-behavior:contain;
+      padding-right:2px;padding-bottom:8px;
+    }
+    body.ecto-action-open #sectorActionModal .action-option{flex:0 0 auto;width:100%;box-sizing:border-box;}
+    body.ecto-action-open #sectorActionModal .action-confirm,
+    body.ecto-action-open #sectorActionModal .button-row,
+    body.ecto-action-open #sectorActionModal .panel-title,
+    body.ecto-action-open #sectorActionModal .action-history{flex:0 0 auto;}
+    body.ecto-action-open #sectorActionModal .action-history{max-height:110px;height:110px;margin-bottom:2px;}
+  }
+}
+.member-row{min-height:48px;padding:6px 2px;}
+.member-row button{min-height:40px;}
+.add-member-form{align-items:stretch;}
+@media (pointer:coarse){
+  .dim{font-size:11px;}
+  nav button{font-size:12px;}
+  .team-card{min-height:58px;padding:12px;}
+  .button-row{gap:10px;}
+  .button-row button{min-height:52px;}
+}
+@media(max-width:900px){
+  body{overflow:hidden;}
+  header{height:56px;padding:0 12px;}
+  #layout{height:calc(100% - 56px);display:flex;flex-direction:column;}
+  nav{order:0;flex:0 0 auto;height:68px;padding:10px 8px;display:flex;gap:8px;border-right:0;border-bottom:1px solid var(--ui-border);overflow-x:auto;overflow-y:hidden;}
+  nav button{flex:0 0 auto;width:auto;min-width:112px;margin:0;text-align:center;}
+  main{order:1;flex:1;min-height:0;padding:12px;}
+  .grid{grid-template-columns:1fr!important;}
+  .panel[style*="grid-column: span 2"]{grid-column:auto!important;}
+  .tactical-map-wrapper{grid-template-columns:1fr;}
+  .chart-container{min-height:300px;}
+  .button-row{flex-wrap:wrap;}
+  .button-row button{flex:1 1 180px;}
+  .add-member-form{flex-direction:column;}
+}
+@media(max-width:600px){
+  .logo{font-size:22px;}
+  .box{padding:16px;}
+  .row{flex-direction:column;}
+  #accessCode{font-size:16px!important;}
+  .chart-container{min-height:260px;}
+}
+@media(orientation:landscape) and (max-width:900px){
+  nav{height:60px;}
+  main{padding:10px 14px;}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+  .panel[style*="grid-column: span 2"]{grid-column:span 2!important;}
+}
+@media(hover:none){button:hover,.team-card:hover{background:inherit;border-color:var(--ui-grid);}button:active{border-color:var(--ui-accent);} }
+
+
+/* ECTO FIELD GRID // interactive overlay controls */
+.screen#ukmap .chart-container{position:relative;overflow:hidden;}
+.screen#ukmap .ecto-grid-overlay{position:absolute;inset:0;pointer-events:none;z-index:2;}
+.screen#ukmap .ecto-grid-badge{position:absolute;left:10px;bottom:8px;padding:5px 7px;border:1px solid var(--ui-grid);background:rgba(0,0,0,.72);color:var(--ui-accent);font:9px monospace;letter-spacing:1px;z-index:3;}
+.screen#ukmap .map-controls{z-index:4;}
+.screen#ukmap .grid-ref-band{margin-top:8px;border:1px solid var(--ui-grid);padding:8px;background:rgba(0,0,0,.14);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;}
+.screen#ukmap .grid-ref-cell{min-width:0;}
+.screen#ukmap .grid-ref-label{display:block;font-size:8px;color:var(--ui-dim);letter-spacing:.8px;margin-bottom:3px;}
+.screen#ukmap .grid-ref-value{display:block;color:var(--ui-accent);font-size:12px;font-weight:bold;letter-spacing:1px;}
+@media(max-width:900px){.screen#ukmap .grid-ref-band{grid-template-columns:repeat(2,minmax(0,1fr));}}
+/* THREAT MAP // stable CRT viewport and iPad-friendly stacking */
+.screen#ukmap .tactical-map-wrapper{min-height:0;align-items:start;}
+.screen#ukmap .tactical-panel{min-height:0;}
+.screen#ukmap .dossier-box{max-height:250px;}
+.screen#ukmap .site-list{max-height:170px;}
+@media(max-width:900px){
+  .screen#ukmap .tactical-map-wrapper{grid-template-columns:1fr;}
+  .screen#ukmap .tactical-panel{padding:10px;}
+  .screen#ukmap .chart-container{aspect-ratio:4/3;min-height:0;}
+  .screen#ukmap .dossier-box{max-height:220px;}
+  .screen#ukmap .site-list{max-height:145px;}
+}
+@media(max-width:600px){
+  .screen#ukmap .chart-container{aspect-ratio:4/3;min-height:0;}
+  .screen#ukmap .dossier-box{max-height:190px;}
+  .screen#ukmap .site-list{max-height:125px;}
+  .screen#ukmap .grid-ref-entry-row{flex-direction:column;}
+  .screen#ukmap .grid-ref-entry-row button{width:100%;}
+}
+
+/* TABLET LANDSCAPE LAYOUT */
+@media (min-width:901px) and (max-width:1180px) and (orientation:landscape){
+  header{height:60px;padding:0 16px;gap:12px}
+  .title{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  .session{font-size:11px;white-space:nowrap}
+  .system-clock{font-size:11px;white-space:nowrap}
+  #layout{height:calc(100% - 60px);grid-template-columns:172px minmax(0,1fr)}
+  nav{padding:10px 8px;overflow-y:auto;overflow-x:hidden}
+  nav button{min-height:50px;margin-bottom:7px;text-align:left;width:100%;padding:12px 10px;font-size:11px}
+  main{padding:14px 16px;min-width:0}
+  .grid{gap:10px}
+  .panel{padding:13px}
+  .field-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .tactical-map-wrapper{grid-template-columns:1.55fr 1fr;gap:10px}
+  .chart-container{min-height:280px}
+  .preflight-assignments{grid-template-columns:repeat(2,minmax(0,1fr));max-height:none}
+  .action-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .incident-db-list{max-height:300px}
+}
+
+/* TABLET PORTRAIT COMFORT */
+@media (min-width:601px) and (max-width:900px){
+  header{height:58px;padding:0 14px;gap:10px}
+  .title{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  .session{font-size:11px;white-space:nowrap}
+  .system-clock{font-size:10px;white-space:nowrap}
+  nav{height:72px;padding:10px;gap:8px}
+  nav button{min-width:124px;min-height:52px}
+  main{padding:14px}
+  .panel{padding:14px}
+  .button-row button{flex:1 1 200px}
+  .preflight-member-selector{grid-template-columns:repeat(2,minmax(0,1fr));max-height:260px}
+  .preflight-assignments{grid-template-columns:repeat(2,minmax(0,1fr));max-height:none}
+  .incident-db-toolbar{grid-template-columns:2fr 1fr}
+  .incident-db-list{max-height:320px}
+}
+
+
+.sound-toggle{position:fixed;right:10px;bottom:10px;z-index:9999;min-width:110px;padding:10px 12px;font:inherit;background:#071107;color:var(--ui-accent);border:1px solid var(--ui-accent);border-radius:3px}.sound-toggle.off{color:#777;border-color:#555}
+.preflight-member-selector{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:7px;max-height:190px;overflow:auto;margin-bottom:9px}
+.preflight-member{display:flex;align-items:center;gap:8px;border:1px solid var(--ui-grid);background:#030a03;padding:8px;cursor:pointer;min-height:48px;transition:all .15s}
+.preflight-member.selected{border-color:#39a9ff;background:#06120b}
+.preflight-member:hover{border-color:var(--ui-accent);background:#041204}
+.preflight-member b{color:var(--ui-accent)}.preflight-member .role{display:block;color:#39a9ff;font-size:10px;margin-top:2px}
+.preflight-member .member-status{margin-left:auto;color:var(--ui-dim);font-size:9px;letter-spacing:1px}.preflight-member.selected .member-status{color:var(--ui-accent)}
+.preflight-assignments{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;max-height:410px;overflow:auto;margin:8px 0}
+.preflight-card{border:1px solid var(--ui-border);background:var(--ui-deep);padding:10px}.preflight-card.ready{border-color:var(--ui-accent)}
+.preflight-card-header{display:flex;justify-content:space-between;gap:8px;align-items:center;border-bottom:1px solid var(--ui-grid);padding-bottom:6px;margin-bottom:7px}.preflight-card-header b{color:#39a9ff}
+.equipment-list{display:grid;gap:5px}.equipment-item{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid var(--ui-grid);background:#030a03;padding:8px;min-height:42px;cursor:pointer;transition:all .15s}
+.equipment-item:hover{border-color:var(--ui-accent)}.equipment-item.equipped{border-color:var(--ui-accent);background:#061506}.equipment-item span:first-child{color:var(--ui-accent)}
+.equipment-status{font-size:9px;font-weight:bold;color:#ffb000;letter-spacing:1px}.equipment-item.equipped .equipment-status{color:var(--ui-accent)}
+.giga-box{margin-top:8px;border:1px solid #39a9ff;background:#030b12;padding:8px}.giga-box .equipment-item{border-color:#1d5570;background:#02080c}.giga-box .equipment-item.equipped{border-color:#39a9ff;background:#06121a}
+.giga-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;color:#39a9ff;font-size:10px;letter-spacing:1px}
+.primary-loadout{margin-bottom:8px;border:1px solid var(--ui-border);background:var(--ui-deep);padding:8px}.primary-loadout-label{display:flex;justify-content:space-between;gap:8px;align-items:center;color:var(--ui-accent);font-size:10px;letter-spacing:1px;margin-bottom:6px}.primary-loadout-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}.primary-loadout-option{appearance:none;border:1px solid var(--ui-grid);background:#030a03;color:var(--ui-accent);padding:8px;min-height:42px;text-align:left;font:inherit;font-size:10px;letter-spacing:.6px;cursor:pointer}.primary-loadout-option:hover{border-color:var(--ui-accent)}.primary-loadout-option.selected{border-color:var(--ui-accent);background:#061506;box-shadow:inset 3px 0 0 var(--ui-accent)}.primary-loadout-option span{display:block}.primary-loadout-option .primary-state{margin-top:3px;font-size:9px;color:var(--ui-dim)}.primary-loadout-option.selected .primary-state{color:var(--ui-accent)}
+@media(max-width:600px){.primary-loadout-options{grid-template-columns:1fr}}
+
+@media(max-width:900px){.preflight-assignments{grid-template-columns:1fr}.preflight-member-selector{max-height:220px}}
+
+:root{--ui-accent:#73ff80;--ui-border:#1c6924;--ui-dim:#4e9b57;--ui-panel:#040e04;--ui-deep:#010401;--ui-grid:#164c1c;--ui-blue:#39a9ff}
+.theme-amber{--ui-accent:#ffb000;--ui-border:#8a5a00;--ui-dim:#b07a20;--ui-panel:#100b02;--ui-deep:#050300;--ui-grid:#5a3b00}
+.theme-yellow{--ui-accent:#ffe66d;--ui-border:#8f7a16;--ui-dim:#b8a63d;--ui-panel:#100f03;--ui-deep:#050500;--ui-grid:#5c520d}
+.theme-c64{--ui-accent:#a8d8ff;--ui-border:#315b8a;--ui-dim:#5f8fba;--ui-panel:#06101c;--ui-deep:#020812;--ui-grid:#1d4168;--ui-blue:#7abfff}
+body{color:var(--ui-accent)} header,nav{border-color:var(--ui-border)} h1,.panel-title{border-color:var(--ui-border)} .panel{background:var(--ui-panel);border-color:var(--ui-border)} .logbox,.field-canvas{background:var(--ui-deep);border-color:var(--ui-grid);color:var(--ui-accent)} .metric{border-color:var(--ui-grid)} button{color:var(--ui-accent);border-color:var(--ui-border)} input[type=range]{accent-color:var(--ui-accent)} .dim{color:var(--ui-dim)} .bar{border-color:var(--ui-border)} .bar i{background:var(--ui-accent)} .rgb-box{margin-top:8px;border:1px solid var(--ui-border);padding:9px;background:var(--ui-deep)} .rgb-row{display:flex;align-items:center;gap:8px;margin:5px 0}.rgb-row label{display:flex;align-items:center;gap:8px;width:100%}.rgb-row input{flex:1}.rgb-row b{min-width:28px;text-align:right;color:var(--ui-accent)} .theme-row{flex-wrap:wrap}.theme-btn{min-width:130px}.theme-btn.active{background:var(--ui-accent);color:#000;border-color:var(--ui-accent)}
+
+
+/* V2.2.29 // UNIFIED ECTO INCIDENT INPUTS */
+.ecto-case-file-pane input,
+.ecto-case-file-pane textarea{
+  width:100%;
+  min-width:0;
+  box-sizing:border-box;
+  min-height:44px;
+  padding:9px 10px;
+  margin:0;
+  background:var(--ui-deep)!important;
+  color:var(--ui-accent)!important;
+  border:1px solid var(--ui-grid)!important;
+  border-radius:0!important;
+  outline:none;
+  font:inherit;
+  font-size:11px;
+  line-height:1.4;
+  caret-color:var(--ui-accent);
+  -webkit-appearance:none;
+  appearance:none;
+  box-shadow:none;
+}
+.ecto-case-file-pane textarea{min-height:96px;resize:vertical;}
+.ecto-case-file-pane input:focus,
+.ecto-case-file-pane textarea:focus{
+  border-color:var(--ui-accent)!important;
+  outline:1px solid var(--ui-accent);
+  box-shadow:0 0 8px rgba(115,255,128,.12);
+}
+.ecto-case-file-pane input::placeholder,
+.ecto-case-file-pane textarea::placeholder{
+  color:var(--ui-dim)!important;
+  opacity:.72;
+}
+@media(max-width:700px){
+  .ecto-case-file-pane input,
+  .ecto-case-file-pane textarea{min-height:46px;padding:10px;}
+  .ecto-case-file-pane textarea{min-height:110px;}
+}
+
+/* V2.2.27 INCIDENT CASE FILE */
+.incident-mode-row{margin-top:8px}.incident-mode-row button{min-width:150px}.ecto-case-file-pane{border-top:1px solid var(--ui-grid);padding-top:10px}.ecto-case-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:9px}.ecto-case-grid label,.ecto-case-wide{display:flex;flex-direction:column;gap:5px;min-width:0;color:var(--ui-accent);font-size:10px;letter-spacing:.06em}.ecto-case-grid input,.ecto-case-wide textarea{width:100%;box-sizing:border-box}.ecto-case-grid input[type="text"],.ecto-case-grid input[type="number"],.ecto-case-grid input[type="search"],.ecto-case-wide textarea{appearance:none;-webkit-appearance:none;border-radius:0}.ecto-case-grid input::placeholder,.ecto-case-wide textarea::placeholder{color:var(--ui-accent);opacity:.42}.ecto-case-grid input:focus,.ecto-case-wide textarea:focus{outline:none;box-shadow:0 0 0 1px var(--ui-accent) inset}.ecto-case-wide{margin-top:9px}.ecto-choice-label{gap:7px!important}.ecto-choice-row{display:flex;gap:5px;flex-wrap:wrap}.ecto-choice-row button{flex:1 1 90px;min-height:40px}.ecto-choice-row button.active{background:var(--ui-accent);color:#000;border-color:var(--ui-accent)}@media(max-width:700px){.ecto-case-grid{grid-template-columns:1fr}.incident-mode-row button{flex:1 1 140px}}
+@media print{body.incident-printing>*:not(#thermalPrintReport){display:none!important}body.incident-printing{margin:0!important;padding:0!important;background:#fff!important;color:#000!important}body.incident-printing #thermalPrintReport{display:block!important;visibility:visible!important}}
+@media print{
+  @page{size:80mm auto;margin:4mm}
+  html,body{width:80mm;height:auto;min-height:0;background:#fff!important;color:#000!important;overflow:visible!important;font-family:monospace}
+  body.spectre-printing>*:not(#spectrePrintReport){display:none!important}
+  #thermalPrintReport{display:block!important;width:72mm;background:#fff;color:#000;font-size:10pt;line-height:1.35;padding:0;margin:0}
+  #thermalPrintReport *{color:#000!important;background:#fff!important;border-color:#000!important;box-shadow:none!important}
+  .thermal-rule{border-top:1px dashed #000;margin:7px 0}
+}
+@media screen{#thermalPrintReport{display:none}}
+/* ===== ECTO OS V0.2 FOCUS MODE ===== */
+#app.ecto-focus-mode{position:fixed;inset:0;width:100vw;height:100dvh;max-width:none;z-index:10000;background:#020602;}
+#app.ecto-focus-mode header,#app.ecto-focus-mode nav{display:none!important;}
+#app.ecto-focus-mode #layout{height:100%;min-height:0;display:block;}
+#app.ecto-focus-mode main{width:100%;height:100%;min-height:0;overflow-y:auto;padding:14px;}
+#app.ecto-focus-mode::after{content:'ECTO OS // FOCUS';position:fixed;right:10px;top:8px;z-index:10002;padding:4px 7px;border:1px solid var(--ui-accent);font:10px var(--mono);color:var(--ui-accent);background:rgba(2,6,2,.92);pointer-events:none;}
+.sound-test-row{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;}.native-button-audio-test{margin-top:0}.native-button-audio-test>button{width:100%;}.native-button-audio-test>audio{width:1px;height:1px;opacity:0;position:absolute;pointer-events:none;}
+@media(max-width:900px){#app.ecto-focus-mode main{padding:10px 10px calc(10px + env(safe-area-inset-bottom));}}
+
+/* V2.2.0 LOCATION MANAGEMENT: isolated admin screen */
+.screen#locationadmin{overflow:auto;}
+.screen#locationadmin .location-db-grid{width:100%;}
+.screen#locationadmin .location-form input,
+.screen#locationadmin .location-form select,
+.screen#locationadmin .location-form textarea{width:100%;box-sizing:border-box;}
+@media(max-width:900px){
+  .screen#locationadmin{padding-bottom:24px;}
+  .screen#locationadmin .location-db-grid{grid-template-columns:1fr!important;}
+  .screen#locationadmin .location-list{max-height:none;}
+}
+
+/* V2.2.15 // ECTO-STYLED NATIVE SELECTS
+   Keep the working native <select> behaviour; style only the closed control.
+   This deliberately does NOT hide, replace, wrap, or intercept the select. */
+#locationAdminContent .location-form select{
+  -webkit-appearance:none;
+  appearance:none;
+  width:100%;
+  min-height:44px;
+  box-sizing:border-box;
+  padding:9px 38px 9px 10px;
+  border:1px solid var(--ui-grid);
+  border-radius:0;
+  background-color:var(--ui-deep);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2373ff80' stroke-width='1.4'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 12px center;
+  background-size:12px 8px;
+  color:var(--ui-accent);
+  font:inherit;
+  font-size:11px;
+  line-height:1.25;
+  color-scheme:dark;
+}
+#locationAdminContent .location-form select:focus{
+  outline:1px solid var(--ui-accent);
+  border-color:var(--ui-accent);
+  box-shadow:0 0 8px rgba(115,255,128,.10);
+}
+#locationAdminContent .location-form select:disabled{opacity:.45;cursor:not-allowed;}
+
+/* ===== V2.2.20 // ECTO INPUT CONTROLS =====
+   Replace browser/iOS-looking text-entry controls with a consistent
+   ECTO terminal treatment. Native keyboard/input behaviour is preserved.
+   Selectors remain on their existing V2.2.18 ECTO Selection Panel system. */
+input[type="text"],
+input[type="search"],
+input[type="number"],
+input[type="password"],
+textarea{
+  box-sizing:border-box;
+  width:100%;
+  min-height:44px;
+  padding:10px 11px;
+  margin:0;
+  border:1px solid var(--ui-grid);
+  border-radius:0;
+  outline:none;
+  background:var(--ui-deep);
+  color:var(--ui-accent);
+  font-family:var(--mono,monospace);
+  font-size:11px;
+  line-height:1.35;
+  letter-spacing:.35px;
+  caret-color:var(--ui-accent);
+  -webkit-appearance:none;
+  appearance:none;
+  -webkit-tap-highlight-color:transparent;
+}
+input[type="text"]::placeholder,
+input[type="search"]::placeholder,
+input[type="number"]::placeholder,
+input[type="password"]::placeholder,
+textarea::placeholder{
+  color:var(--ui-dim);
+  opacity:.75;
+}
+input[type="text"]:focus,
+input[type="search"]:focus,
+input[type="number"]:focus,
+input[type="password"]:focus,
+textarea:focus{
+  border-color:var(--ui-accent);
+  outline:1px solid var(--ui-accent);
+  box-shadow:0 0 8px rgba(115,255,128,.12),inset 0 0 10px rgba(115,255,128,.025);
+  background:#041204;
+}
+input[type="text"]:disabled,
+input[type="search"]:disabled,
+input[type="number"]:disabled,
+input[type="password"]:disabled,
+textarea:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+}
+input[type="number"]{
+  -moz-appearance:textfield;
+}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button{
+  -webkit-appearance:none;
+  margin:0;
+}
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button{
+  -webkit-appearance:none;
+  appearance:none;
+}
+textarea{
+  min-height:108px;
+  resize:vertical;
+  line-height:1.5;
+}
+/* ECTO field labels and entry spacing */
+.location-field input[type="text"],
+.location-field input[type="number"],
+.location-field textarea{
+  background:var(--ui-deep);
+}
+.location-field input[type="number"]{
+  font-variant-numeric:tabular-nums;
+}
+/* Clearance/admin codes: deliberate terminal-style entry */
+#accessCode,
+#locationAdminCode{
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  font-size:12px;
+}
+#accessCode::placeholder,
+#locationAdminCode::placeholder{
+  letter-spacing:.08em;
+}
+/* Grid reference remains touch-friendly without changing its existing logic. */
+#mapGridRefInput{
+  text-transform:uppercase;
+  letter-spacing:1px;
+}
+@media(max-width:700px){
+  input[type="text"],input[type="search"],input[type="number"],input[type="password"],textarea{
+    min-height:46px;
+    font-size:16px;
+  }
+  textarea{min-height:120px;}
+}
+
+/* ===== V2.2.5 MINIMAL CRT BOOT SCREEN ===== */
+#boot{position:fixed;inset:0;z-index:99999;background:#020602;color:var(--ui-accent);font-family:var(--mono,monospace);display:flex;align-items:center;justify-content:center;overflow:hidden;}
+#boot.hidden{display:none;}
+#boot::before{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(to bottom,rgba(255,255,255,.025) 0,rgba(255,255,255,.025) 1px,transparent 1px,transparent 4px);opacity:.45;}
+.ecto-boot-frame{position:relative;width:min(1180px,94vw);height:min(700px,88vh);border:1px solid var(--ui-border);background:rgba(1,5,1,.96);box-shadow:0 0 24px rgba(115,255,128,.08),inset 0 0 35px rgba(115,255,128,.025);padding:18px;box-sizing:border-box;display:flex;flex-direction:column;}
+.ecto-boot-top{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--ui-grid);padding:0 0 10px;margin-bottom:12px;font-size:10px;letter-spacing:1.2px;}
+.ecto-boot-title{font-size:22px;font-weight:bold;letter-spacing:3px;}
+.ecto-boot-content{flex:1;display:grid;grid-template-columns:minmax(250px,1fr) minmax(300px,1.25fr);gap:18px;min-height:0;}
+.ecto-boot-panel{border:1px solid var(--ui-grid);padding:12px;min-height:0;overflow:hidden;background:rgba(0,0,0,.16);}
+.ecto-boot-panel-title{font-size:10px;letter-spacing:1.2px;border-bottom:1px solid var(--ui-grid);padding-bottom:7px;margin-bottom:10px;}
+.ecto-boot-log{font-size:11px;line-height:1.65;height:100%;overflow:hidden;}
+.ecto-boot-row{display:grid;grid-template-columns:1fr auto;gap:12px;padding:4px 0;border-bottom:1px dotted rgba(115,255,128,.16);font-size:10px;}
+.ecto-boot-ok{font-weight:bold;}
+.ecto-boot-bar{height:10px;border:1px solid var(--ui-border);margin-top:14px;padding:2px;box-sizing:border-box;}
+.ecto-boot-fill{height:100%;width:0;background:var(--ui-accent);transition:width .18s linear;}
+.ecto-boot-percent{display:flex;justify-content:space-between;margin-top:6px;font-size:9px;}
+.ecto-boot-logo-space{height:145px;border:1px dashed var(--ui-grid);display:flex;align-items:center;justify-content:center;margin-bottom:14px;opacity:.8;}
+.ecto-boot-logo-space span{text-align:center;font-size:9px;letter-spacing:1.5px;line-height:1.7;}
+.ecto-boot-status{border-top:1px solid var(--ui-grid);padding-top:12px;text-align:center;letter-spacing:1.5px;font-size:10px;}
+.ecto-boot-ready{font-size:17px;font-weight:bold;letter-spacing:3px;margin-top:7px;}
+@media(max-width:800px){#boot{align-items:stretch;} .ecto-boot-frame{width:100vw;height:100dvh;border:0;padding:12px;} .ecto-boot-content{grid-template-columns:1fr;overflow:auto;} .ecto-boot-panel{overflow:visible;} .ecto-boot-logo-space{height:100px;} .ecto-boot-top{align-items:flex-start;gap:8px;flex-direction:column;} .ecto-boot-title{font-size:19px;}}
+
+/* ECTO UI // Phase 6.3 CUSTOM SELECTORS */
+.ecto-select-native{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important;margin:0!important;padding:0!important}
+.ecto-select-wrap{position:relative;width:100%}
+.ecto-select-button{width:100%;min-height:40px;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:10px;font:inherit;letter-spacing:.4px;cursor:pointer}
+.ecto-select-button::after{content:'▼';font-size:9px;color:var(--ui-dim);margin-left:auto}
+.ecto-select-button.open::after{content:'▲'}
+.ecto-select-button .ecto-select-value{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ecto-select-menu{position:fixed;z-index:4200;max-height:min(48dvh,360px);overflow:auto;-webkit-overflow-scrolling:touch;background:#030c03;border:1px solid var(--ui-accent);box-shadow:0 0 24px rgba(115,255,128,.18);padding:4px}
+.ecto-select-option{display:block;width:100%;min-height:42px;padding:9px 10px;text-align:left;background:transparent;border:1px solid transparent;color:var(--ui-text);font:inherit;cursor:pointer}
+.ecto-select-option:hover,.ecto-select-option:focus{border-color:var(--ui-grid);background:var(--ui-deep);outline:none}
+.ecto-select-option.selected{border-color:var(--ui-accent);color:var(--ui-accent);background:var(--ui-deep)}
+.ecto-select-option:disabled{opacity:.45;cursor:default}
+/* ===== V2.2.16 // ECTO ADMIN SELECTOR INTERFACE =====
+   Location Management only. Native <select> remains the data source;
+   ECTO button/menu handles the visible interaction so iOS never opens
+   its native picker. */
+#locationAdminContent .ecto-select-host{position:relative;width:100%;}
+#locationAdminContent .ecto-select-host > select.ecto-native-source{
+  position:absolute!important;inset:0!important;width:1px!important;height:1px!important;
+  opacity:0!important;pointer-events:none!important;clip:rect(0 0 0 0)!important;
+}
+#locationAdminContent .ecto-select-display{
+  width:100%;min-height:44px;box-sizing:border-box;padding:9px 38px 9px 10px;
+  border:1px solid var(--ui-grid);border-radius:0;background:var(--ui-deep);
+  color:var(--ui-accent);font:inherit;font-size:11px;line-height:1.25;
+  text-align:left;position:relative;cursor:pointer;-webkit-tap-highlight-color:transparent;
+}
+#locationAdminContent .ecto-select-display::after{
+  content:'';position:absolute;right:12px;top:50%;width:8px;height:8px;
+  border-right:1px solid var(--ui-accent);border-bottom:1px solid var(--ui-accent);
+  transform:translateY(-65%) rotate(45deg);pointer-events:none;
+}
+#locationAdminContent .ecto-select-display:focus,
+#locationAdminContent .ecto-select-display.is-open{
+  outline:1px solid var(--ui-accent);border-color:var(--ui-accent);
+  box-shadow:0 0 8px rgba(115,255,128,.14);
+}
+.ecto-select-menu{
+  position:fixed;z-index:30000;box-sizing:border-box;max-height:min(46vh,320px);overflow-y:auto;
+  background:var(--ui-deep);border:1px solid var(--ui-accent);border-radius:0;
+  box-shadow:0 0 18px rgba(0,0,0,.65),0 0 8px rgba(115,255,128,.10);
+  padding:4px;-webkit-overflow-scrolling:touch;
+}
+.ecto-select-option{
+  display:block;width:100%;box-sizing:border-box;border:1px solid transparent;border-radius:0;
+  background:transparent;color:var(--ui-accent);font:inherit;font-size:11px;text-align:left;
+  padding:11px 10px;min-height:42px;cursor:pointer;-webkit-tap-highlight-color:transparent;
+}
+.ecto-select-option + .ecto-select-option{border-top-color:var(--ui-grid)}
+.ecto-select-option:hover,.ecto-select-option:focus{outline:none;border-color:var(--ui-grid);background:var(--ui-panel)}
+.ecto-select-option.is-selected{background:var(--ui-accent);color:#000;border-color:var(--ui-accent)}
+.ecto-select-menu::before{content:'ECTO SELECT';display:block;padding:5px 7px 7px;color:var(--ui-dim);font:9px var(--mono);letter-spacing:.08em;border-bottom:1px solid var(--ui-grid);margin-bottom:2px}
+
+
+
+
+
+/* V2.2.17 // ECTO SELECTION PANELS FOR LOCATION MANAGEMENT */
+#locationAdminContent select[data-ecto-admin-ready="1"]{
+  position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important;clip:rect(0 0 0 0)!important;
+}
+.ecto-admin-select-button{
+  width:100%;min-height:44px;box-sizing:border-box;padding:9px 36px 9px 10px;
+  position:relative;display:flex;align-items:center;text-align:left;
+  border:1px solid var(--ui-grid);border-radius:0;background:var(--ui-deep);
+  color:var(--ui-accent);font:inherit;font-size:11px;letter-spacing:.4px;
+  cursor:pointer;-webkit-tap-highlight-color:transparent;
+}
+.ecto-admin-select-button:focus,.ecto-admin-select-button.is-open{outline:1px solid var(--ui-accent);border-color:var(--ui-accent);box-shadow:0 0 8px rgba(115,255,128,.14);}
+.ecto-admin-select-button:disabled{opacity:.5;cursor:default;}
+.ecto-admin-select-value{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ecto-admin-select-arrow{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:9px;color:var(--ui-dim);}
+.ecto-admin-select-panel{position:fixed;z-index:4500;box-sizing:border-box;overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--ui-deep);border:1px solid var(--ui-accent);box-shadow:0 0 18px rgba(0,0,0,.65),0 0 8px rgba(115,255,128,.10);padding:4px;}
+.ecto-admin-select-panel-head{padding:6px 8px 7px;border-bottom:1px solid var(--ui-grid);margin-bottom:3px;color:var(--ui-dim);font:9px var(--mono);letter-spacing:1px;}
+.ecto-admin-select-option{display:block;width:100%;min-height:44px;padding:11px 10px;box-sizing:border-box;border:1px solid transparent;border-radius:0;background:transparent;color:var(--ui-accent);font:inherit;font-size:11px;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.ecto-admin-select-option+.ecto-admin-select-option{border-top-color:var(--ui-grid);}
+.ecto-admin-select-option:focus,.ecto-admin-select-option:hover{outline:none;border-color:var(--ui-grid);background:var(--ui-panel);}
+.ecto-admin-select-option.is-selected{background:var(--ui-accent);color:#000;border-color:var(--ui-accent);}
+
+/* V2.2.20 // Investigation Site Register contained scrolling */
+.ecto-site-register-list{
+  max-height:360px;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+  border:1px solid var(--ui-grid);
+  padding:5px;
+  margin-top:5px;
+}
+.ecto-site-register-meta{font-size:.78rem;opacity:.72;margin-top:4px;letter-spacing:.04em}
+.ecto-site-row{align-items:center}
+.ecto-site-main{min-width:0}
+.ecto-site-main b{overflow-wrap:anywhere}
+.ecto-site-actions{display:flex;gap:5px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.ecto-site-actions button{min-width:78px}
+@media (max-width:600px){
+  .ecto-site-register-list{max-height:280px}
+  .ecto-site-row{grid-template-columns:1fr !important}
+  .ecto-site-actions{justify-content:flex-start;margin-top:5px}
+  .ecto-site-actions button{flex:1 1 110px}
+}
+</style><link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#73ff80">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ECTO OS">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+
+<style>
+.screen#ukmap .dispatch-vehicle-panel{border-top:1px solid var(--ui-grid);padding-top:8px;}
+.screen#ukmap .dispatch-vehicle-card{border:1px solid var(--ui-grid);padding:8px;margin-top:6px;cursor:pointer;background:rgba(0,0,0,.12);min-height:44px;}
+.screen#ukmap .dispatch-vehicle-card.active{border-color:var(--ui-accent);box-shadow:inset 0 0 0 1px var(--ui-accent);}
+.screen#ukmap .dispatch-vehicle-card.busy{opacity:.62;cursor:not-allowed;}
+.screen#ukmap .dispatch-vehicle-card .vehicle-name{font-weight:bold;letter-spacing:.7px;}
+.screen#ukmap .dispatch-vehicle-card .vehicle-meta{font-size:9px;color:var(--ui-dim);margin-top:3px;}
+.screen#ukmap .dispatch-vehicle-status{margin-top:7px;padding:6px;border:1px dashed var(--ui-grid);font-size:9px;color:var(--ui-accent);letter-spacing:.6px;}
+.dispatch-vehicle-preflight{margin-top:7px;border:1px solid var(--ui-grid);padding:8px;}
+.dispatch-vehicle-preflight .dispatch-vehicle-value{color:var(--ui-accent);font-weight:bold;letter-spacing:.7px;}
+
+/* V2.2.33 ECTO vehicle fleet management */
+.vehicle-admin-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,.9fr);gap:12px;margin-top:10px}
+.vehicle-admin-list,.vehicle-admin-editor{border:1px solid var(--ui-grid);padding:10px;background:var(--ui-deep);min-width:0}
+.vehicle-admin-card{border:1px solid var(--ui-grid);padding:9px;margin-bottom:7px;cursor:pointer;min-height:44px}
+.vehicle-admin-card.active{border-color:var(--ui-accent);box-shadow:inset 0 0 0 1px var(--ui-accent)}
+.vehicle-admin-card .vname{font-weight:bold;letter-spacing:.7px}.vehicle-admin-card .vmeta{font-size:9px;color:var(--ui-dim);margin-top:3px;line-height:1.45}
+.vehicle-admin-field{display:block;margin:9px 0}.vehicle-admin-field>input{width:100%;margin-top:5px}
+.vehicle-admin-editor .ecto-choice-row{margin-top:5px}
+@media(max-width:720px){.vehicle-admin-grid{grid-template-columns:1fr}}
+</style>
+</head><body>
+<section id="boot"><div class="ecto-boot-frame"><div class="ecto-boot-top"><div class="ecto-boot-title">ECTO OS</div><div>PARANORMAL FIELD OPERATIONS COMPUTER</div><div>BOOT // V2.2.5</div></div><div class="ecto-boot-content"><div class="ecto-boot-panel"><div class="ecto-boot-panel-title">SYSTEM BOOT DIALOGUE</div><div id="post" class="ecto-boot-log"></div></div><div class="ecto-boot-panel"><div class="ecto-boot-panel-title">SYSTEM INITIALISATION</div><div class="ecto-boot-logo-space"><span>LOGO RESERVE<br><span class="dim">ECTO SYSTEM IDENTIFICATION</span></span></div><div class="ecto-boot-row"><span>FIELD COMPUTER</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>PKE SENSOR ARRAY</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>CONTAINMENT GRID</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>SPECTRAL DATABASE</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>UK THREAT NETWORK</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>AUDIO SYSTEM</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-row"><span>CONFIGURATION INTERFACE</span><span class="ecto-boot-ok">OK</span></div><div class="ecto-boot-bar"><div id="ectoBootFill" class="ecto-boot-fill"></div></div><div class="ecto-boot-percent"><span>LOADING ECTO OS...</span><span id="ectoBootPercent">0%</span></div><div class="ecto-boot-status"><div>ALL SYSTEMS NOMINAL</div><div class="ecto-boot-ready">ECTO OS READY</div></div></div></div><div id="loginPanel" class="login hidden"><div class="login-title">SECURITY KERNEL // ACCESS REQUIRED</div><div class="row"><input id="accessCode" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="ENTER CLEARANCE CODE"><button id="authorise" type="button">AUTHORISE</button></div><div id="error"></div><div class="hint">ENTER = AUTHORISE // ESC = CLEAR // TRY: FIELD-1984 / GM-051 / AUTHOR</div><div id="verified" class="verified hidden"></div></div></div></section>
+<section id="app" class="hidden"><header><div class="title">ECTO OS // FIELD ENGINEERING COMPUTER</div><div class="session" id="session">NO SESSION</div><div class="system-clock" id="systemClock">00:00:00 // 00/00/0000</div></header>
+<div id="layout"><nav>
+<button data-screen="status">1 STATUS</button><button data-screen="containment">2 CONTAINMENT</button><button data-screen="diagnostics">3 DIAGNOSTICS</button><button data-screen="faults">4 SPECTRE DATABASE</button><button data-screen="fieldops">5 FIELD OPERATIONS</button><button data-screen="ukmap">6 ECTO DISPATCH</button><button data-screen="incidents">7 INCIDENT DATABASE</button><button data-screen="config">8 CONFIGURATION</button><button data-screen="locationadmin">9 LOCATION MANAGEMENT</button><button id="lock" type="button">LOCK SYSTEM</button>
+</nav><main>
+<section id="status" class="screen active">
+  <h1>SYSTEM STATUS & TELEMETRY</h1>
+  <div class="grid">
+    <div class="panel">
+      <div class="panel-title">OVERALL CONDITION</div>
+      <div class="big" id="overall">NOMINAL</div>
+      <div class="metric"><span>POWER</span><span id="powerVal">92%</span></div>
+      <div class="bar"><i id="powerBar" style="width:92%"></i></div>
+      <div class="metric"><span>FIELD</span><span id="fieldVal">88%</span></div>
+      <div class="bar"><i id="fieldBar" style="width:88%"></i></div>
+      <div class="metric"><span>CONTAINMENT</span><span id="containmentVal">96%</span></div>
+      <div class="bar"><i id="containmentBar" style="width:96%"></i></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">LIVE FIELD WAVEFORM</div>
+      <canvas id="wave" style="height: 155px;"></canvas>
+    </div>
+    <div class="panel">
+      <div class="panel-title">POWER BUS</div>
+      VOLTAGE: <b>118.4 V</b><br>
+      CURRENT: <b>7.8 A</b><br>
+      LOAD: <b>62%</b><br>
+      RIPPLE: <b>1.8%</b><br>
+      STABILITY: <b>98%</b>
+    </div>
+    <div class="panel">
+      <div class="panel-title">CYCLOTRON & RESONANCE MATRIX</div>
+      <div id="cyc">RPM: <b id="cycRpm">3,840</b> | PHASE: <b id="cycPhase">0.02°</b><br>FREQUENCY: <b id="cycFreq">64.0 Hz</b></div>
+      <div class="metric"><span>OUTPUT LEVEL</span><span id="cycOutVal">88%</span></div>
+      <div class="bar"><i id="cycBar" style="width:88%"></i></div>
+      <div class="metric"><span>CORE TEMPERATURE</span><span id="cycTempVal">63°C</span></div>
+      <div class="bar"><i id="cycTempBar" style="width:63%"></i></div>
+      <div class="button-row" style="margin-top:6px;">
+        <button id="stress" type="button">STRESS TEST</button> 
+        <button id="cal" type="button">CALIBRATE</button>
+      </div>
+    </div>
+
+    <div class="panele="grid-column: span 2;">
+      <div class="panel-title">PROTON FIELD STATUS & RESONANCE</div>
+      FIELD INTENSITY: <b>88%</b><br>COHERENCE: <b>94%</b><br>OSCILLATION: <b>3.2 Hz</b><br>PHASE LOCK: <b>STABLE</b><br><br>
+      <div class="dim">Note: Real-time PKE Spectrum and Electromagnetic Analysis monitors have been relocated to the Containment tab for integrated safety control.</div>
+    </div>
+  </div>
+</section>
+
+<section id="containment" class="screen">
+  <h1>CONTAINMENT & THERMAL</h1>
+  <div class="grid">
+    <div class="panel">
+      <div class="panel-title">CONTAINMENT STATUS</div>
+      PRIMARY: <b>96%</b><br>SECONDARY: <b>91%</b><br>BUFFER: <b>98%</b><br>LEAKAGE: <b>0.7%</b>
+    </div>
+    <div class="panel">
+      <div class="panel-title">THERMAL SYSTEM</div>
+      CORE TEMPERATURE: <b>61°C</b><br>COOLANT: <b>93%</b><br>HEAT EXCHANGER: <b>89%</b>
+    </div>
+    
+    <!-- CONTAINMENT GRID ANALYSIS -->
+    <div class="panel" style="grid-column: span 2;">
+      <div class="panel-title">CONTAINMENT GRID ANALYSIS <span class="dim">[EMF / GRID STABILITY / FIELD SIMULATION]</span></div>
+      <div class="containment-readouts" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:8px;">
+        <div class="metric"><span>EMF LEVEL</span><b id="gridEmf">184.7 mG</b></div>
+        <div class="metric"><span>GRID STABILITY</span><b id="gridStability">96.2%</b></div>
+        <div class="metric"><span>FIELD SIMULATION</span><b id="fieldSimulation">NOMINAL</b></div>
+      </div>
+      <div class="containment-grid-description dim" style="font-size:10px;line-height:1.45;margin-bottom:8px;">Monitors electromagnetic activity, containment-grid stability and simulated field response. Detects fluctuations in the containment field and identifies unstable grid conditions before a potential breach.</div>
+      <canvas class="field-canvas" id="gridCanvas"></canvas>
+    </div>
+
+    <!-- PKE SPECTRUM ANALYSIS PANEL -->
+    <div class="panel" id="pkeAnalysisPanel">
+      <div class="panel-title">PKE SPECTRUM ANALYSIS <span class="dim">[PSYCHOKINETIC MONITOR]</span></div>
+      <canvas class="field-canvas" id="pkeCanvas"></canvas>
+      <div class="metric"><span>PSYCHOKINETIC LOAD</span><b id="pkeLoad">NOMINAL</b></div>
+      <div class="metric"><span>HARMONIC</span><b id="pkeFreq">420 Hz</b></div>
+      <div class="native-button-audio-test" id="pkeScanAudioWrap">
+        <button id="pkeScan">EXECUTE SPECTRUM SCAN</button>
+        <audio id="pkeScanAudio" controls playsinline preload="auto" src="./sounds/pke-scan.mp3" aria-label="PKE spectrum scan sound"></audio>
+      </div>
+    </div>
+
+    <!-- ELECTROMAGNETIC ANALYSIS PANEL -->
+    <div class="panel" id="ectoAnalysisPanel">
+      <div class="panel-title">ELECTROMAGNETIC ANALYSIS <span class="dim">[ECTO-FIELD FLUX]</span></div>
+      <canvas class="field-canvas" id="ectoCanvas"></canvas>
+      <div class="metric"><span>INDUCTION RATE</span><b>14.2 Tesla/s</b></div>
+      <div class="metric"><span>PACK CORE TEMP</span><b id="ectoTemp">88.4 °C</b></div>
+      <div class="native-button-audio-test" id="ectoScanAudioWrap">
+        <button id="ectoScan">EXECUTE ELECTROMAGNETIC SCAN</button>
+        <audio id="ectoScanAudio" controls playsinline preload="auto" src="./sounds/ecto-scan.mp3" aria-label="Electromagnetic scan sound"></audio>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- DIAGNOSTICS TAB WITH PACK DISCONNECT, PKE & TRAP TELEMETRY -->
+<section id="diagnostics" class="screen">
+  <h1>FIELD HARDWARE // DIAGNOSTICS & DISCONNECT PROTOCOLS</h1>
+  <div class="grid">
+    
+    <!-- PROTON PACK DISCONNECT & TELEMETRY -->
+    <div class="panel">
+      <div class="panel-title">PROTON PACK // POWER BUS & SHUTDOWN</div>
+      <div class="metric"><span>CONNECTION STATUS</span><b id="packLinkState" style="color:#ff5555">OFFLINE [DISCONNECTED]</b></div>
+      <div class="metric"><span>CYCLOTRON SPEED</span><b id="packCycVal">3,840 RPM</b></div>
+      <div class="metric"><span>POWER CELL VOLTAGE</span><b id="packVoltVal">118.4 V</b></div>
+      <div class="metric"><span>IONIZATION BLEED</span><b id="packIonVal">NOMINAL</b></div>
+      <div class="button-row" style="margin-top:10px;">
+        <div class="native-button-audio-test" id="packConnectAudioWrap">
+          <button id="packDisconnectBtn" type="button">CONNECT PACK</button>
+          <audio id="packConnectAudio" controls playsinline preload="auto" src="./sounds/pack-connect.mp3" aria-label="CONNECT PACK sound"></audio>
+        </div>
+        <button id="runPackScan" type="button" disabled>DEEP SCAN</button>
+      </div>
+      <div id="packSafetyNotice" style="margin-top:8px; font-size:11px; color:var(--ui-dim); text-align:center; padding:4px; border:1px dotted var(--ui-grid);">
+        PACK DISCONNECTED // AWAITING CONNECTION
+      </div>
+    </div>
+
+    <!-- PKE METER DIAGNOSTICS -->
+    <div class="panel">
+      <div class="panel-title">PKE METER // SPECTRAL SWEEP TELEMETRY</div>
+      <div class="metric"><span>LINK STATUS</span><b id="pkeLinkState" style="color:#ff5555">OFFLINE [DISCONNECTED]</b></div>
+      <div class="metric"><span>AMBIENT PKE FIELD</span><b id="pkeFieldVal">0.00 uT</b></div>
+      <div class="metric"><span>WING CALIBRATION</span><b id="pkeWingVal">STOWED (0%)</b></div>
+      <div class="metric"><span>RESONANCE FREQ</span><b id="pkeResVal">0.0 Hz</b></div>
+      <div class="button-row" style="margin-top:10px;">
+        <button id="pkeToggleBtn" type="button">CONNECT PKE</button>
+        <button id="pkeDiagBtn" type="button" disabled>RUN SWEEP</button>
+      </div>
+    </div>
+
+    <!-- GHOST TRAP DIAGNOSTICS -->
+    <div class="panel">
+      <div class="panel-title">GHOST TRAP // CONTAINMENT MATRIX TELEMETRY</div>
+      <div class="metric"><span>LINK STATUS</span><b id="trapLinkState" style="color:#ff5555">OFFLINE [DISCONNECTED]</b></div>
+      <div class="metric"><span>PEDAL RF LINK</span><b id="trapPedalVal">DISCONNECTED</b></div>
+      <div class="metric"><span>GRID TEMPERATURE</span><b id="trapTempVal">18.2 °C</b></div>
+      <div class="metric"><span>DOOR ACTUATORS</span><b id="trapDoorVal">LOCKED / STABILISED</b></div>
+      <div class="button-row" style="margin-top:10px;">
+        <button id="trapToggleBtn" type="button">CONNECT TRAP</button>
+        <button id="trapPurgeBtn" type="button" disabled>PURGE MATRIX</button>
+      </div>
+    </div>
+
+    <!-- HARDWARE EVENT TRACE & SAFETY LOG -->
+    <div class="panel" style="grid-column: span 2;">
+      <div class="panel-title">HARDWARE EVENT TRACE & SAFETY LOG</div>
+      <div class="logbox" id="diagLog"></div>
+    </div>
+
+  </div>
+</section>
+
+<section id="faults" class="screen">
+  <h1>SPECTRE DATABASE // PARANORMAL ENTITY CATALOG</h1>
+  <div class="grid">
+    <div class="panel" style="grid-column: span 2;">
+      <div class="button-row" style="margin-bottom:10px;">
+        <button type="button" id="spectreDatabaseModeBtn" class="active">DATABASE</button>
+        <button type="button" id="spectreNewEntryModeBtn">NEW CASE FILE</button>
+      </div>
+
+      <div id="spectreDatabasePane">
+        <div class="panel-title">SPECTRE DATABASE <span class="dim">[SELECT CLASS TO INSPECT REGISTERED RECORDS]</span></div>
+        <div class="teams-submenu" id="spectreSubMenu"></div>
+
+        <div class="panel-title" style="margin-top:15px;">SPECIMEN DOSSIER & LOG <span class="dim">[SELECT A RECORDED ENTITY]</span></div>
+        <div class="team-roster" style="margin-top:0;">
+          <div class="metric"><span>SELECTED CLASS</span><b id="spectreStatusText">SELECT A SPECTRE CATEGORY ABOVE TO INSPECT RECORDS</b></div>
+          <div id="spectreDetailsView" style="margin-top:8px;">AWAITING SPECIMEN SELECTION...</div>
+        </div>
+        <div class="button-row" style="margin-top:10px;">
+          <button id="scanSpectresBtn">SCAN SPECTRAL DATABASE</button>
+                  </div>
+      </div>
+
+      <div id="spectreNewEntryPane" class="hidden">
+        <div class="panel-title">NEW SPECTRE CASE FILE <span class="dim">[NEW DATABASE ENTRY // CLASS SELECTION IS LOCAL TO THIS FORM]</span></div>
+        <div class="spectre-edit-shell" style="margin-top:10px;">
+          <div class="spectre-edit-grid">
+            <div class="spectre-edit-field" style="grid-column:1/-1;"><label for="newSpectreName">SPECIMEN DESIGNATION</label><input type="text" id="newSpectreName" placeholder="SPECIMEN NAME"></div>
+            <div class="spectre-edit-field"><label for="newSpectrePke">PKE SIGNATURE</label><input type="number" id="newSpectrePke" min="250" max="999" placeholder="PKE AUTO-FILLED FROM CLASS"></div>
+            <div class="spectre-edit-field"><label>CURRENT STATUS</label><input type="text" id="newSpectreStatus" value="CONTAINED" placeholder="STATUS"></div>
+            <div class="spectre-edit-field" style="grid-column:1/-1;"><label>CLASSIFICATION</label><div class="spectre-class-selector" id="newSpectreClassSelector"></div><div id="newSpectrePkeBand" class="spectre-pke-band"></div></div>
+            <div class="spectre-edit-field" style="grid-column:1/-1;"><label for="newSpectreDesc">BEHAVIOURAL DOSSIER</label><textarea id="newSpectreDesc" placeholder="Describe appearance, behaviour, characteristics and known manifestations..."></textarea></div>
+            <div class="spectre-edit-field" style="grid-column:1/-1;"><label for="newSpectreLog">INITIAL FIELD LOG</label><textarea id="newSpectreLog" placeholder="Record the initial observation or investigation notes..."></textarea></div>
+          </div>
+          <div class="spectre-edit-actions">
+            <button type="button" id="cancelNewSpectreBtn">CANCEL / RETURN</button>
+            <button type="button" id="saveNewSpectreBtn">SAVE CASE FILE</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="fieldops" class="screen">
+<h1>FIELD OPERATIONS // DEPLOYMENT CONTROL</h1>
+<div class="grid">
+  <div class="panel">
+    <div class="panel-title">PARANORMAL INCIDENT LOG <span class="dim">[SIMULATION FEED]</span></div>
+    <div class="logbox" id="fieldLog"></div>
+    <div class="button-row">
+      <button id="sectorSweep">SWEEP SECTOR</button>
+      <button id="broadcastAlert">BROADCAST ALERT</button>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">TEAM MEMBER PREFLIGHT <span class="dim">[SELECT OPERATIVES & EQUIP]</span></div>
+    <div class="metric"><span>ACTIVE SECTOR</span><b id="preflightSectorLabel">LONDON HQ [LON-01]</b></div>
+    <div class="metric"><span>ACTIVE TEAM</span><b id="preflightTeamLabel">ALPHA UNIT LONDON</b></div>
+    <div class="dim" style="margin-top:8px; margin-bottom:5px;">SELECT TEAM MEMBERS FOR THIS DEPLOYMENT:</div>
+    <div id="preflightMemberSelector" class="preflight-member-selector"></div>
+    <div id="preflightAssignments" class="preflight-assignments"></div>
+    <div class="metric"><span>READINESS STATUS</span><b id="readiness">SELECT OPERATIVES</b></div>
+    <div class="button-row">
+      <button id="runDeploymentDiag" disabled>RUN DEPLOYMENT CHECK</button>
+    </div>
+  </div>
+</div>
+</section>
+
+<section id="ukmap" class="screen">
+  <h1>ECTO DISPATCH // FIELD VEHICLE DEPLOYMENT</h1>
+  <div class="grid" style="grid-template-columns:1fr;">
+    <div class="panel">
+      <div class="tactical-map-wrapper">
+        <div class="tactical-panel">
+          <h2>DISPATCH MAP <small>[REAL-WORLD GEOGRAPHY // ECTO GRID OVERLAY]</small></h2>
+          <div class="chart-container">
+            <div class="map-breadcrumb" id="mapBreadcrumb">UK FIELD NETWORK</div>
+            <div class="map-controls">
+              <button type="button" id="mapUkViewBtn">UK VIEW</button>
+              <button type="button" id="mapRegionViewBtn">CITY REGION</button>
+            </div>
+            <canvas id="tacticalMapCanvas"></canvas>
+            <div class="ecto-grid-overlay" id="ectoGridOverlay"></div>
+            <div class="ecto-grid-badge" id="ectoGridBadge">GRID: C3 // SELECT FIELD LOCATION</div>
+            <div id="ukCitySectorPicker" class="uk-city-sector-picker hidden">
+              <div class="uk-picker-head">
+                <span id="ukPickerTitle">UK SECTOR // --</span>
+                <button type="button" id="closeUkCityPickerBtn">X</button>
+              </div>
+              <div class="dim" id="ukPickerHint">SELECT CITY SECTOR</div>
+              <div id="ukCitySectorList" class="uk-city-sector-list"></div>
+            </div>
+          </div>
+          <div class="telemetry-row"><span>Active Radar Sweep:</span><span class="telemetry-val text-green">360° Omnidirectional Scan</span></div>
+        </div>
+        <div class="tactical-panel">
+          <h2>SELECTED INCIDENT <small>[DISPATCH DOSSIER]</small></h2>
+          <div class="dossier-box" id="map-target-dossier"></div>
+          <div class="grid-ref-band" id="mapGridReferenceBand">
+            <div class="grid-ref-cell"><span class="grid-ref-label">UK GRID</span><span class="grid-ref-value" id="mapUkGridRef">--</span></div>
+            <div class="grid-ref-cell"><span class="grid-ref-label">CITY GRID</span><span class="grid-ref-value" id="mapCityGridRef">--</span></div>
+            <div class="grid-ref-cell"><span class="grid-ref-label">SUBSECTOR</span><span class="grid-ref-value" id="mapSubsectorRef">--</span></div>
+            <div class="grid-ref-cell"><span class="grid-ref-label">ECTO VECTOR</span><span class="grid-ref-value" id="mapEvRef">--</span></div>
+          </div>
+          <div class="grid-ref-entry">
+            <div class="grid-ref-entry-label">ENTER ECTO GRID REFERENCE</div>
+            <div class="grid-ref-entry-row">
+              <input id="mapGridRefInput" type="text" inputmode="text" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="C3 / C3-B2 / C3-B2-08 / EV01">
+              <button type="button" id="mapGridRefGoBtn">ACCESS</button>
+            </div>
+            <div class="dim" id="mapGridRefStatus">ENTER A GRID REFERENCE TO LOCATE A REGISTERED FIELD RECORD.</div>
+          </div>
+          <div class="button-row" style="margin-bottom:6px;">
+            <button id="openRosterModalBtn" style="border-color:#39a9ff;color:#39a9ff;">VIEW TEAM ROSTER</button>
+            <button id="openMapPreflightBtn" style="border-color:var(--ui-accent);color:var(--ui-accent);">PRE-FLIGHT</button>
+            <button type="button" id="openDeploymentControlBtn" style="border-color:#39a9ff;color:#39a9ff;">DEPLOYMENT CONTROL</button>
+            <button id="sectorActionBtn" style="border-color:#ffb000;color:#ffb000;">FIELD ACTIONS</button>
+          </div>
+          <div class="dim" style="margin-top:4px;margin-bottom:2px;">QUICK SELECT SECTOR:</div>
+          <div class="teams-submenu" id="ukTeamsSubMenu" style="max-height:90px;"></div>
+          <div id="selectedLocationTeamsPanel" class="selected-location-teams" style="margin-top:10px;">
+            <div class="dim">AVAILABLE TEAMS AT SELECTED LOCATION</div>
+            <div id="selectedLocationTeamsList" class="site-list" style="max-height:150px;"></div>
+          </div>
+          <div id="dispatchVehiclePanel" class="dispatch-vehicle-panel" style="margin-top:10px;">
+            <div class="dim">ECTO VEHICLE ASSIGNMENT</div>
+            <div class="metric" style="margin-top:5px;"><span>ASSIGNED VEHICLE</span><b id="dispatchVehicleSummary">NOT ASSIGNED</b></div>
+            <div class="button-row" style="margin-top:6px;"><button type="button" id="openVehicleSelectorBtn">SELECT ECTO VEHICLE</button></div>
+            <div class="dispatch-vehicle-status" id="dispatchVehicleStatus">SELECT A LOCATION FIRST</div>
+          </div>
+          <div id="cityRegionPanel" class="hidden" style="margin-top:8px;">
+            <div class="dim">INVESTIGATION LOCATIONS <span id="siteCountLabel"></span></div>
+            <div class="metric" style="margin-top:5px;"><span>SELECTED FIELD LOCATION</span><b id="selectedSiteSummary">CITY REGION</b></div>
+            <div class="button-row" style="margin-top:6px;"><button type="button" id="openSiteSelectorBtn">SELECT INVESTIGATION SITE</button></div>
+            <div class="site-add-note">Investigation sites are selected through the ECTO location selector.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- GENERIC ECTO SYSTEM DIALOGUE -->
+<div id="ectoDialogOverlay" class="ecto-dialog-overlay hidden" aria-hidden="true">
+  <div id="ectoDialog" class="ecto-dialog" role="dialog" aria-modal="true" aria-labelledby="ectoDialogTitle">
+    <div class="ecto-dialog-header">
+      <div id="ectoDialogTitle" class="ecto-dialog-title">ECTO SYSTEM // MESSAGE</div>
+      <div id="ectoDialogCode" class="ecto-dialog-code">SYS-000</div>
+    </div>
+    <div class="ecto-dialog-body">
+      <div id="ectoDialogMessage" class="ecto-dialog-message"></div>
+      <div id="ectoDialogDetail" class="ecto-dialog-detail hidden"></div>
+      <div id="ectoDialogActions" class="ecto-dialog-actions"></div>
+    </div>
+  </div>
+</div>
+
+<!-- THREAT RESPONSE COMMAND MODAL -->
+<div id="sectorActionModal" class="modal-overlay hidden">
+  <div class="modal-box action-modal-box">
+    <div class="modal-header">
+      <b id="sectorActionModalTitle">THREAT RESPONSE CONSOLE</b>
+      <button type="button" id="closeSectorActionBtn" class="modal-close-btn">X CLOSE</button>
+    </div>
+    <div class="action-target" id="sectorActionTarget">TARGET: LONDON HQ [LON-01]</div>
+    <div class="action-warning" id="sectorActionWarning">SELECT AN OPERATIONAL PROTOCOL</div>
+    <div id="sectorActionOptions" class="action-grid"></div>
+    <div class="action-confirm hidden" id="sectorActionConfirm">
+      <div class="panel-title">CONFIRM FIELD PROTOCOL</div>
+      <div id="sectorActionConfirmText" class="action-confirm-text"></div>
+      <div class="button-row">
+        <button type="button" id="cancelSectorActionBtn">CANCEL</button>
+        <button type="button" id="confirmSectorActionBtn" style="border-color:#ffb000;color:#ffb000;">CONFIRM EXECUTION</button>
+      </div>
+    </div>
+    <div class="button-row" style="margin-top:12px;"><button type="button" id="printIncidentReportBtn">PRINT THERMAL INCIDENT REPORT</button></div>
+    <div class="panel-title">ACTION HISTORY <span class="dim">[CURRENT SECTOR]</span></div>
+    <div id="sectorActionHistory" class="action-history"></div>
+  </div>
+</div>
+
+<div id="spectrePrintReport" class="spectre-print-report" aria-hidden="true"></div>
+
+<!-- NATIONAL TEAM ROSTER POPUP MODAL -->
+<div id="spectreClassInfoModal" class="modal-overlay hidden">
+  <div class="modal-box" style="border-color:var(--ui-accent);">
+    <div class="modal-header">
+      <b id="spectreClassInfoTitle">SPECTRE CLASSIFICATION</b>
+      <button type="button" id="closeSpectreClassInfoBtn" class="modal-close-btn">X CLOSE</button>
+    </div>
+    <div id="spectreClassInfoBody" style="white-space:pre-line;line-height:1.6;font-size:12px;"></div>
+    <div class="spectre-pke-band" id="spectreClassInfoBand" style="margin-top:14px;"></div>
+  </div>
+</div>
+
+<div id="teamRosterModal" class="modal-overlay hidden">
+  <div class="modal-box">
+    <div class="modal-header">
+      <b id="modalTitleLabel">NATIONAL TEAM ROSTER // LONDON HQ</b>
+      <button type="button" id="closeModalBtn" class="modal-close-btn">X CLOSE</button>
+    </div>
+    
+    <div class="team-roster" style="margin-top:0; border:none; background:transparent; padding:0;">
+      <div class="metric">
+        <span id="activeTeamCityLabel" style="color:#39a9ff; font-weight:bold;">LONDON HQ [LON-01]</span>
+        <span id="activeTeamCountLabel" class="dim">1 ACTIVE TEAM</span>
+      </div>
+      
+      <!-- SUB-TEAM SELECTOR & CREATION PANEL -->
+      <div style="margin: 8px 0; background:var(--ui-deep); border:1px solid var(--ui-grid); padding:8px;">
+        <div class="dim" style="margin-bottom:4px;">CITY SUB-TEAMS (SELECT TO VIEW / EDIT OR ADD NEW):</div>
+        <div id="citySubTeamsList" class="teams-submenu" style="max-height:100px; margin-top:0; margin-bottom:8px;"></div>
+        
+        <div class="add-member-form" style="margin-top:4px;">
+          <input type="text" id="newSubTeamInput" placeholder="NEW TEAM NAME (e.g. Beta Squad)">
+          <button type="button" id="addSubTeamBtn" style="white-space:nowrap; border-color:#39a9ff; color:#39a9ff;">+ CREATE TEAM</button>
+        </div>
+      </div>
+
+      <!-- ACTIVE TEAM MEMBERS LIST -->
+      <div class="metric" style="margin-top:6px;">
+        <span id="activeTeamNameHeader" style="color:#ffb000; font-weight:bold;">TEAM: ALPHA UNIT LONDON</span>
+        <button type="button" id="deleteActiveTeamBtn" style="padding:2px 6px; font-size:9px; border-color:#ff5555; color:#ff5555;">DELETE TEAM</button>
+      </div>
+
+      <div class="dim" style="margin-top:6px; margin-bottom:4px;">OPERATIVES IN SELECTED TEAM:</div>
+      <div id="teamRosterMembersList" style="max-height:130px; overflow-y:auto; margin-bottom:8px; background:var(--ui-deep); border:1px solid var(--ui-grid); padding:8px;"></div>
+      
+      <div class="dim" style="margin-top:6px; margin-bottom:4px;">ADD NEW OPERATIVE TO THIS TEAM:</div>
+      <div class="add-member-form" style="margin-top:0;">
+        <input type="text" id="newMemberNameInput" placeholder="OPERATIVE NAME">
+        <button type="button" id="roleCycleBtn" style="flex:1; border-color:var(--ui-border); color:var(--ui-accent); background:var(--ui-deep); text-align:left; padding:7px 10px; font-size:11px;">ROLE: Team Leader</button>
+        <button type="button" id="addMemberBtn" style="white-space:nowrap;">ADD OPERATIVE</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section id="incidents" class="screen">
+  <h1>INCIDENT REPORT DATABASE // LOCAL FIELD ARCHIVE</h1>
+  <div class="grid"><div class="panel" style="grid-column: span 2;">
+    <div class="panel-title">INCIDENT REPORT DATABASE <span class="dim">[LOCAL FIELD ARCHIVE]</span></div>
+    <div class="button-row incident-mode-row"><button type="button" id="incidentDatabaseModeBtn" class="active">DATABASE</button><button type="button" id="incidentNewEntryModeBtn">NEW INCIDENT</button></div>
+    <div id="incidentDatabasePane">
+      <div class="incident-db-toolbar"><input type="search" id="incidentSearchInput" placeholder="SEARCH INCIDENT / SECTOR / LEAD / ENTITY"><select id="incidentStatusFilter"><option value="ALL">ALL STATUS</option><option value="OPEN">OPEN / ACTIVE</option><option value="CLOSED">CLOSED / RESOLVED</option></select></div>
+      <div id="incidentDatabaseList" class="incident-db-list"></div><div id="incidentDatabaseDossier" class="incident-db-dossier"><div class="dim">SELECT AN INCIDENT TO VIEW THE STORED DOSSIER.</div></div>
+      <div class="button-row"><button id="printStoredIncidentBtn" type="button" disabled>PRINT STORED REPORT</button><button id="exportIncidentDbBtn" type="button">EXPORT INCIDENT DATABASE</button><button id="importIncidentDbBtn" type="button">IMPORT INCIDENT DATABASE</button><input type="file" id="importIncidentDbFile" accept=".json" class="hidden"></div>
+    </div>
+    <div id="incidentNewEntryPane" class="hidden ecto-case-file-pane">
+      <div class="panel-title">NEW INCIDENT CASE FILE <span class="dim">[FIELD ARCHIVE ENTRY]</span></div>
+      <div class="ecto-case-grid">
+        <label>INCIDENT SERIAL NUMBER<input id="newIncidentId" type="text" inputmode="text" autocapitalize="characters" autocomplete="off" placeholder="CASE / SERIAL NUMBER"></label><label>DATE OF INCIDENT<input id="newIncidentDate" type="text" inputmode="numeric" autocomplete="off" placeholder="DD/MM/YYYY"></label><label>TIME OF INCIDENT<input id="newIncidentTime" type="text" inputmode="numeric" autocomplete="off" placeholder="HH:MM"></label><label>LOCATION<input id="newIncidentLocation" placeholder="FIELD LOCATION / SECTOR"></label><label>ECTO VECTOR / GRID<input id="newIncidentGrid" placeholder="E.G. C3-B2-08-EV01"></label><label>LEAD COMMANDER<input id="newIncidentLead" placeholder="OPERATIVE / COMMANDER"></label><label>SPECTRE / ENTITY<input id="newIncidentGhost" placeholder="ENTITY DESIGNATION"></label><label>PKE READING<input id="newIncidentPke" placeholder="PKE READING"></label><label>ASSIGNED TEAM<input id="newIncidentTeam" placeholder="TEAM / UNIT"></label>
+        <label class="ecto-choice-label">THREAT LEVEL<div class="ecto-choice-row" id="newIncidentThreatChoices"><button type="button" data-value="LOW">LOW</button><button type="button" data-value="ELEVATED">ELEVATED</button><button type="button" data-value="HIGH">HIGH</button><button type="button" data-value="SEVERE">SEVERE</button></div></label>
+        <label class="ecto-choice-label">INCIDENT STATUS<div class="ecto-choice-row" id="newIncidentStatusChoices"><button type="button" data-value="OPEN / ACTIVE">OPEN / ACTIVE</button><button type="button" data-value="CONTAINED">CONTAINED</button><button type="button" data-value="RESOLVED">RESOLVED</button></div></label>
+      </div>
+      <label class="ecto-case-wide">INCIDENT DESCRIPTION<textarea id="newIncidentDescription" rows="4" placeholder="FIELD DESCRIPTION / INITIAL OBSERVATIONS"></textarea></label><label class="ecto-case-wide">FIELD ACTIONS<textarea id="newIncidentActions" rows="4" placeholder="ACTIONS TAKEN / EQUIPMENT USED"></textarea></label><label class="ecto-case-wide">OUTCOME / CONTAINMENT<textarea id="newIncidentOutcome" rows="3" placeholder="OUTCOME / CONTAINMENT STATUS"></textarea></label><label class="ecto-case-wide">FIELD LOG<textarea id="newIncidentLog" rows="4" placeholder="INITIAL FIELD LOG ENTRY"></textarea></label>
+      <div class="button-row"><button type="button" id="saveNewIncidentBtn">SAVE INCIDENT</button><button type="button" id="cancelNewIncidentBtn">CANCEL</button></div>
+    </div>
+  </div></div>
+</section>
+
+<section id="config" class="screen">
+  <h1>CONFIGURATION & DATA SYNC</h1>
+  <div class="grid">
+    <div class="panel">
+      <div class="panel-title">DISPLAY CONTROL <span class="dim">[VIEWPORT]</span></div>
+      <div class="metric"><span>DISPLAY MODE</span><b id="fullscreenState">AVAILABLE</b></div>
+      <div class="fullscreen-config-row"><button id="fullscreenBtn" type="button" class="fullscreen-btn">FOCUS MODE</button></div>
+      <div class="config-note">Maximises the ECTO interface within the available browser/PWA viewport. Browser chrome remains under OS control.</div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">AUDIO SYSTEM <span class="dim">[NATIVE OUTPUT]</span></div>
+      <div class="metric"><span>AUDIO OUTPUT</span><b id="audioState">NATIVE ACTIVE</b></div>
+      <div class="config-note">v2.1.1: operational buttons use the integrated ECTO sound system. No separate sound controls are displayed.</div>
+      <div class="metric"><span>SOUND MODE</span><b id="audioModeState">INTEGRATED // BUTTON LINKED</b></div>
+      <div class="config-note">Sound is assigned to the existing operational controls. The Diagnosis area and its button names remain unchanged.</div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">DISPLAY ERA / COLOUR PROFILE</div>
+      <div class="button-row theme-row">
+        <button type="button" class="theme-btn" data-theme="green">PROTON GREEN</button>
+        <button type="button" class="theme-btn" data-theme="amber">LATE 70s AMBER</button>
+        <button type="button" class="theme-btn" data-theme="yellow">EARLY 80s YELLOW</button>
+        <button type="button" class="theme-btn" data-theme="c64">C64 BLUE</button>
+      </div>
+      <div class="rgb-box">
+        <div class="panel-title" style="margin-top:8px;">RGB CUSTOM // C64-STYLE COLOUR</div>
+        <div class="rgb-row"><label>R <input id="rgbR" type="range" min="0" max="255" value="115"><b id="rgbRVal">115</b></label></div>
+        <div class="rgb-row"><label>G <input id="rgbG" type="range" min="0" max="255" value="255"><b id="rgbGVal">255</b></label></div>
+        <div class="rgb-row"><label>B <input id="rgbB" type="range" min="0" max="255" value="128"><b id="rgbBVal">128</b></label></div>
+        <button id="applyRgbBtn" type="button">APPLY RGB PROFILE</button>
+      </div>
+    </div>
+    <div class="panel" style="grid-column: span 2;" id="vehicleFleetManagementPanel">
+      <div class="panel-title">ECTO VEHICLE FLEET MANAGEMENT <span class="dim">[DISPATCH VEHICLE REGISTER]</span></div>
+      <div class="config-note">Register named ECTO vehicles used by the franchise network. Assign each vehicle to a field location so it appears in ECTO DISPATCH.</div>
+      <div class="vehicle-admin-grid">
+        <div class="vehicle-admin-list" id="vehicleAdminList"><div class="dim">NO VEHICLES REGISTERED.</div></div>
+        <div class="vehicle-admin-editor" id="vehicleAdminEditor">
+          <div class="panel-title">VEHICLE RECORD <span class="dim">[NEW / EDIT]</span></div>
+          <label class="vehicle-admin-field">VEHICLE NAME<input id="vehicleAdminName" type="text" autocapitalize="characters" autocomplete="off" placeholder="E.G. ECTO RESPONSE"></label>
+          <label class="vehicle-admin-field">VEHICLE TYPE<input id="vehicleAdminType" type="text" autocapitalize="characters" autocomplete="off" placeholder="E.G. SPORTS CAR"></label>
+          <label class="vehicle-admin-field">CALLSIGN / ID<input id="vehicleAdminCallsign" type="text" autocapitalize="characters" autocomplete="off" placeholder="E.G. ECTO-01"></label>
+          <div class="vehicle-admin-field"><div class="dim">HOME LOCATION</div><div class="ecto-choice-row" id="vehicleAdminLocationChoices"></div></div>
+          <div class="vehicle-admin-field"><div class="dim">VEHICLE STATUS</div><div class="ecto-choice-row" id="vehicleAdminStatusChoices"><button type="button" data-value="AVAILABLE">AVAILABLE</button><button type="button" data-value="STANDBY">STANDBY</button><button type="button" data-value="OUT OF SERVICE">OUT OF SERVICE</button></div></div>
+          <div class="button-row"><button type="button" id="saveVehicleAdminBtn">SAVE VEHICLE</button><button type="button" id="newVehicleAdminBtn">NEW VEHICLE</button><button type="button" id="deleteVehicleAdminBtn" disabled>DELETE VEHICLE</button></div>
+          <div id="vehicleAdminStatus" class="config-note" aria-live="polite"></div>
+        </div>
+      </div>
+    </div>
+    <div class="panel" style="grid-column: span 2;">
+      <div class="panel-title">SYSTEM DATA SYNC <span class="dim">[EXPORT / IMPORT CONFIG ACROSS COMPUTERS]</span></div>
+      <div class="button-row">
+        <button id="exportConfigBtn" type="button">EXPORT TELEMETRY JSON</button>
+        <button id="importConfigBtn" type="button">IMPORT TELEMETRY JSON</button>
+        <button id="printLastReportBtn" type="button">PRINT LAST INCIDENT REPORT</button>
+        <input type="file" id="importConfigFile" accept=".json" class="hidden">
+      </div>
+      <div style="margin-top:12px; font-size:11px; color:var(--ui-dim); line-height:1.5;">
+        Export active UK field locations, sector crews, custom spectre records, incident reports and team preflight assignments into a JSON file, or import an existing configuration package to sync the field network across computers.
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section id="locationadmin" class="screen">
+  <h1>LOCATION MANAGEMENT // FIELD NETWORK ADMINISTRATION</h1>
+  <div class="grid" style="grid-template-columns:1fr;">
+    <div class="panel">
+      <div id="locationAdminGate" class="location-admin-gate">
+        <div class="location-admin-header">
+          <div class="panel-title">LOCATION DATABASE ACCESS // SECURITY GATE</div>
+          <div class="location-admin-warning dim">AUTHORISED ECTO SYSTEM PERSONNEL ONLY</div>
+        </div>
+        <div class="dim" style="line-height:1.5;">Location Management contains protected field-network data. Administrator clearance is required before records can be viewed or changed.</div>
+        <div class="location-admin-status"><span class="location-admin-status-label">ACCESS STATUS</span><span id="locationAdminStatus" class="location-admin-status-value">LOCKED // AWAITING CODE</span></div>
+        <div class="location-admin-row"><input id="locationAdminCode" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="ENTER ADMINISTRATOR CODE" aria-label="Administrator code"><button id="locationAdminUnlockBtn" type="button">ACCESS DATABASE</button></div>
+        <div id="locationAdminError" class="location-admin-error" aria-live="polite"></div>
+      </div>
+      <div id="locationAdminContent" class="hidden">
+        <div class="location-admin-content-head">
+          <div class="panel-title">UK FIELD LOCATION DATABASE <span class="dim">[GEO-REFERENCED SECTORS / FIELD NETWORK]</span></div>
+          <div class="dim">DATABASE: ONLINE // EDIT MODE: AUTHORISED</div>
+        </div>
+        <div class="dim" style="line-height:1.5;margin-bottom:12px;">Select a stored location to edit its record, or create a new field location. Investigation sites are managed separately beneath the location record.</div>
+        <div class="location-db-grid" style="grid-template-columns:minmax(0,1.35fr) minmax(280px,.85fr);align-items:start;">
+          <div>
+            <div class="location-section-head"><span>LOCATION RECORD</span><span class="dim">[CITY / SECTOR / GEO-REFERENCE]</span></div>
+            <div class="location-editor-panel">
+            <div class="location-form">
+              <div class="location-field full"><label>LOCATION / CITY</label><input id="locationCityInput" type="text" placeholder="e.g. Portsmouth"></div>
+              <div class="location-field"><label>SECTOR CODE</label><input id="locationCodeInput" type="text" placeholder="e.g. PSM-06"></div>
+              <div class="location-field"><label>REGION</label><input id="locationRegionInput" type="text" placeholder="e.g. Hampshire"></div>
+              <div class="location-field"><label>LATITUDE</label><input id="locationLatInput" type="number" step="0.0001" placeholder="50.8198"></div>
+              <div class="location-field"><label>LONGITUDE</label><input id="locationLonInput" type="number" step="0.0001" placeholder="-1.0880"></div>
+              <div class="location-field"><label>DATA SOURCE</label><select id="locationSourceInput"><option>CANONICAL</option><option>TEAM SUBMITTED</option><option>UNVERIFIED</option></select></div>
+              <div class="location-field"><label>LEAD COMMANDER</label><input id="locationLeadInput" type="text" placeholder="Field Commander"></div>
+            </div>
+            <div class="button-row" style="margin-top:10px;"><button id="addLocationBtn" type="button">+ ADD FIELD LOCATION</button><button id="cancelLocationEditBtn" type="button" class="hidden">CANCEL EDIT</button></div>
+            </div>
+            <div class="location-section-head"><span>INVESTIGATION SITE REGISTER</span><span class="dim">[CITY / REGION LEVEL]</span></div>
+            <div class="location-form">
+              <div class="location-field full"><label>PARENT CITY / SECTOR</label><select id="siteParentInput"></select></div>
+              <div class="location-field full"><label>SITE NAME</label><input id="siteNameInput" type="text" placeholder="e.g. HMS Victory"></div>
+              <div class="location-field"><label>SITE TYPE</label><select id="siteTypeInput"><option>REAL-WORLD ANCHOR</option><option>INVESTIGATION SITE</option><option>ECTO FIELD SITE</option><option>UNVERIFIED</option></select></div>
+              <div class="location-field"><label>STATUS</label><input id="siteStatusInput" type="text" placeholder="MONITORING"></div>
+              <div class="location-field"><label>LATITUDE</label><input id="siteLatInput" type="number" step="0.0001" placeholder="50.8014"></div>
+              <div class="location-field"><label>LONGITUDE</label><input id="siteLonInput" type="number" step="0.0001" placeholder="-1.1088"></div>
+              <div class="location-field"><label>THREAT</label><select id="siteThreatInput"><option>LOW</option><option>MODERATE</option><option>ELEVATED</option><option>HIGH</option><option>SEVERE</option></select></div>
+              <div class="location-field full"><label>FIELD NOTES / SITE DESCRIPTION</label><textarea id="siteDescInput" rows="4" placeholder="Investigation notes. Enter field notes and site description."></textarea></div>
+            </div>
+            <div class="button-row" style="margin-top:10px;"><button id="addSiteBtn" type="button">+ ADD INVESTIGATION SITE</button><button id="cancelSiteEditBtn" type="button" class="hidden">CANCEL EDIT</button></div>
+          </div>
+          <div class="location-list-panel">
+            <div class="location-section-head" style="margin-top:0;"><span>LOCATION REGISTER</span><span class="dim">[SELECT RECORD]</span></div>
+            <div class="metric"><span>REGISTERED LOCATIONS</span><b id="locationCountLabel">0</b></div>
+            <div class="dim" style="margin:8px 0;line-height:1.4;">SELECT A LOCATION BELOW TO LOAD ITS STORED RECORD INTO THE EDITOR.</div>
+            <div class="location-new-row"><button id="newLocationRecordBtn" type="button">+ NEW LOCATION RECORD</button></div>
+            <div id="locationDatabaseList" class="location-list"></div>
+          </div>
+        </div>
+        <div class="location-lock-row" style="margin-top:16px;"><button id="lockLocationAdminBtn" type="button">LOCK LOCATION MANAGEMENT</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+</main></div></section>
+<div id="thermalPrintReport" aria-hidden="true"></div>
+
+
+<style>
+.v259-vehicle-diag-output{display:block;white-space:pre-wrap;max-height:260px;overflow:auto;margin:7px 0 0;padding:8px;border:1px solid var(--ui-grid);background:var(--ui-deep);color:var(--ui-dim);font:8px/1.45 monospace;letter-spacing:.3px}
+#v259VehicleDiagBtn{width:100%;min-height:40px;padding:7px;border:1px solid var(--ui-dim);background:transparent;color:var(--ui-dim);font:inherit;letter-spacing:.5px}
+</style>
+
+<script id="v261-dispatch-vehicle-matcher-cleanup">
+/* ECTO OS V2.2.61 // SINGLE DISPATCH VEHICLE MATCHER
+   Uses the existing V2.2.45 Dispatch layout.
+   Existing fleet records remain authoritative; no vehicle recreation required. */
+(function(){
+  "use strict";
+  const FLEET_KEY="ecto-os-vehicle-fleet-v1";
+  const q=id=>document.getElementById(id);
+
+  function fleet(){
+    try{
+      const raw=localStorage.getItem(FLEET_KEY);
+      const parsed=JSON.parse(raw||"[]");
+      return Array.isArray(parsed)?parsed:[];
+    }catch(e){ return []; }
+  }
+
+  function activeLocation(){
+    const a=Array.isArray(window.ukFranchises)?window.ukFranchises:[];
+    const i=Number.isInteger(window.selectedMapIndex)?window.selectedMapIndex:0;
+    return a[i]||null;
+  }
+
+  function clean(v){
+    return String(v??"")
+      .replace(/\[[^\]]*\]/g,"")
+      .replace(/\s+/g," ")
+      .trim()
+      .toUpperCase();
+  }
+
+  function locationNames(f){
+    if(!f) return [];
+    const raw=[
+      f.city,
+      f.locationName,
+      f.name,
+      f.defaultLocation,
+      f.homeLocation
+    ];
+    const out=[];
+    raw.forEach(x=>{
+      const s=clean(x);
+      if(s && !out.includes(s)) out.push(s);
+    });
+    return out;
+  }
+
+  function vehicleLocationNames(v){
+    if(!v) return [];
+    const raw=[
+      v.defaultLocation,
+      v.homeLocation,
+      v.homeLocationName,
+      v.location,
+      v.city,
+      v.homeCity
+    ];
+    const out=[];
+    raw.forEach(x=>{
+      const s=clean(x);
+      if(s && !out.includes(s)) out.push(s);
+    });
+    return out;
+  }
+
+  function locationMatches(v,f){
+    const wanted=locationNames(f);
+    const got=vehicleLocationNames(v);
+    if(!wanted.length || !got.length) return false;
+    return got.some(a=>wanted.some(b=>a===b || a.startsWith(b+" ") || b.startsWith(a+" ")));
+  }
+
+  function vehicleAvailable(v){
+    const status=clean(v?.status||"AVAILABLE");
+    const dep=clean(v?.deploymentState);
+    return status==="AVAILABLE" && dep!=="DEPLOYED";
+  }
+
+  function deployableVehicles(){
+    const f=activeLocation();
+    if(!f) return [];
+    return fleet().filter(v=>locationMatches(v,f)&&vehicleAvailable(v));
+  }
+
+  function selectedVehicleId(){
+    const f=activeLocation();
+    return f?.dispatchVehicleId ? String(f.dispatchVehicleId) : "";
+  }
+
+  function openVehicleSelector(e){
+    if(e){ e.preventDefault(); e.stopImmediatePropagation(); }
+
+    const f=activeLocation();
+    if(!f){
+      window.ectoUiLanguage?.open?.(
+        "ECTO VEHICLE DATABASE",
+        "SELECT DEPLOYMENT LOCATION FIRST",
+        [{label:"LOCATION REQUIRED",items:[{title:"SELECT LOCATION FIRST",meta:"LOCATION → SITE → TEAM → VEHICLE",disabled:true}]}]
+      );
+      return;
+    }
+
+    if(!f.dispatchSiteId){
+      window.ectoUiLanguage?.open?.(
+        "ECTO VEHICLE DATABASE",
+        "SELECT INVESTIGATION SITE FIRST",
+        [{label:"SITE REQUIRED",items:[{title:"SELECT INVESTIGATION SITE FIRST",meta:"LOCATION → SITE → TEAM → VEHICLE",disabled:true}]}]
+      );
+      return;
+    }
+
+    const rows=deployableVehicles();
+    const items=rows.length
+      ? rows.map(v=>({
+          title:v.name||"UNNAMED VEHICLE",
+          meta:`${v.type||"ECTO VEHICLE"} // ${v.callsign||v.id||"NO ID"}`,
+          value:v.id
+        }))
+      : [{title:"NO DEPLOYABLE VEHICLES",meta:"CHECK VEHICLE HOME LOCATION / STATUS",disabled:true}];
+
+    window.ectoUiLanguage?.open?.(
+      "ECTO VEHICLE DATABASE",
+      `${String(f.city||"").toUpperCase()} // DEPLOYABLE VEHICLES`,
+      [{label:"AVAILABLE VEHICLES",items}],
+      item=>{
+        if(!item || item.disabled) return;
+        const fs=fleet();
+        const v=fs.find(x=>String(x.id)===String(item.value));
+        if(!v) return;
+
+        fs.forEach(x=>{
+          if(String(x.id)!==String(v.id) && clean(x.deploymentState)==="ASSIGNED"){
+            x.deploymentState="AVAILABLE";
+            delete x.deploymentLocationId;
+            delete x.deploymentSiteId;
+          }
+        });
+
+        f.dispatchVehicleId=v.id;
+        f.dispatchVehicleName=v.name||"";
+        f.dispatchVehicleType=v.type||"ECTO VEHICLE";
+        v.deploymentState="ASSIGNED";
+        v.deploymentLocationId=f.locationId||f.id||f.city||"";
+        v.deploymentSiteId=f.dispatchSiteId||"";
+
+        try{ localStorage.setItem(FLEET_KEY,JSON.stringify(fs)); }catch(err){}
+        if(typeof window.renderPreflight==="function") window.renderPreflight();
+      }
+    );
+  }
+
+  function bind(){
+    ["v239VehicleBtn","v240VehicleBtn"].forEach(id=>{
+      const b=q(id);
+      if(!b || b.__v261Bound) return;
+      b.__v261Bound=true;
+      b.addEventListener("click",openVehicleSelector,true);
+    });
+  }
+
+  bind();
+  setInterval(bind,500);
+})();
+</script>
+
+</body></html><script>
+/* ECTO OS V2.2.42 // PRE-FLIGHT VEHICLE LOCATION MATCH FIX */
+(function(){
+  "use strict";
+  const KEY="ecto-os-vehicle-fleet-v1";
+  const q=id=>document.getElementById(id);
+  const cityName=v=>String(v||"").replace(/\s*\[[^\]]+\]/," ").trim().toUpperCase();
+  function fleet(){
+    try{const raw=localStorage.getItem(KEY);const p=raw?JSON.parse(raw):[];return Array.isArray(p)?p:[];}catch(e){return[];}
+  }
+  function currentLocation(){
+    try{return Array.isArray(window.ukFranchises)?window.ukFranchises[Number(window.selectedMapIndex)||0]:null;}catch(e){return null;}
+  }
+  function vehiclesForLocation(f){
+    if(!f)return[];
+    const configured=Array.isArray(f.dispatchVehicles)?f.dispatchVehicles:[];
+    if(configured.length)return configured.map((v,i)=>typeof v==="string"?{id:"custom-"+i,name:v,type:"FRANCHISE VEHICLE",status:"AVAILABLE"}:v);
+    const target=cityName(f.city);
+    return fleet().filter(v=>{
+      const home=v&&((v.homeLocationId||v.locationId||v.defaultLocation)||"");
+      return cityName(home)===target;
+    });
+  }
+  function selectedVehicle(f){
+    if(!f||!f.dispatchVehicleId)return null;
+    return vehiclesForLocation(f).find(v=>String(v.id)===String(f.dispatchVehicleId))||null;
+  }
+  function inject(){
+    const field=q("fieldops");
+    if(!field)return;
+    let box=q("dispatchVehiclePreflight")?.closest(".dispatch-vehicle-preflight");
+    if(!box){
+      const label=q("preflightTeamLabel");
+      if(!label)return;
+      box=document.createElement("div");
+      box.className="dispatch-vehicle-preflight";
+      box.innerHTML='<div class="dim">DISPATCH VEHICLE // ASSIGN BEFORE FINAL PREFLIGHT</div><div class="dispatch-vehicle-value" id="dispatchVehiclePreflight">NO VEHICLE ASSIGNED</div><div class="dim" id="dispatchVehiclePreflightStatus">VEHICLE REQUIRED BEFORE DISPATCH</div><div class="dispatch-preflight-vehicle-list" id="dispatchVehiclePreflightList"></div>';
+      const metric=label.closest(".metric");
+      if(metric)metric.insertAdjacentElement("afterend",box);else label.parentElement?.insertAdjacentElement("afterend",box);
+    }
+    render();
+  }
+  function render(){
+    const f=currentLocation();
+    const value=q("dispatchVehiclePreflight"),status=q("dispatchVehiclePreflightStatus"),list=q("dispatchVehiclePreflightList");
+    if(!value||!status||!list)return;
+    const chosen=selectedVehicle(f);
+    value.textContent=chosen?.name||"NO VEHICLE ASSIGNED";
+    status.textContent=chosen?`${chosen.type||"ECTO VEHICLE"} // READY FOR DISPATCH`:"VEHICLE REQUIRED BEFORE DISPATCH";
+    const rows=vehiclesForLocation(f).filter(v=>String(v.status||"AVAILABLE").toUpperCase()==="AVAILABLE" && String(v.deploymentState||"").toUpperCase()!=="DEPLOYED");
+    if(!rows.length){list.innerHTML='<div class="dim">NO DEPLOYABLE VEHICLES REGISTERED FOR THIS LOCATION</div>';return;}
+    list.innerHTML=rows.map(v=>{
+      const active=chosen&&String(chosen.id)===String(v.id);
+      const id=String(v.id).replace(/[^a-zA-Z0-9_-]/g,"");
+      return `<button type="button" class="dispatch-preflight-vehicle${active?" selected":""}" data-v241-preflight-vehicle="${id}"><span><b>${window.escapeHtml?window.escapeHtml(v.name||"UNNAMED VEHICLE"):String(v.name||"UNNAMED VEHICLE")}</b><small>${window.escapeHtml?window.escapeHtml(v.type||"ECTO VEHICLE"):String(v.type||"ECTO VEHICLE")} // ${window.escapeHtml?window.escapeHtml(v.callsign||v.id||""):String(v.callsign||v.id||"")}</small></span><strong>${active?"SELECTED":"SELECT"}</strong></button>`;
+    }).join("");
+    list.querySelectorAll("[data-v241-preflight-vehicle]").forEach(btn=>btn.addEventListener("click",()=>{
+      const raw=btn.dataset.v241PreflightVehicle;
+      const chosen=rows.find(v=>String(v.id).replace(/[^a-zA-Z0-9_-]/g,"")===raw);
+      if(!chosen||!f)return;
+      f.dispatchVehicleId=chosen.id;f.dispatchVehicleName=chosen.name;f.dispatchVehicleType=chosen.type||"ECTO VEHICLE";
+      try{window.dispatchVehicleId=chosen.id;}catch(e){}
+      render();
+      document.getElementById("dispatchVehicleList")?.dispatchEvent(new Event("change"));
+      if(typeof window.ectoDispatchFleet?.refresh==="function")window.ectoDispatchFleet.refresh();
+      document.getElementById("dispatchVehicleStatus")?.replaceChildren(document.createTextNode(`VEHICLE ASSIGNED // ${chosen.name} // ${chosen.type||"ECTO VEHICLE"}`));
+      if(typeof window.log==="function")window.log(`PRE-FLIGHT VEHICLE SELECTED // ${chosen.name} // ${f.city}.`,"info");
+    }));
+  }
+  function active(){
+    const field=q("fieldops");
+    if(field?.classList.contains("active")){inject();}
+  }
+  function init(){
+    active();
+    const field=q("fieldops");
+    if(field&&!field.__v242Observed){field.__v242Observed=true;new MutationObserver(active).observe(field,{attributes:true,attributeFilter:["class"]});}
+    setInterval(active,500);
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
+})();
+</script>
+
+<script>
+/* ECTO OS V2.2.45 // FOCUSED PRE-FLIGHT SIMPLIFICATION
+   Vehicle selection belongs to ECTO DISPATCH. Pre-Flight only prepares the team.
+   This layer deliberately removes the legacy/injected Pre-Flight vehicle selector and
+   the duplicate Field Ops dispatch button, leaving the existing team/equipment checks intact. */
+(function(){
+  "use strict";
+  const q=id=>document.getElementById(id);
+  function clean(){
+    const field=q("fieldops");
+    if(!field)return;
+    field.querySelectorAll(".dispatch-vehicle-preflight,[id^=dispatchVehiclePreflight]").forEach(el=>{
+      const box=el.classList?.contains("dispatch-vehicle-preflight")?el:el.closest?.(".dispatch-vehicle-preflight");
+      if(box)box.remove(); else el.remove();
+    });
+    const deploy=q("deployTeamWorkflowBtn");
+    if(deploy){
+      const row=deploy.closest(".button-row");
+      if(row)row.remove(); else deploy.remove();
+    }
+    const ret=q("returnDispatchBtn");
+    if(ret){
+      const row=ret.closest(".button-row");
+      if(row)row.remove(); else ret.remove();
+    }
+  }
+  function init(){
+    clean();
+    const field=q("fieldops");
+    if(field&&!field.__v245Observed){
+      field.__v245Observed=true;
+      new MutationObserver(clean).observe(field,{childList:true,subtree:true});
+    }
+    setInterval(clean,800);
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
+})();
+</script>
+<style>
+/* Keep the old injected vehicle selector suppressed even if a legacy refresh recreates it. */
+#fieldops .dispatch-vehicle-preflight{display:none!important}
+</style>
+
+<script id="ecto-v258-phase1-fleet-test">
+/* ECTO OS V2.2.58 // PHASE 1 FLEET REGISTER TEST
+   Purpose: prove whether Dispatch can consume a newly-created Configuration vehicle.
+   This is deliberately isolated and does not alter the Dispatch layout. */
+(function(){
+  "use strict";
+  const KEY="ecto-os-vehicle-fleet-v1";
+  const q=id=>document.getElementById(id);
+  const clean=s=>String(s||"").replace(/\s*\[[^\]]+\]/g,"").trim().toUpperCase();
+  const fleet=()=>{try{const p=JSON.parse(localStorage.getItem(KEY)||"null");return Array.isArray(p)?p:[];}catch(e){return[];}};
+  const location=()=>{
+    try{
+      const a=Array.isArray(window.ukFranchises)?window.ukFranchises:[];
+      const i=Number.isInteger(window.selectedMapIndex)?window.selectedMapIndex:0;
+      return a[i]||null;
+    }catch(e){return null;}
+  };
+  const home=v=>clean(v?.defaultLocation||v?.homeLocation||v?.homeLocationName||v?.homeLocationId||v?.locationId||"");
+  const available=f=>fleet().filter(v=>home(v)===clean(f?.city)&&String(v.status||"AVAILABLE").toUpperCase()==="AVAILABLE"&&String(v.deploymentState||"").toUpperCase()!=="DEPLOYED");
+  function install(){
+    const f=location();
+    if(!f)return;
+    const rows=available(f);
+    ["v239VehicleBtn","v240VehicleBtn"].forEach(id=>{
+      const b=q(id); if(!b||b.__v258Phase1)return;
+      b.__v258Phase1=true;
+      b.addEventListener("click",function(e){
+        e.preventDefault();e.stopImmediatePropagation();
+        const now=location(); if(!now)return;
+        const vehicles=available(now);
+        const items=vehicles.length?vehicles.map(v=>({title:v.name||"UNNAMED VEHICLE",meta:`${v.type||"ECTO VEHICLE"} // ${v.callsign||v.id}`,value:v.id})):[{title:"NO AVAILABLE VEHICLES",meta:"CREATE A NEW VEHICLE IN CONFIGURATION",disabled:true}];
+        if(window.ectoUiLanguage?.open){
+          window.ectoUiLanguage.open("ECTO VEHICLE DATABASE",`${clean(now.city)} // FLEET REGISTER`,[{label:"AVAILABLE VEHICLES",items}],item=>{
+            if(!item||item.disabled)return;
+            const fs=fleet(),v=fs.find(x=>String(x.id)===String(item.value)); if(!v)return;
+            now.dispatchVehicleId=v.id; now.dispatchVehicleName=v.name||""; now.dispatchVehicleType=v.type||"ECTO VEHICLE";
+            try{localStorage.setItem(KEY,JSON.stringify(fs));}catch(err){}
+            window.renderPreflight?.();
+            document.querySelectorAll("#v239Vehicle,#v240Vehicle").forEach(el=>el.textContent=v.name||"NO ECTO VEHICLE SELECTED");
+            document.querySelectorAll("#v239Meta,#v240Meta").forEach(el=>el.textContent=`${available(now).length} AVAILABLE // FLEET REGISTER`);
+          });
+        }
+      },true);
+    });
+    document.querySelectorAll("#v239Meta,#v240Meta").forEach(el=>el.textContent=`${rows.length} AVAILABLE // FLEET REGISTER`);
+  }
+  install(); setInterval(install,500);
+})();
+</script>
